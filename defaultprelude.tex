@@ -1,0 +1,146 @@
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[british]{isodate}
+
+% Layout Fixes
+\usepackage{booktabs} % nicer spacing between table rulers
+\usepackage{microtype}
+\usepackage{fixltx2e} % To prevent the figures from being placed
+                      % out-of-order with respect to their
+                      % "non-starred" counterparts
+
+
+\usepackage{amsmath,amssymb, amsbsy}
+\usepackage[amsmath,amsthm,thmmarks]{ntheorem}
+\usepackage{semantic, stmaryrd}
+\usepackage{graphicx}
+\input{todostate.tex}
+\presetkeys{todonotes}{inline}{}
+\usepackage{adjustbox}
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{float}
+\newfloat{algorithm}{t}{lop}
+\usepackage{listings}
+\usepackage{pdfpages}
+
+\lstset{
+  basicstyle=\small\ttfamily,
+  breaklines=true, 
+  language=Haskell, 
+  keywords={map,parmap,foldl,zipWith,replicate,let,in,if,forall,then,else}, 
+  escapechar=@,
+  xleftmargin=.25in
+% ,  identifierstyle=\idstyle
+}
+
+\makeatletter
+\newcommand*\idstyle{%
+        \expandafter\id@style\the\lst@token\relax
+}
+\def\id@style#1#2\relax{%
+        \ifcat#1\relax\else
+                \ifnum`#1=\uccode`#1%
+                        \color{blue}
+                \fi
+        \fi
+}
+\makeatother
+
+% ADD "parfor" to algorithmic environment
+  % declaration of the new block
+  \algblock{ParFor}{EndParFor}
+  % customising the new block
+  \algnewcommand\algorithmicparfor{\textbf{parfor}}
+  \algnewcommand\algorithmicpardo{\textbf{do}}
+  \algnewcommand\algorithmicendparfor{\textbf{end\ parfor}}
+  \algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
+  \algrenewtext{EndParFor}{\algorithmicendparfor}
+
+% Bibliography
+%\usepackage[style=alphabetic,natbib=true]{biblatex}
+\usepackage[hyperref,style=numeric,natbib=true, defernumbers=true]{biblatex}
+\usepackage[hyperindex,hidelinks]{hyperref}
+
+% Fonts
+\usepackage{palatino}
+\linespread{1.05}
+\usepackage[scaled]{beramono}
+
+% customize chapter pages
+\makepagestyle{myheadings}
+\makepagestyle{myheadingschapterpage}
+\makeevenfoot{myheadingschapterpage}{}{\thepage}{}
+\makeoddfoot{myheadingschapterpage}{}{\thepage}{}
+\aliaspagestyle{chapter}{myheadingschapterpage}
+\aliaspagestyle{title}{myheadingschapterpage}
+\makeevenhead{myheadings}{}{\scshape \thetitle}{}
+\makeoddhead{myheadings}{}{\footnotesize\scshape \thetitle}{}
+\makeevenfoot{myheadings}{}{\thepage}{}
+\makeoddfoot{myheadings}{}{\thepage}{}
+\pagestyle{myheadings}
+
+\def\thefigure{\arabic{figure}}
+\setcounter{tocdepth}{0}
+
+
+\setcounter{secnumdepth}{1}
+\setcounter{chapter}{0}
+\setsecheadstyle{\large\bfseries\raggedright}
+\setsubsecheadstyle{\bfseries}
+
+% BIBLIOGRAPHY styling
+% Print the DOI url out
+%\newcommand*{\doi}[1]{DOI: \url{http://dx.doi.org/#1}}
+
+\DeclareFieldFormat{doi}{\textsc{doi}: \url{http://dx.doi.org/#1}}
+\DeclareNameAlias{default}{last-first/first-last}
+%\DeclareFieldFormat{title}{\emph{#1}}
+\renewcommand\mkbibnamefirst[1]{\textsc{#1}}
+\renewcommand\mkbibnamelast[1]{\textsc{#1}}
+\renewcommand*{\bibfont}{\footnotesize}
+
+% No page numbers for parts in TOC
+\cftpagenumbersoff{part}
+% Footnote symbols
+%\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
+
+% Figures
+\newsubfloat{figure}
+
+\usepackage{sidecap}
+\usepackage{caption}
+\captionsetup{margin=0pt, font=small, labelfont=bf, format=hang}
+\setlength{\abovecaptionskip}{0pt}
+\setlength{\belowcaptionskip}{0pt}
+
+
+% Default commands
+\newcommand{\subimgwidth}{.48\textwidth}
+\newcommand{\imgwidth}{.85\textwidth}
+
+
+\newtheorem{example}{Example}
+%
+\theoremstyle{plain}
+\theoremsymbol{\tiny $\Box$}
+\newtheorem{definition}[equation]{Definition}
+
+
+% Bitwise and and or operators
+% http://tex.stackexchange.com/questions/39313/double-nested-logical-and-and-logical-or-symbols
+\DeclareFontFamily{U}{matha}{\hyphenchar\font45}
+\DeclareFontShape{U}{matha}{m}{n}{
+      <5> <6> <7> <8> <9> <10> gen * matha
+      <10.95> matha10 <12> <14.4> <17.28> <20.74> <24.88> matha12
+      }{}
+
+\newcommand{\bland}{\mathbin{
+  \raisebox{.1ex}{%
+    \rotatebox[origin=c]{-90}{\usefont{U}{matha}{m}{n}\symbol{\string"CE}}}}}
+\newcommand{\blor}{\mathbin{
+  \raisebox{.1ex}{%
+    \rotatebox[origin=c]{90}{\usefont{U}{matha}{m}{n}\symbol{\string"CE}}}}}

@@ -1,0 +1,61 @@
+\documentclass[10pt,a4paper,final,oneside,openany]{memoir}
+
+\input{defaultprelude.tex}
+
+\newcommand{\LO}{$\mathcal{L}_0$}
+
+\title{Exploiting functional invariants to optimise parallelism:\\a dataflow approach}
+\author{
+  Troels Henriksen -- \texttt{athas@sigkill.dk} \\
+University of Copenhagen, DIKU}
+
+\date{February 2014}
+
+\bibliography{bibliography}
+
+% Write "Part II" etc. in TOC instead of just "II"
+\renewcommand*{\cftpartname}{Part\space}
+
+\begin{document}
+\frontmatter
+
+% \includepdf{coverpage/coverpage}
+
+ \clearpage
+~
+\vspace{3cm}
+  \begin{abstract}
+    What a nice abstract.
+  \end{abstract}
+
+% \clearpage
+%  ~\thispagestyle{empty}
+\clearpage
+\tableofcontents*
+%\openany
+\input{preface.tex}
+%\openright
+\mainmatter
+\counterwithout{table}{chapter}
+\counterwithout{figure}{chapter}
+\input{intro.tex}
+
+\part{Language Design}
+\label{part:languagedesign}
+
+\part{Optimisations}
+
+\clearpage
+
+% We want the bibliography in the ToC, but it shouldn't have a chapter
+% number.
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\defbibheading{bibliography}{\chapter*{Bibliography}}
+\printbibliography
+
+\backmatter
+\appendix
+\input{appendix.tex}
+
+\end{document}

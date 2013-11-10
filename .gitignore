@@ -30,3 +30,8 @@
 *.vrb
 *.xdy
 *.tdo
+
+thesis.pdf
+*.xml
+*.bcf
+*.thm
