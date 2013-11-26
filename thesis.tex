@@ -2,7 +2,21 @@
 
 \input{defaultprelude.tex}
 
+\renewcommand\tilde[0]{{\raise.17ex\hbox{$\scriptstyle\sim$}}}
 \newcommand{\LO}{$\mathcal{L}_0$}
+
+\definecolor{DikuRed}{RGB}{130,50,32}
+\newcommand{\emp}[1]{\textcolor{DikuRed}{ #1}}
+\definecolor{CosGreen}{RGB}{10,100,70}
+\newcommand{\emphh}[1]{\textcolor{CosGreen}{ #1}}
+
+\newcommand{\mymath}[1]{$ #1 $}
+\newcommand{\myindx}[1]{_{#1}}
+\newcommand{\myindu}[1]{^{#1}}
+\newcommand{\mymathbb}[1]{\mathbb{#1}}
+
+% Write "Part II" etc. in TOC instead of just "II"
+\renewcommand*{\cftpartname}{Part\space}
 
 \title{Exploiting functional invariants to optimise parallelism:\\a dataflow approach}
 \author{
@@ -12,9 +26,6 @@ University of Copenhagen, DIKU}
 \date{February 2014}
 
 \bibliography{bibliography}
-
-% Write "Part II" etc. in TOC instead of just "II"
-\renewcommand*{\cftpartname}{Part\space}
 
 \begin{document}
 \frontmatter
@@ -43,7 +54,19 @@ University of Copenhagen, DIKU}
 \part{Language Design}
 \label{part:languagedesign}
 
+\input{l0language.tex}
+
+\input{uniquenesstypes.tex}
+
+\input{internalrepresentation.tex}
+
 \part{Optimisations}
+
+\input{fusion.tex}
+
+\input{fusion-enabling-soac-transformations.tex}
+
+\input{hindrance-removal.tex}
 
 \clearpage
 

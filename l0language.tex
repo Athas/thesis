@@ -1,0 +1,121 @@
+\chapter{The \LO{} language}
+
+\section{First-order \L0{}}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
+$t$ & $::=$ & \texttt{int} & (Integers) \\
+& $|$ & \texttt{real} & (Floats) \\
+& $|$ & \texttt{bool} & (Booleans) \\
+& $|$ & \texttt{char} & (Characters) \\
+& $|$ & \texttt{\{$t_{1}$, \ldots, $t_{n}$\}} & (Tuples) \\
+& $|$ & \texttt{[$t$]} & (Arrays) \\
+& $|$ & \texttt{*[$t$]} & (Unique arrays) \\
+\\
+$v$ & $::=$ & $k$ & (Integer)\\
+& $|$ & $x$ & (Decimal number) \\
+& $|$ & $b$ & (Boolean)\\
+& $|$ & $c$ & (Character)\\
+& $|$ & $\{v_{1},\ldots,v_{n}\}$ & (Tuple) \\
+& $|$ & $[v_{1},\ldots,v_{n}]$ & (Array) \\
+\\
+$p$ & $::=$ & \texttt{\textbf{id}} & (Name pattern)\\
+& $|$ & \texttt{($p_{1}$, \ldots, $p_{n}$)} & (Tuple pattern) \\
+\\
+$e$ & $::=$ & $v$ & (Constant)\\
+& $|$ & $\textbf{id}$ & (Variable)\\
+& $|$ & \texttt{($e_{1}$,\ldots,$e_{n}$)} & (Tuple expression) \\
+& $|$ & \texttt{\{$e_{1}$,\ldots,$e_{n}$\}} & (Array expression) \\
+& $|$ & $e_{1} \odot{} e_{2}$ & (Binary operator) \\
+& $|$ & \texttt{\tilde{} $e$} & (Prefix minus) \\
+& $|$ & \texttt{not $e$} & (Logical negation) \\
+& $|$ & \texttt{if $e_{1}$ then $e_{2}$ else $e_{3}$} & (Branching) \\
+& $|$ & \texttt{\textbf{id}[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
+& $|$ & \texttt{\textbf{id}($e_{1}$, \ldots, $e_{n}$)} & (Function call) \\
+& $|$ & \texttt{let $p$ = $e_{1}$ in $e_{2}$} & (Pattern binding) \\
+& $|$ & \texttt{zip($e_{1}$, \ldots, $e_{n}$)} & (Zipping) \\
+& $|$ & \texttt{unzip($e$)} & (Unzipping) \\
+& $|$ & \texttt{iota($e$)} & (Range) \\
+& $|$ & \texttt{replicate($e_{n}$, $e_{v}$)} & (Replication) \\
+& $|$ & \texttt{size($e$)} & (Array length) \\
+& $|$ & \texttt{reshape(($k_{1}$,\ldots,$k_{n}$), $e$)} & (Array reshape) \\
+& $|$ & \texttt{transpose($e$)} & (Transposition) \\
+& $|$ & \texttt{split($e_{1}$, $e_{2}$)} & (Split $e_{2}$ at index $e_{1}$) \\
+& $|$ & \texttt{concat($e_{1}$, $e_{2}$)} & (Concatenation) \\
+& $|$ & \texttt{let $\alpha$ = $\beta$ with} & (In-place update) \\
+&     & \texttt{\ \ [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
+&     & \texttt{in $e_{b}$} \\
+& $|$ & \texttt{loop ($p$ = $e_{1}$) =} & (Loop) \\
+&     & \texttt{\ \ for $\alpha$ < $e_{2}$ do $e_{3}$} \\
+&     & \texttt{in $e_{4}$} \\
+\end{tabular}
+\\
+\begin{tabular}{lrll}
+$fun$ & $::=$ & \texttt{fun $t$ \textbf{id}($t_{1}$ \textbf{id}$_{1}$,\ldots $t_{n}$ \textbf{id}$_{n}$) = $e$} \\
+\\
+$prog$ & $::=$ & $\epsilon$ \\
+       & $|$   & $fun$ $prog$
+\end{tabular}
+\caption{\LO{} syntax}
+\label{fig:fo-syntax}
+\end{figure}
+
+\section{SOACs}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
+$l$ & $::=$ & \texttt{fn $t$ ($t_{1}$ \textbf{id}$_{1}$, \ldots, $t_{n}$ \textbf{id}$_{n}$)} & (Anonymous function) \\
+&     & \texttt{=> $e$} \\
+& $|$ & \texttt{\textbf{id} ($e_{1}$, \ldots, $e_{n}$)} & (Curried function) \\
+& $|$ & \texttt{op $\odot$ ($e_{1}$, \ldots, $e_{n}$)} & (Curried operator) \\
+\\
+$e$ & $::=$ & \texttt{map($l$, $e$)} \\
+    & $|$ & \texttt{filter($l$, $e$)} \\
+    & $|$ & \texttt{reduce($l$, $x$, $e$)} \\
+    & $|$ & \texttt{scan($l$, $x$, $e$)} \\
+    & $|$ & \texttt{redomap($l_{r}$, $l_{m}$, $x$, $e$)} \\
+\end{tabular}
+\caption{Second-order array combinators}
+\label{fig:soacs}
+\end{figure}
+
+\section{Internal constructs}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
+$e$ & $::=$ & \texttt{map2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{filter2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{reduce2($l$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{scan2($l$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{redomap2($l_{r}$, $l_{m}$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+\end{tabular}
+\caption{Second-order tuple-array combinators}
+\label{fig:tuple-soacs}
+\end{figure}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
+$t$ & $::=$ & \texttt{cert} \\
+\\
+$c$ & $::=$ & \textbf{id}$_1$, \ldots ,\textbf{id}$_{n}$ \\
+\\
+$e$ & $::=$ & \texttt{assert($e$)} & (Assertion) \\
+& $|$ & \texttt{conjoin($e_{1}$, \ldots, $e_{n}$)} & (Conjoin assertions) \\
+& $|$ & \texttt{<$c$>\textbf{id}[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
+& $|$ & \texttt{<$c$>size($k$, $e$)} & (Array length) \\
+& $|$ & \texttt{<$c$>reshape(($k_{1}$,\ldots,$k_{n}$), $e$)} & (Array reshape) \\
+& $|$ & \texttt{<$c$>transpose($e$)} & (Transposition) \\
+& $|$ & \texttt{<$c$>split($e_{1}$, $e_{2}$)} & (Split $e_{2}$ at index $e_{1}$) \\
+& $|$ & \texttt{<$c$>concat($e_{1}$, $e_{2}$)} & (Concatenation) \\
+& $|$ & \texttt{let <$c$>$\alpha$ = $\beta$ with} & (In-place update) \\
+&     & \texttt{\ \ [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
+&     & \texttt{in $e_{b}$} \\
+\end{tabular}
+\caption{Assertions}
+\label{fig:assertions}
+\end{figure}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis.tex"
+%%% End: 

@@ -26,6 +26,18 @@
 \newfloat{algorithm}{t}{lop}
 \usepackage{listings}
 \usepackage{pdfpages}
+\usepackage{color}
+\usepackage{fancyvrb}
+
+\usepackage{enumitem} % Allows \begin{description}[style=nextline]
+
+\usepackage{fixme}
+\fxsetup{
+    status=draft,
+    author=,
+    layout=margin,
+    theme=color
+}
 
 \lstset{
   basicstyle=\small\ttfamily,
@@ -144,3 +156,7 @@
 \newcommand{\blor}{\mathbin{
   \raisebox{.1ex}{%
     \rotatebox[origin=c]{90}{\usefont{U}{matha}{m}{n}\symbol{\string"CE}}}}}
+
+% The colorcode environment lets us use colour markup inside verbatim blocks.
+\DefineVerbatimEnvironment{colorcode}%
+        {Verbatim}{fontsize=\small,commandchars=\\\{\}}
