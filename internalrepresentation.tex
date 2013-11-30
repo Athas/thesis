@@ -1,4 +1,43 @@
 \chapter{Internal representations}
+\label{chp:internal}
+
+\section{Tuple-SOACs}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
+$e$ & $::=$ & \texttt{map2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{filter2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{reduce2($l$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{scan2($l$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{redomap2($l_{r}$, $l_{m}$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+\end{tabular}
+\caption{Second-order tuple-array combinators}
+\label{fig:tuple-soacs}
+\end{figure}
+
+\section{Assertions}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
+$t$ & $::=$ & \texttt{cert} \\
+\\
+$c$ & $::=$ & \textbf{id}$_1$, \ldots ,\textbf{id}$_{n}$ \\
+\\
+$e$ & $::=$ & \texttt{assert($e$)} & (Assertion) \\
+& $|$ & \texttt{conjoin($e_{1}$, \ldots, $e_{n}$)} & (Conjoin assertions) \\
+& $|$ & \texttt{<$c$>\textbf{id}[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
+& $|$ & \texttt{<$c$>size($k$, $e$)} & (Array length) \\
+& $|$ & \texttt{<$c$>reshape(($k_{1}$,\ldots,$k_{n}$), $e$)} & (Array reshape) \\
+& $|$ & \texttt{<$c$>transpose($e$)} & (Transposition) \\
+& $|$ & \texttt{<$c$>split($e_{1}$, $e_{2}$)} & (Split $e_{2}$ at index $e_{1}$) \\
+& $|$ & \texttt{<$c$>concat($e_{1}$, $e_{2}$)} & (Concatenation) \\
+& $|$ & \texttt{let <$c$>$\alpha$ = $\beta$ with} & (In-place update) \\
+&     & \texttt{\ \ [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
+&     & \texttt{in $e_{b}$} \\
+\end{tabular}
+\caption{Assertions}
+\label{fig:assertions}
+\end{figure}
 
 %%% Local Variables: 
 %%% mode: latex
