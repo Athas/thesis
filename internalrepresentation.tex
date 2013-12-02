@@ -1,15 +1,17 @@
 \chapter{Internal representations}
-\label{chp:internal}
+\label{chap:internal}
 
 \section{Tuple-SOACs}
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}
-$e$ & $::=$ & \texttt{map2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
-    & $|$ & \texttt{filter2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
-    & $|$ & \texttt{reduce2($l$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
-    & $|$ & \texttt{scan2($l$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
-    & $|$ & \texttt{redomap2($l_{r}$, $l_{m}$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+$e$ & $::=$ & \texttt{<$c$>map2(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{<$c$>filter2(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{<$c$>reduce2(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{<$c$>scan2(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{<$c$>redomap2(fn $t_{o}$ ($t_{o_{1}}$ $v_{o_{1}}$, \ldots, $t_{o_{n}}$ $v_{o_{n}}$) => $e_o$,} \\
+    &     & \texttt{\ \ \ \ \ \ \ \ \ \ \ \ fn $t_{i}$ ($t_{i_{1}}$ $v_{i_{1}}$, \ldots, $t_{i_{n}}$ $v_{i_{n}}$) => $e_i$,} \\
+    &     & \texttt{\ \ \ \ \ \ \ \ \ \ \ \ $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
 \end{tabular}
 \caption{Second-order tuple-array combinators}
 \label{fig:tuple-soacs}
@@ -21,17 +23,17 @@ $e$ & $::=$ & \texttt{map2($l$, $e_{1}$, \ldots, $e_{n}$)} \\
 \begin{tabular}{lrll}
 $t$ & $::=$ & \texttt{cert} \\
 \\
-$c$ & $::=$ & \textbf{id}$_1$, \ldots ,\textbf{id}$_{n}$ \\
+$c$ & $::=$ & $v_1, \ldots ,v_{n}$ \\
 \\
 $e$ & $::=$ & \texttt{assert($e$)} & (Assertion) \\
 & $|$ & \texttt{conjoin($e_{1}$, \ldots, $e_{n}$)} & (Conjoin assertions) \\
 & $|$ & \texttt{<$c$>\textbf{id}[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
 & $|$ & \texttt{<$c$>size($k$, $e$)} & (Array length) \\
-& $|$ & \texttt{<$c$>reshape(($k_{1}$,\ldots,$k_{n}$), $e$)} & (Array reshape) \\
+& $|$ & \texttt{<$c$>reshape(($e_{1}$,\ldots,$e_{n}$), $e$)} & (Array reshape) \\
 & $|$ & \texttt{<$c$>transpose($e$)} & (Transposition) \\
 & $|$ & \texttt{<$c$>split($e_{1}$, $e_{2}$)} & (Split $e_{2}$ at index $e_{1}$) \\
 & $|$ & \texttt{<$c$>concat($e_{1}$, $e_{2}$)} & (Concatenation) \\
-& $|$ & \texttt{let <$c$>$\alpha$ = $\beta$ with} & (In-place update) \\
+& $|$ & \texttt{let <$c$>$v_{1}$ = $v_{2}$ with} & (In-place update) \\
 &     & \texttt{\ \ [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
 &     & \texttt{in $e_{b}$} \\
 \end{tabular}

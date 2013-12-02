@@ -1,2 +1,55 @@
 \chapter{Introduction}
 
+For practically the entire lifetime of the electronic computer,
+programmers have been used to an exponential growth in commonly
+available computing power.  Until around 2006, this directly
+manifested itself as improvements to sequential performance, although
+physical limits made it un-economical (or impossible) for this trend
+to continue.  These days, hardware designers are making their machines
+increasingly \textit{parallel}: rather than speeding up the individual
+processors, as happened previously, \textit{more} processors, or more
+\textit{specialised} processors, are added.  Thus, while computing
+power is still growing, it has become increasingly necessary to write
+programs that are parallel in order to take full advantage of modern
+hardware.
+
+One interesting development is the commoditization of massively
+parallel vector processors in the form of graphics cards.  While
+hardware acceleration of graphics became commonplace in the 90s, it
+was not until the rise of CUDA and OpenCL in 2006 that
+\textit{General-Purpose computing on Graphics Processing Units}
+(GPGPU) began to move into the mainstream.
+
+... \fxnote{Insert more}
+
+Throughout this thesis, I will often refer to a vaguely defined
+``programmer'', as well as ascribe various motives and expectations to
+this nebulous being.  While \LO{} is intended as an intermediate
+language, and in the end is intended as a target language by compilers
+for higher-level languages, it has a well-defined human-readable (and
+writable) syntax, and can be written directly.  Indeed, all current
+\LO{} programs have been written by hand.  Thus, when I refer to the
+``programmer'', I can mean either an actual human, or a compiler
+generating \LO{} code.
+
+\section{Contributions}
+
+\fxnote{Surely I have contributed something?}
+
+\section{Report outline}
+
+The remainder of the report is structured as follows.  Chapters
+\ref{chap:l0language} and \ref{chap:uniqueness-types} will introduce
+the programmer-visible part of \LO{} and serves as a language
+reference.  Chapter \ref{chap:internal} presents a slight modification
+of the external language, that makes it more amenable to
+transformation and optimisation.  Chapter \ref{chap:fusion} covers
+\textit{loop fusion}, an important optimisation, while chapters
+\ref{chap:fusion-enabling-soac-transformations} and
+\ref{chap:hindrance-removal} cover transformations that enable other
+optimisations.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End:

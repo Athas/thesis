@@ -1,4 +1,5 @@
 \chapter{Fusion}
+\label{chap:fusion}
 
 This chapter will outline the principles behind
 \textit{producer-consumer} loop fusion, describe their implementation
@@ -7,7 +8,7 @@ restrictions of my handling of loop fusion.
 
 In producer-consumer fusion, the aim is to merge (or \textit{fuse})
 two loops, where the output of the first loop -- the producer -- is
-used as input to the second -- the consumer.  I currently only fuse
+used as input to the second -- the consumer.  We currently only fuse
 loops that are expressed via SOACs, not the \texttt{do}-notation.  The
 reason for this is to simplify analysis, as it can be hard to
 determine in which cases arbitrary \texttt{do}-loops can be combined,
@@ -17,18 +18,26 @@ can be fused.
 As a simple case, we can fuse the two loops in
 \texttt{(map~$f$)~$\circ$~(map~$g$)} and get
 \texttt{map~$(f~\circ~g)$}, thus removing the need to construct an
-intermediary array for the result of \texttt{map~$g$}.  I will write
+intermediary array for the result of \texttt{map~$g$}.  We will write
 ``$c_{1}$-$c_{2}$ fusion'' for the case where a fusion is formed with
 $c_{1}$ as the producer and $c_{2}$ as the consumer.  Therefore, the
 previous example would be ``\texttt{map}-\texttt{map}''-fusion.
 
-Figure \ref{fig:producers-consumers} lists which \LO{} SOACs are
-producers, and which are consumers\footnote{For this chapter, we will
-  treat \texttt{replicate} as a SOAC.}  In particular, note that even
-if we have a \texttt{reduce} expression returning an array, this does
-not mean that we can fuse the reduction with whatever consumes that
-array.  Furthermore, not all producer-consumer pairs \textit{can} be
-fused, and not all are \textit{desirable} to fuse.  For example,
+\section{Fusion in \LO{}}
+
+The language used in this chapter is the internal \LO{} described in
+chapter \ref{chap:internal}, and we will consider \texttt{replicate}
+to be a SOAC.\footnote{In fact, \texttt{replicate(n,x)} can be written
+  as \texttt{map(fn t (int i) => x, iota(n))}, and futher
+  investigation may reveal that keeping \texttt{replicate} as a
+  separate construct has no benefit.}
+
+Figure {fig:producers-consumers} lists which \LO{} SOACs are
+producers, and which are consumers.  In particular, note that even if
+we have a \texttt{reduce} expression returning an array, this does not
+mean that we can fuse the reduction with whatever consumes that array.
+Furthermore, not all producer-consumer pairs \textit{can} be fused,
+and not all are \textit{desirable} to fuse.  For example,
 \texttt{filter}-\texttt{map} fusion is not possible, although
 \texttt{filter}-\texttt{reduce} is.  The \textit{fusion
   algebra}\fxnote{Link here} describes which producer-consumer pairs
@@ -56,10 +65,16 @@ My structural analysis is rooted in the
 T$_{1}$-T$_{2}$-transformation~\cite{red_dragon}.\fxnote{Insert more
   about the transformation.}
 
-\section{When to fuse}
+\section{Invalid fusion}
+\label{sec:invalidfusion}
 
-Fusion is not always beneficial, and may be harmful to overall
-performance in the following cases.
+Mumble mumble, something about uniqueness types.\fxnote{Finish this.}
+
+\section{When to fuse}
+\label{sec:whentofuse}
+
+Even when fusion is possible, it may not be beneficial, and may be
+harmful to overall performance in the following cases.
 
 \begin{description}[style=nextline]
 \item[Computation may be duplicated.]
@@ -75,8 +90,8 @@ The implementation in the \LO{} will currently only fuse if absolutely
 no computation is duplicated, although this is likely too
 conservative.  Duplicating cheap work, for example functions that use
 only primitive operations on scalars, is probably not harmful to
-overall performance, although this has not been fully
-investigated.\fxnote{Reference someone who has}
+overall performance, although I have not investigated this
+fully.\fxnote{Reference someone who has.}
 
 \item[Can reduce memory locality.]
 
@@ -93,16 +108,186 @@ investigated.\fxnote{Reference someone who has}
   be better to execute each of the two \texttt{map}s as separate
   kernels.
 
-  The \LO{} compiler does not currently worry about this problem, as
-  it is envisioned that a later (and as-of-yet unimplemented)
-  transformation will perform \textit{loop distribution} (sometimes
-  called \textit{loop fission}).  This step is necessary anyway, as it
-  can be used to improve the degree parallelism, compared to the
-  original program.
+  The \LO{} compiler does not currently handle this problem, as it is
+  envisioned that a later (and as-of-yet unimplemented) transformation
+  will perform \textit{loop distribution} (sometimes called
+  \textit{loop fission}).  This step is necessary anyway, as it can be
+  used to improve the degree parallelism, compared to the original
+  program.
 \end{description}
 
+\section{Dataflow}
+
+\newcommand{\unfusable}[0]{\textsc{unfusable}}
+\newcommand{\inputs}[0]{\textsc{arrInputs}}
+\newcommand{\soacs}[0]{\textsc{SOACs}}
+\newcommand{\patNames}[1]{\textsc{patNames}(#1)}
+\newcommand{\childExps}[1]{\textsc{childExps}(#1)}
+\newcommand{\parentExp}[1]{\textsc{parentExp}(#1)}
+
+We will track the following pieces of information.\fxnote{All of this can be done in one pass - explain how and why.}
+
+\begin{itemize}
+\item The set of all SOACs in the program, modelled as a mapping from
+  a (unique) identifier to a pair of a SOAC expression and its output
+  pattern.  We shall say $\soacs(e)$ to refer to this mapping, and
+  $\soacs(e)[l]$ to refer to the SOAC with label $l$.  For example,
+  \begin{align*}
+  & \soacs(\texttt{let \{$a$,$b$,$c$\} = map2($f$,$x$,$y$,$z$) in \{$a$,$b$,$c$\}}) =\\
+  & \quad \{ (\ell, (\texttt{\{$a$,$b$,$c$\}},\texttt{map2($f$,$x$,$y$,$z$)})) \},
+  \end{align*}
+  where $\ell$ is some unique label.
+
+\item The \textit{unfusable set}, which is key to preventing unwanted
+  fusion, as it indicates which SOACs should never be fused.  The
+  unfusable set prevents both undesired and invalid fusion, as
+  outlined in sections \ref{sec:whentofuse} and
+  \ref{sec:invalidfusion} respectively.  Given an \LO{} expression
+  $e$, we shall say $\unfusable(e)$ to refer to the unfusable set
+  produced by $e$.  For example:
+  \begin{align*}
+  \unfusable(&\texttt{let x = map2(f,a) in}\\
+  &\texttt{let y = map2(g,a) in \{x,y\}}) = \{a\},
+  \end{align*}
+  because $a$ is used twice, and hence fusing its producer into
+  \texttt{f} and \texttt{g} would cause work duplication.  (To
+  simplify the example, I have ignored $f$ and $g$ when computing the
+  unfusable set, although as we shall see below, this is not the case
+  in practice.)
+
+\item A mapping from arrays to a set of the SOACs that use the array
+  as input.  This is modelled as a set of pairs, each pair consisting
+  of an array name and a SOAC name.  We shall refer to the mapping
+  generated by a given expression $e$ as $\inputs(e)$.  For example,
+  \[
+  \inputs(\texttt{map2($f$, $x$, $y$, $z$)}) = \{ (x, \{\ell\}), (y, \{\ell\}), (z, \{\ell\}) \},
+  \]
+  where $\ell$ is the label of the \texttt{map2}-SOAC.
+
+  We define an associative and commutative operation $\sqcup$ to
+  combine input mappings as follows.
+  \begin{align*}
+  &\{(v_{1},s_{1}),\ldots,(v_{n},s_{n})\} \sqcup \{(v_{n+1},s_{n+1}),\ldots,(v_{n+m},s_{n+m})\} =\\
+  &\quad \{(v_{i}, \bigcup_{(v_{i},s)} s)\},
+  \end{align*}
+
+  Intuitively, $x \sqcup y$ is a mapping that contains the union of
+  the keys in $x$ and $y$, with the value for a key being the union of
+  the values for that key in $x$ and $y$ (or just an untouched value,
+  if the key was only present in one of the mappings).
+\end{itemize}
+
+If more specific rules are not given, the data flows default to the
+following.
+
+\begin{align*}
+  \unfusable(e) &= \bigcup_{e'\in\childExps{e}} \unfusable(e') \\
+  \\
+  \inputs(e) &= \bigsqcup_{e'\in\childExps{e}} e'\\
+  \\
+  \soacs(e) &= \bigcup_{e'\in\childExps{e}} \soacs(e')
+\end{align*}
+
+Now for specific rules, based on the shape of the given expression.
+
+\begin{description}[style=nextline]
+\item[Case $e \equiv v$]
+
+  This rule is only applied when $v$ is not an array input to a SOAC,
+  which implies that the producer of $v$ cannot be fused.
+\begin{align*}
+  & \unfusable(e) = \{v\} \\
+\end{align*}
+
+\item[Case $e \equiv \texttt{$v$[$e_{1}$, \ldots, $e_{n}$]}$]
+
+  \begin{align*}
+  & \unfusable(e) = \{v\} \cup \bigcup_{1\leq i \leq n}\unfusable(e_{i}) \\
+\end{align*}
+
+\item[Case $e \equiv \texttt{if $e_{c}$ then $e_{t}$ else $e_{f}$}$]
+
+  The \unfusable{} of a conditional consists of whatever is in the
+  \unfusable{} sets of its branches, plus any SOAC outputs that may be
+  used multiple times.  Note that an output can be used in both the
+  true and the false branch, and it will still only have been
+  considered to be used once.
+
+\begin{align*}
+  & \inputs(e) =\\
+  & \quad \{ (v,s')\ |\ (v,s) \in \inputs(e_{t}) \cup \inputs(e_{f}) \}\\
+  & \quad\quad \text{Where $s'$ is the set of all consumers of $v$ in both $e_{t}$ and $e_{f}$.} \\
+  \\
+  & \unfusable(e) =\\
+  & \quad \unfusable(e_{c}) \cup \unfusable(e_{t}) \cup \unfusable(e_{f})\\
+  & \quad \cup (\inputs(e_{c}) \cap \inputs(e_{t}))\\
+  & \quad \cup (\inputs(e_{c}) \cap \inputs(e_{f}))\\
+  & \quad \cup (\inputs(e_{t}) \cap \inputs(e_{f}))
+\end{align*}
+
+\item[Case $e \equiv \texttt{let $vs$ = map2(fn $t$ ($t_{1}$ $v_{p_{1}}$, \ldots, $t_{n}$ $v_{p_{n}}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$) in $e_{b}$}$]
+
+  The big question here is whether the SOAC can be fused as producer
+  with something in $\soacs(e_{b})$.  In the following, $\ell_{p}$ is
+  a fresh name.
+
+  \fxnote{Finish description.  Not sure how to explain this in a simple
+    manner, there are a ton of rules, after all.  There's also the
+    annoying issue of turning the SOAC array arguments into names...}
+
+\begin{description}
+\item[Cannot fuse:]
+\begin{align*}
+  & \unfusable(e) =\\
+  & \quad \unfusable(e_{b})\\
+  & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{f}) \} \\
+  & \quad \{ v\ |\ \textrm{$v$ is used as input here but is also in $\inputs(e_{b})$} \}\\
+  \\
+  & \inputs(e) =\\
+  & \quad \inputs(e_{b}) \sqcup \inputs(e_{f})\\
+  & \quad \sqcup \{(e_{1},\{\ell_{p}\}), \ldots, (e_{n},\{\ell_{p}\})\}\\
+  \\
+  & \soacs(e) = \soacs(e_{b}) \cup \{(\ell_{p}, (vs, \texttt{map2(\ldots)}))\} \\
+  &
+\end{align*}
+
+\item[Can fuse with some SOAC $\ell_{c}$:]\hfill\\
+
+  Let $(vs',s') = \textsc{doThatFunkyFusionThing}(\ell, \ell_{c})$.
+  \fxnote{Magic happens -- I probably need to factor the precise fusion
+    mechanics into a separate section, putting them inline here would
+    be really confusing.}
+
+\begin{align*}
+  & \soacs(e) = (\soacs(e_{b}) \backslash \ell_{c}) \cup \soacs(e_{f}) \cup \{ (\ell_{c}, (vs', s')) \}\\
+  \\
+  & \inputs(e) =\\
+  & \quad (\textrm{$\inputs(e_{b})$ with all mappings to $\ell_{c}$ removed}) \\
+  & \quad \sqcup \{ (v,\ell_{c}) |\ \textrm{for all array inputs $v$ to $s'$} \}
+\end{align*}
+\end{description}
+
+\item[Case $e \equiv \texttt{let $v_{1}$ = $v_{2}$ with [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$ in $e_b$}$]
+
+Record the in-place modification of $v_{2}$. \fxnote{Not sure how to model this yet.}
+
+\item[Case $e \equiv \texttt{loop ($p$ = $e_{1}$) = for $v$ < $e_{2}$ do $e_{3}$ in $e_{4}$}$]
+
+  For loops, we add any arrays used as SOAC inputs in the loop body to
+  the unfusable set, as fusing into the loop would duplicate
+  computation.  This is similar to how we ban fusing into
+  SOAC-functions.
+\begin{align*}
+  & \unfusable(e) =\\
+  & \quad \unfusable(e_{1}) \cup \unfusable(e_{2}) \cup \unfusable(e_{3}) \cup \unfusable(e_{4}) \\
+  & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{3}) \}
+\end{align*}
+
+\end{description}
 
 \section{Fusion algebra}
+
+\fxnote{This is horrible.  Fix me.}
 
 \begin{figure}[bt]
 \begin{colorcode}

@@ -1,6 +1,16 @@
 \chapter{The \LO{} language}
+\label{chap:l0language}
 
-\section{First-order \L0{}}
+\LO{} is a purely functional, call-by-value, mostly first-order
+language that permits bulk operations on arrays using
+\textit{second-order array combinatrs} (SOACs).  Sections
+\ref{sec:fo-l0} and \ref{sec:soacs} will present \LO{} through
+informal walkthrough of the major language concepts, whilst a complete
+reference of language constructs is given in section
+\ref{sec:l0-reference}.
+
+\section{First-order \LO{}}
+\label{sec:fo-l0}
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}
@@ -12,7 +22,7 @@ $t$ & $::=$ & \texttt{int} & (Integers) \\
 & $|$ & \texttt{[$t$]} & (Arrays) \\
 & $|$ & \texttt{*[$t$]} & (Unique arrays) \\
 \\
-$v$ & $::=$ & $k$ & (Integer)\\
+$k$ & $::=$ & $n$ & (Integer)\\
 & $|$ & $x$ & (Decimal number) \\
 & $|$ & $b$ & (Boolean)\\
 & $|$ & $c$ & (Character)\\
@@ -22,36 +32,36 @@ $v$ & $::=$ & $k$ & (Integer)\\
 $p$ & $::=$ & \texttt{\textbf{id}} & (Name pattern)\\
 & $|$ & \texttt{($p_{1}$, \ldots, $p_{n}$)} & (Tuple pattern) \\
 \\
-$e$ & $::=$ & $v$ & (Constant)\\
-& $|$ & $\textbf{id}$ & (Variable)\\
+$e$ & $::=$ & $k$ & (Constant)\\
+& $|$ & $v$ & (Variable)\\
 & $|$ & \texttt{($e_{1}$,\ldots,$e_{n}$)} & (Tuple expression) \\
 & $|$ & \texttt{\{$e_{1}$,\ldots,$e_{n}$\}} & (Array expression) \\
 & $|$ & $e_{1} \odot{} e_{2}$ & (Binary operator) \\
 & $|$ & \texttt{\tilde{} $e$} & (Prefix minus) \\
 & $|$ & \texttt{not $e$} & (Logical negation) \\
 & $|$ & \texttt{if $e_{1}$ then $e_{2}$ else $e_{3}$} & (Branching) \\
-& $|$ & \texttt{\textbf{id}[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
-& $|$ & \texttt{\textbf{id}($e_{1}$, \ldots, $e_{n}$)} & (Function call) \\
+& $|$ & \texttt{$v$[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
+& $|$ & \texttt{$v$($e_{1}$, \ldots, $e_{n}$)} & (Function call) \\
 & $|$ & \texttt{let $p$ = $e_{1}$ in $e_{2}$} & (Pattern binding) \\
 & $|$ & \texttt{zip($e_{1}$, \ldots, $e_{n}$)} & (Zipping) \\
 & $|$ & \texttt{unzip($e$)} & (Unzipping) \\
 & $|$ & \texttt{iota($e$)} & (Range) \\
 & $|$ & \texttt{replicate($e_{n}$, $e_{v}$)} & (Replication) \\
 & $|$ & \texttt{size($e$)} & (Array length) \\
-& $|$ & \texttt{reshape(($k_{1}$,\ldots,$k_{n}$), $e$)} & (Array reshape) \\
+& $|$ & \texttt{reshape(($e_{1}$,\ldots,$e_{n}$), $e$)} & (Array reshape) \\
 & $|$ & \texttt{transpose($e$)} & (Transposition) \\
 & $|$ & \texttt{split($e_{1}$, $e_{2}$)} & (Split $e_{2}$ at index $e_{1}$) \\
 & $|$ & \texttt{concat($e_{1}$, $e_{2}$)} & (Concatenation) \\
-& $|$ & \texttt{let $\alpha$ = $\beta$ with} & (In-place update) \\
+& $|$ & \texttt{let $v_{1}$ = $v_{2}$ with} & (In-place update) \\
 &     & \texttt{\ \ [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
 &     & \texttt{in $e_{b}$} \\
 & $|$ & \texttt{loop ($p$ = $e_{1}$) =} & (Loop) \\
-&     & \texttt{\ \ for $\alpha$ < $e_{2}$ do $e_{3}$} \\
+&     & \texttt{\ \ for $v$ < $e_{2}$ do $e_{3}$} \\
 &     & \texttt{in $e_{4}$} \\
 \end{tabular}
 \\
 \begin{tabular}{lrll}
-$fun$ & $::=$ & \texttt{fun $t$ \textbf{id}($t_{1}$ \textbf{id}$_{1}$,\ldots $t_{n}$ \textbf{id}$_{n}$) = $e$} \\
+$fun$ & $::=$ & \texttt{fun $t$ $v$($t_{1}$ $v_{1}$,\ldots $t_{n}$ $v_{n}$) = $e$} \\
 \\
 $prog$ & $::=$ & $\epsilon$ \\
        & $|$   & $fun$ $prog$
@@ -60,12 +70,218 @@ $prog$ & $::=$ & $\epsilon$ \\
 \label{fig:fo-syntax}
 \end{figure}
 
+The syntax of \LO{}, as seen on \fref{fig:fo-syntax}, is heavily
+inspired by Haskell and Standard ML.  An identifier stats with a
+letter, followed by any number of letters, digits and underscores.
+Numeric constants use the same notation as Haskell, except that we use
+tilde (\tilde{}) for unary minus.  String and character literals use
+Haskell syntax (which is very similar to C), including all escape
+characters.  Comments are indicated with \texttt{//} and span to end
+of line.
+
+An \LO{} program consists of a sequence of \emph{function
+  definitions}, of the following form.
+
+\begin{colorcode}
+  fun \textit{return-type} \textit{name}(\textit{params...}) = \textit{body}
+\end{colorcode}
+
+A function must declare both its return type and the types of all
+parameters.  All functions (except for inline anonymous functions; see
+below) are defined globally.  \LO{} does not use type inference.
+Symbolic constants are not supported, although 0-ary functions can be
+defined.  As a concrete example, here is the recursive definition of
+the factorial function in \LO{}.
+\begin{colorcode}
+  fun int fact(int n) =
+    if n = 0 then 1
+             else n * fact(n-1)
+\end{colorcode}
+Indentation has no syntactical significance in \LO{}, but recommended for
+readability.
+
+The syntax for tuple types is a comma-separated list of types or
+values enclosed in braces, so \texttt{\{int, real\}} is a pair of an
+integer and a floating-point number.  Both single-element and empty
+tuples are permitted.  Array types are written as the element type
+surrounded by brackets, meaning that \texttt{[int]} is a
+one-dimensional array of integers, and \texttt{[[[\{int, real\}]]]} is a
+three-dimensional array of tuples of integers and floats.  An
+immediate array is written as a sequence of elements enclosed by
+brackets.
+\begin{colorcode}
+  [1, 2, 3]       // Array of type [int].
+  [[1], [2], [3]] // Array of type [[int]].
+\end{colorcode}
+All arrays must be \emph{regular} (often termed \emph{full}) - for
+example, all rows of a two-dimensional array must have the same number
+of elements.
+\begin{colorcode}
+  [[1, 2], [3]]      // Compile-time error.
+  [iota(1), iota(2)] // Run-time error.
+\end{colorcode}
+Arrays are indexed using the common row-major notation, e.g.,
+\texttt{a[i1, i2, i3...]}.  An indexing is said to be \textit{full} if
+the number of given indexes is equal to the dimensionality of the
+array.
+
+A \texttt{let}-expression can be used to refer to the result of a
+subexpression:
+\begin{colorcode}
+  let z = x + y in ...
+\end{colorcode}
+Recall that \LO{} is eagerly evaluated, so the right-hand side of the
+\texttt{let} is evaluated exactly once, at the time it is first
+encountered.
+
+Two-way \texttt{if-then-else} is the only branching construct in \LO{}.
+Pattern matching is supported in a limited way for taking apart
+tuples, but this can only be done in \texttt{let}-bindings, and not
+directly in a function argument list.  Specifically, the following
+function definition is not valid.
+\begin{colorcode}
+  fun int sumpair({int, int} {x, y}) = x + y // WRONG!
+\end{colorcode}
+Instead, we must use a let-binding explicitly, as follows.
+\begin{colorcode}
+  fun int sumpair({int, int} t) =
+    let {x,y} = t in x + y
+\end{colorcode}
+Pattern-matching in a binding is the only way to access the components
+of a tuple.
+
+Function calls are written as the function name followed by the
+arguments enclosed in parentheses.  All function calls must be fully
+saturated - currying is only permitted in SOACs (see section
+\ref{sec:soacs}).
+
+\LO{} has a built-in syntax for expressing certain tail-recursive
+functions.  Consider the following tail-recursive formulation of a
+function for computing the Fibonacci numbers.
+\begin{colorcode}
+  fun int fib(int n) = fibhelper(1,1,n)
+
+  fun int fibhelper(int x, int y, int n) =
+    if n = 1 then x else fibhelper(y, x+y, n-1)
+\end{colorcode}
+We can rewrite this using the \texttt{loop} construct.
+\begin{colorcode}
+  fun int fib(int n) =
+    loop (\{x, y\} = \{1,1\}) = for i < n do
+                              {y, x+y}
+    in x
+\end{colorcode}
+The semantics of this is precisely as in the tail-recursive function
+formulation.  In general, a loop
+\begin{colorcode}
+  loop (\emph{pat} = \emph{initial}) = for \emph{i} < \emph{bound} do \emph{loopbody}
+  in \emph{body}
+\end{colorcode}
+has the following semantics:
+
+\begin{enumerate}
+  \item Bind \textit{pat} to the initial values given in \textit{initial}.
+  \item While $\textit{i} < \textit{bound}$, evaluate
+    \textit{loopbody}, rebinding \textit{pat} to be the value returned
+    by the body.  At the end of each iteration, increment \textit{i}
+    by one.
+  \item Evaluate \textit{body} with \textit{pat} bound to its final
+    value.
+\end{enumerate}
+The purpose of \texttt{loop} is partly to render some sequential
+computations slightly more convenient, partly to express certain loop
+optimisations in the compiler.  Semantically, it is completely
+equivalent to the call to its corresponding tail-recursive function.
+For example, denoting by \texttt{t} the type of \texttt{x}, the loop in
+Figure~\ref{fig:loop-recursion} has the semantics of a call to the
+tail-recursive function on the right-hand side.
+
+\begin{figure}
+\begin{minipage}{0.35\columnwidth}
+\begin{colorcode}
+loop (x = a) =
+  for i < n do
+    g(x)
+in body
+\end{colorcode}
+\end{minipage}
+\begin{minipage}{0.05\columnwidth}
+$\Rightarrow$
+\end{minipage}
+\begin{minipage}{0.6\columnwidth}
+\begin{colorcode}
+fun t f(int i, int n, t x) =
+  if i >= n then x
+     else f(i+1, n, g(x))
+
+let x = f(i, n, a)
+in body
+\end{colorcode}
+\end{minipage}
+\caption{Loop to recursive function}
+\label{fig:loop-recursion}
+\end{figure}
+
+General modification of array elements is done using the
+\emph{let-with} construct.  In its most general form, it looks as
+follows.
+\begin{colorcode}
+  let \textit{dest} = \textit{src} with [\textit{indexes}] <- \textit{value}
+  in \textit{body}
+\end{colorcode}
+This evaluates \textit{body} with \textit{dest} bound to the value of
+\textit{src}, except that the element(s) at the position given by
+\textit{indexes} take on the new value \textit{value}.\footnote{Yes,
+  this is the \emph{third} binding construct in the language, ignoring
+  function abstraction!}  The given indexes need not be complete, but
+in that case, \textit{value} must be an array of the proper size.  As
+an example, here's how we could replace an entire row of an $n\times3$
+array.
+\begin{colorcode}
+  let b = a with [3] <- [1,2,3] in b
+\end{colorcode}
+Whenever $\textit{dest} = \textit{src}$, we can write
+\begin{colorcode}
+  let \textit{dest}[\textit{indexes}] = \textit{value} in \textit{body}
+\end{colorcode}
+as a shortcut.  Let-with has some unusual restrictions to permit
+in-place modification of the \textit{src} array, as described in
+chapter \ref{chap:uniqueness-types}.
+
+For example, the loop given below implements the ``imperative''
+version of matrix multiplication of two $M\times M$ matrices.
+
+\begin{colorcode}
+fun *[[int]] matmultImp(int N, [[int]] a, [[int]] b) =
+    let res = replicate(N, iota(N)) in
+    loop (res) = for i < N do
+        loop (res) = for j < N do
+            let partsum =
+                let res = 0 in
+                loop (res) = for k < N do
+                    let res = res + a[i,k] * b[k,j]
+                    in  res
+                in res
+            in let res[i,j] = partsum in res
+        in res
+    in res
+\end{colorcode}
+
 \section{SOACs}
+\label{sec:soacs}
+
+The language presented in the previous section is in some sense
+``sufficient'', in that it is Turing-complete, and can express
+imperative-style loops in a natural way with \texttt{do}-loops.
+However, \LO{} is not intended to be used in such a way - bulk
+operations on arrays should be expressed via the four
+\textit{second-order array combinators} (SOACs) shown in
+\fref{fig:soacs}, as the optimisations covered in later chapters are
+expressed as transformations on these.
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}
-$l$ & $::=$ & \texttt{fn $t$ ($t_{1}$ \textbf{id}$_{1}$, \ldots, $t_{n}$ \textbf{id}$_{n}$)} & (Anonymous function) \\
-&     & \texttt{=> $e$} \\
+$l$ & $::=$ & \texttt{fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e$} & (Anonymous function) \\
 & $|$ & \texttt{\textbf{id} ($e_{1}$, \ldots, $e_{n}$)} & (Curried function) \\
 & $|$ & \texttt{op $\odot$ ($e_{1}$, \ldots, $e_{n}$)} & (Curried operator) \\
 \\
@@ -73,13 +289,190 @@ $e$ & $::=$ & \texttt{map($l$, $e$)} \\
     & $|$ & \texttt{filter($l$, $e$)} \\
     & $|$ & \texttt{reduce($l$, $x$, $e$)} \\
     & $|$ & \texttt{scan($l$, $x$, $e$)} \\
-    & $|$ & \texttt{redomap($l_{r}$, $l_{m}$, $x$, $e$)} \\
 \end{tabular}
 \caption{Second-order array combinators}
 \label{fig:soacs}
 \end{figure}
 
-%%% Local Variables: 
+\section{Language reference}
+\label{sec:l0-reference}
+
+The builtin types in \LO{} are \intt{}, \realt{}, \boolt{} and \chart{}, as
+well as their combination in tuples and arrays.
+
+The following list describes every syntactical language construct in
+the language.
+
+\begin{description}
+  \item[\textit{constant}]\hfill\\
+    Evaluates to itself.
+
+  \item[\textit{var}]\hfill\\
+    Evaluates to its value in the environment.
+
+  \item[\texttt{\textit{x} \textbf{arithop} \textit{y}}] \hfill\\
+    Evaluate the binary operator on its operands, which must both be
+    of either type \intt{} or \realt.  The following operators are
+    supported: \texttt{+}, \texttt{*}, \texttt{-}, \texttt{/},
+    \texttt{\%}, \texttt{=}, \texttt{<}, \texttt{<=}, \texttt{pow}.
+
+  \item[\texttt{\textit{x} \textbf{bitop} \textit{y}}] \hfill\\
+    Evaluate the binary operator on its operands, which must both be
+    of type \intt.  The following operators are supported:
+    \texttt{\^}, \texttt{\&}, \texttt{|}, \texttt{>>}, \texttt{<<},
+    i.e., bitwise xor, and, or, and arithmetic shift right and left.
+
+  \item[\texttt{\textit{x} \&\& \textit{y}}]\hfill\\
+    Short-circuiting conjunction, both operands must be of type \boolt.
+
+  \item[\texttt{\textit{x} || \textit{y}}]\hfill\\
+    Short-circuiting disjunction, both operands must be of type \boolt.
+
+  \item[\texttt{not \textit{x}}]\hfill\\
+    Logical negation of \textit{x}, which must be of type \boolt.
+
+  \item[\texttt{\tilde \textit{x}}]\hfill\\
+    Numerical negation of \textit{x}, which must be of type \realt{} or \intt.
+
+  \item[\texttt{a[i]}]\hfill\\
+    Return the element at the given position in the array.  The index
+    may be a comma-separated list of indexes.
+
+  \item[\texttt{map(\textit{f}, \textit{a})}]\hfill\\
+    Apply \textit{f} to every element of \textit{a} and return the resulting array.
+
+  \item[\texttt{reduce(\textit{f}, \textit{x}, \textit{a})}]\hfill\\
+    Left-reduction with \textit{f} across the elements of \textit{a},
+    with \textit{x} as the neutral element for \textit{f}.  \textit{f}
+    must be associative, as the evaluation order is not otherwise
+    specified.
+
+  \item[\texttt{scan(\textit{f}, \textit{x}, \textit{a})}]\hfill\\
+    Inclusive prefix-scan.
+
+  \item[\texttt{zip($a_1, \ldots, a_n$)}]\hfill\\
+    Zips together the elements of the outer dimensions of arrays $a_1, \ldots, a_n$.
+    Static or runtime check is required to check that the sizes of
+    the outermost dimension of arrays $a_1, \ldots, a_n$ are the same.
+    If this invariant does not hold program execution stops with an error.
+  \item[\texttt{unzip($a$)}]\hfill\\
+    If \texttt{TYPEOF(}$a$\texttt{)} is $[(t_1, \ldots, t_n)]$ then
+    the result is a tuple of $n$ arrays, i.e., $([t_1], \ldots, [t_n])$,
+    otherwise error.  
+  \item[\texttt{filter(\textit{f}, \textit{a})}]\hfill\\
+    Remove all those elements of \textit{a} that do not satisfy the
+    predicate \textit{f}.
+
+  \item[\texttt{iota(\textit{n})}]\hfill\\
+    An array of the integers from $0$ to \textit{n}.
+
+  \item[\texttt{replicate(\textit{n}, \textit{a})}]\hfill\\
+    An array consisting of \textit{n} copies of \textit{a}.
+
+  \item[\texttt{size($k$, \textit{a})}]\hfill\\
+    The size of dimension $k$ of array \textit{a}.  $k$ must be a
+    static integral constant.
+
+  \item[\texttt{split(\textit{n}, \textit{a})}]\hfill\\
+    Partitions the given array into two disjoint arrays
+    \texttt{\textit{a}[$0\ldots{}n$]}, \texttt{\textit{a}[$n+1\ldots{}$]}, as a tuple.
+
+  \item[\texttt{concat(\textit{a}, \textit{b})}]\hfill\\
+    Concatenate the rows/elements of one array with another.  The
+    shape of the two arrays must be identical in all but the first
+    dimensionel.
+
+  \item[\texttt{copy(\textit{x})}]\hfill\\
+    Return a deep copy of the argument.  Semantically, this is just
+    the identiti function, but it has special semantics related to
+    uniqueness types as described in chapter
+    \ref{chap:uniqueness-types}.
+
+  \item[\texttt{reshape((\textit{dim}$_{1}$, \ldots, \textit{dim}$_{n}$), a)}]\hfill\\
+    Reshape the elements of the given array into the specified shape.
+    The number of elements in \textit{a} must be equal to
+    $\texttt{dim}_{1}\times\ldots\times\texttt{dim}_{n}$.
+
+  \item[\texttt{\textit{transpose}(a)}]\hfill\\
+    Return the transpose of \textit{a}.
+
+  \item[\texttt{\textit{transpose}(k,n,a)}]\hfill\\
+    Return the generalised transpose of \textit{a}.  If
+    \texttt{b=transpose(k,n,a)}, then $a[i_1, ..., i_k, i_{k+1}, ...,
+    i_{k+n}, ..., i_q ] = b[i_1 ,.., i_{k+1} , ..., i_{k+n}, i_k, ...,
+    i_q ]$.
+
+    Thus, \texttt{transpose(0,1,a)} is the common two-dimensional
+    transpose.
+
+  \item[\texttt{let \textit{pat} = \textit{e} in \textit{body}}]\hfill\\
+    While evaluating \textit{body}, bind the names mentioned in
+    \textit{pat} to the components in the corresponding positions of
+    the value of \textit{e}.
+
+  \item[\texttt{let \textit{dest} = \textit{src} with [\textit{index}] <- \textit{v} in \textit{body}}] \hfill \\
+    Evaluate \textit{body} with \textit{dest} bound to the value of
+    \textit{src}, except that the element(s) at the position given by
+    the index take on the value of \textit{v}.  The given index need
+    not be complete, but in that case, the value of \textit{v} must be
+    an array of the proper size.
+
+  \item{\texttt{if \textit{c} then \textit{a} else \textit{b}}}\hfill\\
+    If \textit{c} evaluates to \textit{True}, evaluate \textit{a},
+    else evaluate \textit{b}.
+
+  \item{\texttt{loop (\textit{pat} = \textit{initial}) = for \textit{i} < \textit{bound} do \textit{loopbody} in \textit{body}}}
+    \begin{enumerate}
+    \item Bind \textit{pat} to the initial values given in \textit{initial}.
+    \item While $\textit{i} < \textit{bound}$, evaluate \textit{loopbody},
+      rebinding \textit{pat} to be the value returned by the body.
+    \item Evaluate \textit{body} with \textit{pat} bound to its final
+      value.
+    \end{enumerate}
+
+\end{description}
+
+\subsection{Tuple shimming}
+
+In a SOAC, if the given function expects $n$ arguments of types
+\texttt{t$_{1}$,\ldots,{}t$_{n}$}, but the SOAC will call the function
+with a single argument of type \texttt{\{t$_{1}$*\ldots{}*t$_{n}$\}}
+(that is, a tuple), the \LO{} compiler will automatically generate an
+anonymous unwrapping function in such a way that it still works.  This
+allows the following expression to type-check (and run):
+
+\begin{colorcode}
+  map(op +, zip(as, bs))
+\end{colorcode}
+
+Without the above transformation, you would get an error, as
+\texttt{op +} is a function that takes two arguments, but is passed a
+tuple by \texttt{map}.
+
+This eliminates the need for a dedicated \texttt{zipWith} construct.
+
+\subsection{Arrays of tuples}
+
+For reasons that will be explained in chapter \ref{chap:fusion},
+arrays of tuples are in a sense merely syntactic sugar for tuples of
+arrays.  The type \texttt{[\{int, real\}]} is transformed to
+\texttt{\{[int], [real]\}} during the compilation process, and all
+code interacting with arrays of tuples is likewise transformed.  In
+most cases, this is fully transparent to the programmer, but there are
+edge cases where the transformation is not trivially an isomorphism.
+
+Consider the type \texttt{[\{[int], [real]\}]}, which is transformed
+into \texttt{\{[[int]], [[real]]\}}.  These two types are not
+isomorphic, as the latter has more stringent demands as to the
+fullness of arrays.  For example, \texttt{[\{[1], [1.0]\}, \{[2,3],
+  [2.0]\}]} is a value of the former, but the first element of the
+corresponding transformed tuple \texttt{\{[[1], [2, 3]], [[1.0],
+  [2.0]]\}} is not a full array.  Hence, when determining whether a
+program generates full arrays, we must hence look at the
+\textit{transformed} values - in a sense, the fullness requirement
+``transcends'' the tuples.
+
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "thesis.tex"
-%%% End: 
+%%% End:
