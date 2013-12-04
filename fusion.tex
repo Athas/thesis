@@ -16,32 +16,28 @@ whereas it is possible to define simple rules for how and when SOACs
 can be fused.
 
 As a simple case, we can fuse the two loops in
-\texttt{(map~$f$)~$\circ$~(map~$g$)} and get
-\texttt{map~$(f~\circ~g)$}, thus removing the need to construct an
-intermediary array for the result of \texttt{map~$g$}.  We will write
-``$c_{1}$-$c_{2}$ fusion'' for the case where a fusion is formed with
-$c_{1}$ as the producer and $c_{2}$ as the consumer.  Therefore, the
-previous example would be ``\texttt{map}-\texttt{map}''-fusion.
+\[
+\texttt{(map~$f$)~$\circ$~(map~$g$)}
+\]
+and get
+\[
+\texttt{map~$(f~\circ~g)$},
+\]
+thus removing the need to construct an intermediary array for the
+result of \texttt{map~$g$}, and in the context of GPGPU, reducely the
+likelyhood of global memory accesses.  We will write ``$c_{1}$-$c_{2}$
+fusion'' for the case where a fusion is formed with $c_{1}$ as the
+producer and $c_{2}$ as the consumer.  Therefore, the previous example
+would be ``\texttt{map}-\texttt{map}''-fusion.
 
 \section{Fusion in \LO{}}
 
-The language used in this chapter is the internal \LO{} described in
-chapter \ref{chap:internal}, and we will consider \texttt{replicate}
-to be a SOAC.\footnote{In fact, \texttt{replicate(n,x)} can be written
-  as \texttt{map(fn t (int i) => x, iota(n))}, and futher
-  investigation may reveal that keeping \texttt{replicate} as a
-  separate construct has no benefit.}
-
-Figure {fig:producers-consumers} lists which \LO{} SOACs are
-producers, and which are consumers.  In particular, note that even if
-we have a \texttt{reduce} expression returning an array, this does not
-mean that we can fuse the reduction with whatever consumes that array.
-Furthermore, not all producer-consumer pairs \textit{can} be fused,
-and not all are \textit{desirable} to fuse.  For example,
-\texttt{filter}-\texttt{map} fusion is not possible, although
-\texttt{filter}-\texttt{reduce} is.  The \textit{fusion
-  algebra}\fxnote{Link here} describes which producer-consumer pairs
-can be fused, as well as the form of the resulting SOAC.
+The language used to describe the fusion algorithm in this chapter is
+the internal \LO{} described in chapter \ref{chap:internal}, and we
+will consider \texttt{replicate} to be a SOAC.\footnote{In fact,
+  \texttt{replicate(n,x)} can be written as \texttt{map(fn t (int i)
+    => x, iota(n))}, and futher investigation may reveal that keeping
+  \texttt{replicate} as a separate construct has no benefit.}
 
 \begin{figure}
   \begin{center}
@@ -58,6 +54,51 @@ can be fused, as well as the form of the resulting SOAC.
   \caption{Producers and consumers in \LO}
   \label{fig:producers-consumers}
 \end{figure}
+
+\fref{fig:producers-consumers} lists which \LO{} SOACs are producers,
+which are consumers, and which are both.  In particular, note that
+even if we have a \texttt{reduce}-expression returning an array, this
+does not mean that the \texttt{reduce}-expression is a producer - it
+can under no circumstances be fused into another SOAC-expression.  The
+reason is that the output of the reduction is only fully known after
+the final input array element has been processed.  Consider the
+following program:
+
+\begin{colorcode}
+let b = reduce(fn [int] ([int] acc, int x) =>
+                 map(op + (x), acc),
+               iota(10), a) in
+map(f, b)
+\end{colorcode}
+
+The contents of the array \texttt{b} is not determined until the very
+last element of \texttt{a} has been processed, and thus fusion with
+the \texttt{map}-expression cannot take place.  While it is possible
+to use \texttt{reduce} in a way that could theoretically be fused with
+a consumer (for example by using it to simulate \texttt{map}), the
+analysis necessary to determine whether a given reduction is fusable
+would be quite onerous, and likely not useful in any but contrived
+examples, such as the above-mentioned simulation of \texttt{map}.
+
+In this way, \texttt{reduce} differs from \texttt{map}, in which each
+element of the output is calculated from one element of the input ---
+a classic case of data-parallelism.
+
+Even if we have a producer-consumer-pair, not all such pairs
+\textit{can} be fused, and not all are \textit{desirable} to fuse.
+For instance, \texttt{filter}-\texttt{map} fusion is not possible,
+although \texttt{filter}-\texttt{reduce} is.  The reason is that the
+size of the \texttt{map}-output is the same as the size of its input,
+yet the size of the output of \texttt{filter} cannot be known in
+advance, which preclude an efficient fused form.
+
+The \textit{fusion algebra} in section \ref{sec:fusionalgebra}
+describes in detail which producer-consumer pairs can be fused, as
+well as the form of the resulting SOAC.
+
+Section \ref{sec:invalidfusion} goes into greater detail on invalid
+fusion, and section \ref{sec:whentofuse} covers cases in which fusion
+may actually be detrimental to performance.
 
 ...
 
@@ -86,12 +127,18 @@ let x = map(f, a) in
 \end{colorcode}
 fusing the \texttt{x}-producer into the two consumers will double the
 number of calls to the function \texttt{f}, which might be expensive.
-The implementation in the \LO{} will currently only fuse if absolutely
-no computation is duplicated, although this is likely too
+The implementation in the \LO{} compiler will currently only fuse if
+absolutely no computation is duplicated, although this is likely too
 conservative.  Duplicating cheap work, for example functions that use
 only primitive operations on scalars, is probably not harmful to
 overall performance, although I have not investigated this
 fully.\fxnote{Reference someone who has.}
+
+In general, in the context of GPU, the tradeoff between duplicating
+computation and increasing communication is not an easy problem to
+solve.  Accessing global memory can be more than a hundred times
+slower than accessing local (register) memory, hence duplicating
+computation is in many cases preferable.
 
 \item[Can reduce memory locality.]
 
@@ -103,17 +150,17 @@ fully.\fxnote{Reference someone who has.}
   perform more work after accessing a given input element, increasing
   the risk that the input array may be evicted from the cache before
   the next element is to be used.  On GPUs, there is the added risk of
-  the kernel function becoming so large in terms of register usage,
-  that not as many can be executed in parallel.  In this case, it may
-  be better to execute each of the two \texttt{map}s as separate
-  kernels.
+  the kernel function exercising additional register pressure, which
+  may reduce hardware occupancy (thus reducing latency hiding) by
+  having fewer computational cores active.  In this case, it may be
+  better to execute each of the two \texttt{map}s as separate kernels.
 
   The \LO{} compiler does not currently handle this problem, as it is
   envisioned that a later (and as-of-yet unimplemented) transformation
   will perform \textit{loop distribution} (sometimes called
   \textit{loop fission}).  This step is necessary anyway, as it can be
-  used to improve the degree parallelism, compared to the original
-  program.
+  used to improve the degree of parallelism, compared to the original
+  program.\fixme{Insert example.}
 \end{description}
 
 \section{Dataflow}
@@ -222,7 +269,6 @@ Now for specific rules, based on the shape of the given expression.
   & \quad \unfusable(e_{c}) \cup \unfusable(e_{t}) \cup \unfusable(e_{f})\\
   & \quad \cup (\inputs(e_{c}) \cap \inputs(e_{t}))\\
   & \quad \cup (\inputs(e_{c}) \cap \inputs(e_{f}))\\
-  & \quad \cup (\inputs(e_{t}) \cap \inputs(e_{f}))
 \end{align*}
 
 \item[Case $e \equiv \texttt{let $vs$ = map2(fn $t$ ($t_{1}$ $v_{p_{1}}$, \ldots, $t_{n}$ $v_{p_{n}}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$) in $e_{b}$}$]
@@ -241,7 +287,7 @@ Now for specific rules, based on the shape of the given expression.
   & \unfusable(e) =\\
   & \quad \unfusable(e_{b})\\
   & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{f}) \} \\
-  & \quad \{ v\ |\ \textrm{$v$ is used as input here but is also in $\inputs(e_{b})$} \}\\
+  & \quad \cup \{ v\ |\ \textrm{$v$ is used as input here but is also in $\inputs(e_{b})$} \}\\
   \\
   & \inputs(e) =\\
   & \quad \inputs(e_{b}) \sqcup \inputs(e_{f})\\
@@ -286,6 +332,7 @@ Record the in-place modification of $v_{2}$. \fxnote{Not sure how to model this 
 \end{description}
 
 \section{Fusion algebra}
+\label{sec:fusionalgebra}
 
 \fxnote{This is horrible.  Fix me.}
 
