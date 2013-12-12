@@ -35,3 +35,6 @@ thesis.pdf
 *.xml
 *.bcf
 *.thm
+_region_.tex
+
+core
