@@ -21,9 +21,11 @@ $e$ & $::=$ & \texttt{<$c$>map2(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}
-$t$ & $::=$ & \texttt{cert} \\
+$t$ & $::=$ & \texttt{cert} & (Certificate) \\
 \\
-$c$ & $::=$ & $v_1, \ldots ,v_{n}$ \\
+$k$ & $::=$ & \texttt{Checked} & (Always-true certificate) \\
+\\
+$c$ & $::=$ & $v_1, \ldots ,v_{n}$ & (Sequence of variables) \\
 \\
 $e$ & $::=$ & \texttt{assert($e$)} & (Assertion) \\
 & $|$ & \texttt{conjoin($e_{1}$, \ldots, $e_{n}$)} & (Conjoin assertions) \\

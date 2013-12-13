@@ -33,11 +33,13 @@ would be ``\texttt{map}-\texttt{map}''-fusion.
 \section{Fusion in \LO{}}
 
 The language used to describe the fusion algorithm in this chapter is
-the internal \LO{} described in chapter \ref{chap:internal}, and we
-will consider \texttt{replicate} to be a SOAC.\footnote{In fact,
-  \texttt{replicate(n,x)} can be written as \texttt{map(fn t (int i)
-    => x, iota(n))}, and futher investigation may reveal that keeping
-  \texttt{replicate} as a separate construct has no benefit.}
+\texttt{let}-normalised, internal \LO{}, as described in chapter
+\ref{chap:internal}, and we will consider \texttt{replicate} to be a
+SOAC.\footnote{In fact, \texttt{replicate(n,x)} can be written as
+  \texttt{map(fn t (int i) => x, iota(n))}, and futher investigation
+  may reveal that keeping \texttt{replicate} as a separate construct
+  has no benefit.}  For clarity, expository examples will use the
+external \LO{}.
 
 \begin{figure}
   \begin{center}
@@ -158,10 +160,41 @@ computation is in many cases preferable.
   The \LO{} compiler does not currently handle this problem, as it is
   envisioned that a later (and as-of-yet unimplemented) transformation
   will perform \textit{loop distribution} (sometimes called
-  \textit{loop fission}).  This step is necessary anyway, as it can be
-  used to improve the degree of parallelism, compared to the original
-  program.\fixme{Insert example.}
+  \textit{loop fission}).  This step is necessary in any case, as it
+  can be used to improve the degree of parallelism, compared to the
+  original program.  \fref{fig:loop-distribution} demonstrates a fully
+  fused \texttt{map} where the degree of parallelism is can be
+  improved by distributing the inner reductions out of the loop.  In
+  the original program, the inner map had to wait for the two
+  reductions to finish computing \texttt{x} and \texttt{y} before
+  executing its inner loop, whereas the distributed program consists
+  of three parallel loop nests.
 \end{description}
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+map(fn int ([int] r) =>
+      let x = reduce(f, 0, r) in
+      let y = reduce(g, 0, r) in
+      map(h(x,y), r),
+    a)
+\end{bcolorcode}
+
+$\Downarrow$
+
+\begin{bcolorcode}
+let xs = map(reduce(f,0),a) in
+let ys = map(reduce(g,0),a) in
+map(fn [int] (\{int,int,[int]\} t) =>
+      let {r,x,y} = t in
+      map(h(x,y), r),
+    zip(a,xs,ys))
+\end{bcolorcode}
+\end{center}
+\caption{Loop distribution}
+\label{fig:loop-distribution}
+\end{figure}
 
 \section{Dataflow}
 
@@ -297,6 +330,53 @@ Now for specific rules, based on the shape of the given expression.
   & \quad \cup (\inputs(e_{c}) \sqcap \inputs(e_{f}))\\
 \end{align*}
 
+The reason for these rules can be illustrated by the following
+examples.  In \fref{fig:fuse-across-if-ok}, it is clear that fusing
+computation of \texttt{b} with both \texttt{map(g,b)} and
+\texttt{map(g,b)} will not cause duplicated computation, as the two
+consumers are on separate control-flow paths.  On the other hand, if
+even one branch contains multiple uses, as in
+\fref{fig:fuse-across-if-bad}, we should not fuse.  Additionally, if
+both the conditional expression and a branch consumes the same array,
+as on \fref{fig:fuse-across-if-bad-condition}, then we should also not
+fuse.
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+let b = map(f, a) in
+if p(x) then map(g,b)
+        else map(h,b)
+\end{bcolorcode}
+\end{center}
+\caption{Fusion into branches acceptable}
+\label{fig:fuse-across-if-ok}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+let b = map(f, a) in
+if p(x) then concat(map(g,b),map(v,b))
+        else map(h,b)
+\end{bcolorcode}
+\end{center}
+\caption{Duplicating computation in one branch}
+\label{fig:fuse-across-if-bad}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+let b = map(f, a) in
+if p(map(v,b)) then map(g,b)
+               else map(h,b)
+\end{bcolorcode}
+\end{center}
+\caption{Duplicating computation in conditional}
+\label{fig:fuse-across-if-bad-condition}
+\end{figure}
+
 \item[Case $e \equiv \texttt{let $vs$ = map2(fn $t$ ($t_{1}$ $v_{p_{1}}$, \ldots, $t_{n}$ $v_{p_{n}}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$) in $e_{b}$}$]
 
   The big question here is whether the SOAC can be fused as producer
@@ -348,13 +428,29 @@ Record the in-place modification of $v_{2}$. \fxnote{Not sure how to model this 
 
   For loops, we add any arrays used as SOAC inputs in the loop body to
   the unfusable set, as fusing into the loop would duplicate
-  computation.  This is similar to how we ban fusing into
+  computation, by re-evaluating the function in the consumer for every
+  iteration of the loop -- see \fref{fig:cannot-fuse-loop} for an
+  example of this.  This is similar to how we ban fusing into
   SOAC-functions.
 \begin{align*}
   & \unfusable(e) =\\
   & \quad \unfusable(e_{1}) \cup \unfusable(e_{2}) \cup \unfusable(e_{3}) \cup \unfusable(e_{4}) \\
   & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{3}) \}
 \end{align*}
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+let b = \emphh{map(f, a)} in
+loop (v) = for i < n do
+             let c = \emp{map(g, b)} in
+             h(v,c) in
+...
+\end{bcolorcode}
+\end{center}
+\caption{Fusing the \emphh{producer} into the \emp{consumer} in the loop body would duplicate computation}
+\label{fig:cannot-fuse-loop}
+\end{figure}
 
 \end{description}
 

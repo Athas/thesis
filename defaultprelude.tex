@@ -89,8 +89,8 @@
 \makeoddfoot{myheadingschapterpage}{}{\thepage}{}
 \aliaspagestyle{chapter}{myheadingschapterpage}
 \aliaspagestyle{title}{myheadingschapterpage}
-\makeevenhead{myheadings}{}{\scshape \thetitle}{}
-\makeoddhead{myheadings}{}{\footnotesize\scshape \thetitle}{}
+\makeevenhead{myheadings}{\hskip.5cm\leftmark}{}{}
+\makeoddhead{myheadings}{}{}{\rightmark\hskip.5cm}
 \makeevenfoot{myheadings}{}{\thepage}{}
 \makeoddfoot{myheadings}{}{\thepage}{}
 \pagestyle{myheadings}
@@ -160,3 +160,15 @@
 % The colorcode environment lets us use colour markup inside verbatim blocks.
 \DefineVerbatimEnvironment{colorcode}%
         {Verbatim}{fontsize=\small,commandchars=\\\{\}}
+
+\DefineVerbatimEnvironment{bcolorcode}%
+        {BVerbatim}{fontsize=\small,commandchars=\\\{\}}
+
+% Visually Separate figures from text using a line.
+\def\topfigrule{\vskip1ex\noindent\dotfill}
+\def\botfigrule{\noindent\dotfill\vskip1ex}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis.tex"
+%%% End: 
