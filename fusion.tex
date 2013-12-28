@@ -34,11 +34,9 @@ would be ``\texttt{map}-\texttt{map}''-fusion.
 
 The language used to describe the fusion algorithm in this chapter is
 \texttt{let}-normalised, internal \LO{}, as described in chapter
-\ref{chap:internal}, and we will consider \texttt{replicate} to be a
-SOAC.\footnote{In fact, \texttt{replicate(n,x)} can be written as
-  \texttt{map(fn t (int i) => x, iota(n))}, and futher investigation
-  may reveal that keeping \texttt{replicate} as a separate construct
-  has no benefit.}  For clarity, expository examples will use the
+\ref{chap:internal}.  We will also assume that all instances of
+\texttt{replicate(n,x)} have been rewritten as \texttt{map(fn t (int
+  i) => x, iota(n))}.  For clarity, expository examples will use the
 external \LO{}.
 
 \begin{figure}
@@ -50,7 +48,6 @@ external \LO{}.
       \texttt{scan} & \texttt{scan} \\\hline
       \texttt{filter} & \texttt{filter} \\\hline
       & \texttt{redomap} \\\hline
-      \texttt{replicate} & \\\hline
     \end{tabular}
   \end{center}
   \caption{Producers and consumers in \LO}
@@ -187,7 +184,7 @@ $\Downarrow$
 let xs = map(reduce(f,0),a) in
 let ys = map(reduce(g,0),a) in
 map(fn [int] (\{int,int,[int]\} t) =>
-      let {r,x,y} = t in
+      let \{r,x,y\} = t in
       map(h(x,y), r),
     zip(a,xs,ys))
 \end{bcolorcode}
@@ -195,6 +192,109 @@ map(fn [int] (\{int,int,[int]\} t) =>
 \caption{Loop distribution}
 \label{fig:loop-distribution}
 \end{figure}
+
+\section{Composition}
+
+\newcommand\mapcompose[5]{ (#1,#2) \overset{\texttt{map}}\circ(#3,#4) \Rightarrow #5 }
+\newcommand\soacinput[1]{\mathcal{I}(#1)}
+\newcommand\arrparams[1]{\textrm{params}(#1)}
+
+We write $\soacinput{v}$ to refer to the input corresponding to the
+array parameter $v$.
+
+\subsection{\texttt{map}-\texttt{map} composition}
+
+We are given two functions:
+\[
+l_{a}\equiv\texttt{fn $t_{a_{r}}$ ($t_{a_{1}}$ $v_{a_{1}}$, \ldots, $t_{a_{n}}$ $v_{a_{n}}$) => $e_{a}$}
+\]
+whose inputs are \texttt{$e_{a_{1}}$,\ldots,$e_{a_{m}}$} and whose
+outputs are \texttt{$o_1$,\ldots,$o_k$}; and
+\[
+l_{b}\equiv\texttt{fn $t_{b_{r}}$ ($t_{b_{1}}$ $v_{b_{1}}$, \ldots, $t_{b_{m}}$ $v_{b_{m}}$) => $e_{b}$},
+\]
+whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{m}}$}.
+
+The goal is to compute a function
+\[
+l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($t_{r_{1}}$ $v_{r_{1}}$, \ldots, $t_{r_{l}}$ $v_{r_{l}}$)
+=> $e_{r}$}
+\]
+that corresponds to the intuitive notion of the composition $l_{b}
+\circ l_{a}$.
+
+For notational convenience, we define the following sets of parameters
+of the two functions.
+\[
+\arrparams{l_{a}} = \{t_{a_{1}} v_{a_{1}}, \ldots, t_{a_{n}} v_{a_{n}}\}
+\]
+\[
+\arrparams{l_{b}} = \{t_{b_{1}} v_{b_{1}}, \ldots, t_{b_{n}} v_{b_{m}}\}
+\]
+We also define an association from parameter names to their
+corresponding input arrays.
+\[
+\soacinput{v_{a_{i}}} = e_{a_{i}}
+\]
+\[
+\soacinput{v_{b_{i}}} = e_{b_{i}}
+\]
+
+If the inputs of $l_{b}$ are disjoint from the outputs of $l_{a}$,
+then we are done, and $l_{r} = l_{b}$.  Otherwise, there is a
+non-empty set
+\[
+\delta=\{t_{b_{i}} v_{b_{i}}\ |\ \exists j.\soacinput{v_{b_{i}}}=o_{j}\}, 0 < i \leq n
+\]
+of parameters of $l_{b}$ whose inputs are outputs of $l_{a}$.  Note
+that we do not require that \textit{all} of $l_{a}$s outputs are used
+as input by $l_{b}$, merely that \textit{some} are.  The parameters
+(and corresponding inputs) to the desired function $l_{r}$ are the
+parameters of $l_{b}$, except those in $\delta$, concatenated with the
+parameters of $l_{a}$:
+\[
+\arrparams{l_{r}} = (\arrparams{l_{b}} \backslash \delta) \oplus \arrparams{l_{a}}
+\]
+
+The body of $l_{r}$ is then defined as follows:
+
+\[
+e_{r} \equiv \texttt{let \{$ v_{b_{i}}\ |\ v_{b_{i}} \in \delta$\} = $e_{a}$ in $e_{b}$}
+\]
+
+\subsection{\texttt{filter}-\texttt{filter} composition}
+
+We are given two functions:
+\[
+l_{a}\equiv\texttt{fn \{bool\} ($t_{a_{1}}$ $v_{a_{1}}$, \ldots, $t_{a_{n}}$ $v_{a_{n}}$) => $e_{a}$}
+\]
+which takes as inputs \texttt{$i_{a_{1}}$,\ldots,$i_{a_{n}}$}, and whose
+outputs are \texttt{$o_1$,\ldots,$o_k$}; and
+\[
+l_{b}\equiv\texttt{fn \{bool\} ($t_{b_{1}}$ $v_{b_{1}}$, \ldots, $t_{b_{m}}$ $v_{b_{m}}$) => $e_{b}$},
+\]
+whose inputs are \texttt{$i_{b_{1}}$,\ldots,$i_{b_{m}}$}.
+
+The goal is to compute a function
+\[
+l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($t_{r_{1}}$ $v_{r_{1}}$, \ldots, $t_{r_{l}}$ $v_{r_{l}}$)
+=> $e_{r}$}
+\]
+whose inputs are \texttt{$i_{r_{1}}$,\ldots,$i_{r_{l}}$}, that
+corresponds to the intuitive composition of $l_{b} \wedge l_{a}$.
+
+\section{Fusion rules}
+
+\newcommand\fusesto[4]{\bfrac{#2\overset{#1}{\leadsto}#3}{\Rightarrow #4}}
+
+\begin{align*}
+  \fusesto
+  {\texttt{\{$c_{1}$,\ldots,$c_{2}$\}}}
+  {\texttt{mapT($l_{a}$,$a_{1}$,\ldots,$a_{n}$)}}
+  {\texttt{mapT($l_{b}$,$b_{1}$,\ldots,$b_{n}$)}}
+  {\texttt{mapT($l_{b} \circ l_{a}$,$b_{1}$,\ldots,$b_{n}$, $a_{1}$,\ldots,$a_{n}$)}}
+  \tagsc{Fuse-Map}
+\end{align*}
 
 \section{Dataflow}
 
