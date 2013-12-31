@@ -195,7 +195,8 @@ map(fn [int] (\{int,int,[int]\} t) =>
 
 \section{Composition}
 
-\newcommand\mapcompose[5]{ (#1,#2) \overset{\texttt{map}}\circ(#3,#4) \Rightarrow #5 }
+\newcommand\mapcompose[7]{ (#1,#2) \underset{\texttt{map}}{\overset{#3}\circ}(#4,#5) \Rightarrow (#6,#7) }
+\newcommand\filtercompose[6]{ (#1,#2) \underset{\texttt{filter}}\circ(#3,#4) \Rightarrow (#5,#6) }
 \newcommand\soacinput[1]{\mathcal{I}(#1)}
 \newcommand\arrparams[1]{\textrm{params}(#1)}
 
@@ -206,18 +207,18 @@ array parameter $v$.
 
 We are given two functions:
 \[
-l_{a}\equiv\texttt{fn $t_{a_{r}}$ ($t_{a_{1}}$ $v_{a_{1}}$, \ldots, $t_{a_{n}}$ $v_{a_{n}}$) => $e_{a}$}
+l_{a}\equiv\texttt{fn $t_{a_{r}}$ ($p_{a_{1}}$, \ldots, $p_{a_{n}}$) => $e_{a}$}
 \]
 whose inputs are \texttt{$e_{a_{1}}$,\ldots,$e_{a_{m}}$} and whose
 outputs are \texttt{$o_1$,\ldots,$o_k$}; and
 \[
-l_{b}\equiv\texttt{fn $t_{b_{r}}$ ($t_{b_{1}}$ $v_{b_{1}}$, \ldots, $t_{b_{m}}$ $v_{b_{m}}$) => $e_{b}$},
+l_{b}\equiv\texttt{fn $t_{b_{r}}$ ($p_{b_{1}}$, \ldots, $p_{b_{m}}$) => $e_{b}$},
 \]
 whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{m}}$}.
 
 The goal is to compute a function
 \[
-l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($t_{r_{1}}$ $v_{r_{1}}$, \ldots, $t_{r_{l}}$ $v_{r_{l}}$)
+l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($p_{r_{1}}$, \ldots, $p_{r_{l}}$)
 => $e_{r}$}
 \]
 that corresponds to the intuitive notion of the composition $l_{b}
@@ -226,25 +227,17 @@ that corresponds to the intuitive notion of the composition $l_{b}
 For notational convenience, we define the following sets of parameters
 of the two functions.
 \[
-\arrparams{l_{a}} = \{t_{a_{1}} v_{a_{1}}, \ldots, t_{a_{n}} v_{a_{n}}\}
+\arrparams{l_{a}} = \{p_{a_{1}}, \ldots, p_{a_{n}}\}
 \]
 \[
-\arrparams{l_{b}} = \{t_{b_{1}} v_{b_{1}}, \ldots, t_{b_{n}} v_{b_{m}}\}
-\]
-We also define an association from parameter names to their
-corresponding input arrays.
-\[
-\soacinput{v_{a_{i}}} = e_{a_{i}}
-\]
-\[
-\soacinput{v_{b_{i}}} = e_{b_{i}}
+\arrparams{l_{b}} = \{p_{b_{1}}, \ldots, p_{b_{m}}\}
 \]
 
 If the inputs of $l_{b}$ are disjoint from the outputs of $l_{a}$,
 then we are done, and $l_{r} = l_{b}$.  Otherwise, there is a
 non-empty set
 \[
-\delta=\{t_{b_{i}} v_{b_{i}}\ |\ \exists j.\soacinput{v_{b_{i}}}=o_{j}\}, 0 < i \leq n
+\delta=\{p_{b_{i}}\ |\ \exists j.e_{b_{i}}=o_{j}\}, 0 < i \leq m
 \]
 of parameters of $l_{b}$ whose inputs are outputs of $l_{a}$.  Note
 that we do not require that \textit{all} of $l_{a}$s outputs are used
@@ -253,13 +246,18 @@ as input by $l_{b}$, merely that \textit{some} are.  The parameters
 parameters of $l_{b}$, except those in $\delta$, concatenated with the
 parameters of $l_{a}$:
 \[
-\arrparams{l_{r}} = (\arrparams{l_{b}} \backslash \delta) \oplus \arrparams{l_{a}}
+\{e_{r_{1}},\ldots,e_{r_{l}}\} = \arrparams{l_{r}} = (\arrparams{l_{b}} \backslash \delta) \oplus \arrparams{l_{a}}
 \]
 
 The body of $l_{r}$ is then defined as follows:
 
 \[
-e_{r} \equiv \texttt{let \{$ v_{b_{i}}\ |\ v_{b_{i}} \in \delta$\} = $e_{a}$ in $e_{b}$}
+e_{r} \equiv \texttt{let \{$\textrm{if $e_{b_{i}}\in\delta$ then $p_{b_{i}}$ else \texttt{\_} }\ |\ 0 < i \leq k$\} = $e_{a}$ in $e_{b}$}
+\]
+
+We will write this entire operation as
+\[
+\mapcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{o_1,\ldots,o_k}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}
 \]
 
 \subsection{\texttt{filter}-\texttt{filter} composition}
@@ -268,12 +266,15 @@ We are given two functions:
 \[
 l_{a}\equiv\texttt{fn \{bool\} ($t_{a_{1}}$ $v_{a_{1}}$, \ldots, $t_{a_{n}}$ $v_{a_{n}}$) => $e_{a}$}
 \]
-which takes as inputs \texttt{$i_{a_{1}}$,\ldots,$i_{a_{n}}$}, and whose
+which takes as inputs \texttt{$e_{a_{1}}$,\ldots,$i_{e_{n}}$}, and whose
 outputs are \texttt{$o_1$,\ldots,$o_k$}; and
 \[
 l_{b}\equiv\texttt{fn \{bool\} ($t_{b_{1}}$ $v_{b_{1}}$, \ldots, $t_{b_{m}}$ $v_{b_{m}}$) => $e_{b}$},
 \]
-whose inputs are \texttt{$i_{b_{1}}$,\ldots,$i_{b_{m}}$}.
+whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{m}}$}, every input
+$e_{b_{i}}$ corresponds to some output $o_{j}$, and every output
+$o_{i}$ corresponds to some input $e_{b_{i}}$.  That is, the producer
+set of $l_{a}$ is equal to the input set of $l_{b}$.
 
 The goal is to compute a function
 \[
@@ -282,6 +283,13 @@ l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($t_{r_{1}}$ $v_{r_{1}}$, \ldots, $t_{r_{l}}
 \]
 whose inputs are \texttt{$i_{r_{1}}$,\ldots,$i_{r_{l}}$}, that
 corresponds to the intuitive composition of $l_{b} \wedge l_{a}$.
+
+
+
+We will write this entire operation as
+\[
+\filtercompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}
+\]
 
 \section{Fusion rules}
 
