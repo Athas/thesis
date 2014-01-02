@@ -196,12 +196,42 @@ map(fn [int] (\{int,int,[int]\} t) =>
 \section{Composition}
 
 \newcommand\mapcompose[7]{ (#1,#2) \underset{\texttt{map}}{\overset{#3}\circ}(#4,#5) \Rightarrow (#6,#7) }
-\newcommand\filtercompose[6]{ (#1,#2) \underset{\texttt{filter}}\circ(#3,#4) \Rightarrow (#5,#6) }
-\newcommand\soacinput[1]{\mathcal{I}(#1)}
+\newcommand\filtercompose[7]{ (#1,#2) \underset{\texttt{filter}}{\overset{#3}\circ}(#4,#5) \Rightarrow (#6,#7) }
+\newcommand\foldcompose[7]{ (#1,#2) \underset{\texttt{fold}}{\overset{#3}\circ}(#4,#5) \Rightarrow (#6,#7) }
+\newcommand\inputmapping[0]{\mathcal{I}}
 \newcommand\arrparams[1]{\textrm{params}(#1)}
 
-We write $\soacinput{v}$ to refer to the input corresponding to the
-array parameter $v$.
+In this section, we will assume that each output of a producer is used
+exactly once in every relevant consumer.  This property can be
+guaranteed through trivial rewriting prior to performing function
+composition, as illustrated on \fref{fig:single-input-transform}.
+This guarantees that each output of a producer is bound to exactly one
+parameter of a consumer's function, making it easier to describe the
+relationship between producer and consumer.\footnote{In the actual
+  implementation, this transformation is not done.  Instead, the
+  composition uses more complicated bookkeeping, but presenting the
+  full method details would obscure the exposition of the central
+  mechanism.}
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+let \{x, y, z\} = mapT(f, a) in
+mapT(fn int (int a, int b, int c) => \(e\), x, y, x)
+\end{bcolorcode}
+
+$\Downarrow$
+
+\begin{bcolorcode}
+let \{x, y, z\} = mapT(f, a) in
+mapT(fn int (int a, int b, int d) =>
+       let c = a in \(e\),
+     x, y, z)
+\end{bcolorcode}
+\end{center}
+\caption{Single-input transformation}
+\label{fig:single-input-transform}
+\end{figure}
 
 \subsection{\texttt{map}-\texttt{map} composition}
 
@@ -235,27 +265,26 @@ of the two functions.
 
 If the inputs of $l_{b}$ are disjoint from the outputs of $l_{a}$,
 then we are done, and $l_{r} = l_{b}$.  Otherwise, there is a
-non-empty set
+non-empty mapping
 \[
-\delta=\{p_{b_{i}}\ |\ \exists j.e_{b_{i}}=o_{j}\}, 0 < i \leq m
+\inputmapping(o_{i}) = p_{b_{j}} \quad \textrm{when $o_{i} = e_{b_{j}}$}
 \]
-of parameters of $l_{b}$ whose inputs are outputs of $l_{a}$.  Note
-that we do not require that \textit{all} of $l_{a}$s outputs are used
-as input by $l_{b}$, merely that \textit{some} are.  The parameters
-(and corresponding inputs) to the desired function $l_{r}$ are the
-parameters of $l_{b}$, except those in $\delta$, concatenated with the
-parameters of $l_{a}$:
+of outputs of $l_{a}$ to the corresponding parameters of $l_{b}$.  The
+parameters (and corresponding inputs) to the desired function $l_{r}$
+are the parameters of $l_{b}$, except those in $\inputmapping$,
+concatenated with the parameters of $l_{a}$:
 \[
 \{e_{r_{1}},\ldots,e_{r_{l}}\} = \arrparams{l_{r}} = (\arrparams{l_{b}} \backslash \delta) \oplus \arrparams{l_{a}}
 \]
+where $\delta$ are the parameters $p_{b_{j}}$ in the range of
+$\inputmapping$.
 
 The body of $l_{r}$ is then defined as follows:
-
 \[
-e_{r} \equiv \texttt{let \{$\textrm{if $e_{b_{i}}\in\delta$ then $p_{b_{i}}$ else \texttt{\_} }\ |\ 0 < i \leq k$\} = $e_{a}$ in $e_{b}$}
+e_{r} \equiv \texttt{let \{$\inputmapping(o_{1})$,\ldots,$\inputmapping(o_{k})$\} = $e_{a}$ in $e_{b}$}
 \]
 
-We will write this entire operation as
+I will refer to this entire operation as
 \[
 \mapcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{o_1,\ldots,o_k}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}
 \]
@@ -264,31 +293,89 @@ We will write this entire operation as
 
 We are given two functions:
 \[
-l_{a}\equiv\texttt{fn \{bool\} ($t_{a_{1}}$ $v_{a_{1}}$, \ldots, $t_{a_{n}}$ $v_{a_{n}}$) => $e_{a}$}
+l_{a}\equiv\texttt{fn \{bool\} ($p_{a_{1}}$, \ldots, $p_{a_{n}}$) => $e_{a}$}
 \]
 which takes as inputs \texttt{$e_{a_{1}}$,\ldots,$i_{e_{n}}$}, and whose
 outputs are \texttt{$o_1$,\ldots,$o_k$}; and
 \[
-l_{b}\equiv\texttt{fn \{bool\} ($t_{b_{1}}$ $v_{b_{1}}$, \ldots, $t_{b_{m}}$ $v_{b_{m}}$) => $e_{b}$},
+l_{b}\equiv\texttt{fn \{bool\} ($p_{b_{1}}$, \ldots, $p_{b_{n}}$) => $e_{b}$},
 \]
-whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{m}}$}, every input
+whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$}, every input
 $e_{b_{i}}$ corresponds to some output $o_{j}$, and every output
 $o_{i}$ corresponds to some input $e_{b_{i}}$.  That is, the producer
-set of $l_{a}$ is equal to the input set of $l_{b}$.
+set of $l_{a}$ is equal to the input set of $l_{b}$.  Or to put it
+another way, $l_{b}$ takes input from no other source.
 
 The goal is to compute a function
 \[
-l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($t_{r_{1}}$ $v_{r_{1}}$, \ldots, $t_{r_{l}}$ $v_{r_{l}}$)
+l_{r} \equiv \texttt{fn \{bool\} ($p_{a_{1}}$, \ldots, $p_{a_{n}}$)
 => $e_{r}$}
 \]
 whose inputs are \texttt{$i_{r_{1}}$,\ldots,$i_{r_{l}}$}, that
-corresponds to the intuitive composition of $l_{b} \wedge l_{a}$.
-
-
-
-We will write this entire operation as
+corresponds to the intuitive composition of $l_{a} \wedge l_{b}$.
+Note that the parameters are the same as for $l_{a}$, which means that
+we have to explicitly create a \texttt{let}-binding for the names of
+the parameters of $l_{b}$ before $e_{b}$ makes sense.  To this end,
+define the mapping
 \[
-\filtercompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}
+\inputmapping(o_{i}) = p_{b_{j}} \quad \textrm{when $o_{i} = e_{b_{j}}$}.
+\]
+
+The body of $l_{r}$ is now definable as
+\begin{align*}
+e_{r} \equiv\quad&\texttt{let \{$ok$\} = $e_{a}$ in $ok$ \&\&} \\
+& \texttt{let \{$\inputmapping(o_{1})$,\ldots,$\inputmapping(o_{k})$\} = \{$p_{a_{i}}$,\ldots,$p_{a_{n}}$\} in $e_{b}$}
+\end{align*}
+where $ok$ is some fresh variable.
+
+I will refer to this entire operation as
+\[
+\filtercompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{n}}}{o_{1},\ldots,o_{k}}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{a_{1}},\ldots,e_{a_{n}}}
+\]
+
+\subsection{\texttt{filter}-\texttt{fold} composition}
+
+We are given two functions:
+\[
+l_{a}\equiv\texttt{fn \{bool\} ($p_{a_{1}}$, \ldots, $p_{a_{n}}$) => $e_{a}$}
+\]
+which takes as inputs \texttt{$e_{a_{1}}$,\ldots,$i_{e_{n}}$}, and whose
+outputs are \texttt{$o_1$,\ldots,$o_k$}; and
+\[
+l_{b}\equiv\texttt{fn $t_{b_{r}}$ ($u_{b_{1}}$, \ldots, $u_{b_{m}}$, $p_{b_{1}}$, \ldots, $p_{b_{n}}$) => $e_{b}$},
+\]
+whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$} and every
+input $e_{b_{i}}$ corresponds to some output $o_{j}$, and every output
+$o_{i}$ corresponds to some input $e_{b_{i}}$.  That is, the producer
+set of $l_{a}$ is equal to the input set of $l_{b}$.  Or to put it
+another way, $l_{b}$ takes input from no other source.  The $u_{b}$s
+are accumulator parameters that do not correspond to an array input.
+
+The goal is to compute a function
+\[
+l_{r} \equiv \texttt{fn $t_{b_{r}}$ ($p_{r_{1}}$, \ldots, $p_{r_{l}}$)
+=> $e_{r}$}.
+\]
+
+Note that the parameters are the same as for $l_{a}$, which means that
+we have to explicitly create a \texttt{let}-binding for the names of
+the parameters of $l_{b}$ before $e_{b}$ makes sense.  To this end,
+define the mapping
+\[
+\inputmapping(o_{i}) = p_{b_{j}} \quad \textrm{when $o_{i} = e_{b_{j}}$}.
+\]
+
+The body of $l_{r}$ is now definable as
+\begin{align*}
+e_{r} \equiv\quad&\texttt{let \{$ok$\} = $e_{a}$ in if $ok$} \\
+& \texttt{then let \{$\inputmapping(o_{1})$,\ldots,$\inputmapping(o_{k})$\} = \{$p_{a_{i}}$,\ldots,$p_{a_{n}}$\} in $e_{b}$} \\
+& \texttt{else \{$u_{b_{1}}$, \ldots, $u_{b_{m}}$\}}
+\end{align*}
+where $ok$ is some fresh variable.
+
+I will refer to this entire operation as
+\[
+\foldcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{n}}}{o_{1},\ldots,o_{k}}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{a_{1}},\ldots,e_{a_{n}}}
 \]
 
 \section{Fusion rules}
@@ -296,12 +383,90 @@ We will write this entire operation as
 \newcommand\fusesto[4]{\bfrac{#2\overset{#1}{\leadsto}#3}{\Rightarrow #4}}
 
 \begin{align*}
-  \fusesto
-  {\texttt{\{$c_{1}$,\ldots,$c_{2}$\}}}
-  {\texttt{mapT($l_{a}$,$a_{1}$,\ldots,$a_{n}$)}}
-  {\texttt{mapT($l_{b}$,$b_{1}$,\ldots,$b_{n}$)}}
-  {\texttt{mapT($l_{b} \circ l_{a}$,$b_{1}$,\ldots,$b_{n}$, $a_{1}$,\ldots,$a_{n}$)}}
-  \tagsc{Fuse-Map}
+  \nfrac{
+    \mapcompose{l_{b}}{es_{b}}{os}{l_{a}}{es_{a}}{l_{r}}{es_{r}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{mapT($l_{a}$,$es_a$)}}
+    {\texttt{mapT($l_{b}$,$es_b$)}}
+    {\texttt{mapT($l_{r}$,$es_r$)}}
+  }
+  \tagsc{Fuse-Map-Map}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {\texttt{mapT($l_{a}$,$es_a$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{mapT($l_{a}$,$es_a$)}}
+    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }
+  \tagsc{Fuse-Map-Reduce}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }
+  \tagsc{Fuse-Filter-Reduce}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \mapcompose
+    {\texttt{fn $t_{b_{r}}$ ($ps_{b}$) => $e_{b}$}}
+    {es_{b}}
+    {os}
+    {l_{a}}
+    {es_{a}}
+    {\texttt{fn $t_{b_{r}}$ ($ps_{r}$) => $e_{r}$}}
+    {es_{r}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{mapT($l_{a}$,$es_{a}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{b}$) => $e_{b}$},\{$vs$\},$es_{b}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{r}$) => $e_{r}$},\{$vs$\},$es_{r}$)}}
+  }
+  \tagsc{Fuse-Map-Redomap}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \foldcompose
+    {\texttt{fn $t_{b_{r}}$ ($ps_{b}$) => $e_{b}$}}
+    {es_{b}}
+    {os}
+    {l_{a}}
+    {es_{a}}
+    {\texttt{fn $t_{b_{r}}$ ($ps_{r}$) => $e_{r}$}}
+    {es_{a}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{filterT($l_{a}$,$es_{a}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{b}$) => $e_{b}$},\{$vs$\},$es_{b}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{r}$) => $e_{r}$},\{$vs$\},$es_{a}$)}}
+  }
+  \tagsc{Fuse-Filter-Redomap}
 \end{align*}
 
 \section{Dataflow}
