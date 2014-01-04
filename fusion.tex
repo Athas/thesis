@@ -202,16 +202,16 @@ map(fn [int] (\{int,int,[int]\} t) =>
 \newcommand\arrparams[1]{\textrm{params}(#1)}
 
 In this section, we will assume that each output of a producer is used
-exactly once in every relevant consumer.  This property can be
-guaranteed through trivial rewriting prior to performing function
-composition, as illustrated on \fref{fig:single-input-transform}.
-This guarantees that each output of a producer is bound to exactly one
-parameter of a consumer's function, making it easier to describe the
-relationship between producer and consumer.\footnote{In the actual
-  implementation, this transformation is not done.  Instead, the
-  composition uses more complicated bookkeeping, but presenting the
-  full method details would obscure the exposition of the central
-  mechanism.}
+exactly once in every relevant \texttt{redomap}- and
+\texttt{map}-consumer.  This property can be guaranteed through
+trivial rewriting prior to performing function composition, as
+illustrated on \fref{fig:single-input-transform}.  We gain the benefit
+that each output of the producer is bound to exactly one parameter of
+the consumer's function, making it easier to describe the relationship
+between producer and consumer.\footnote{In the actual implementation,
+  this transformation is not done.  Instead, the composition uses more
+  complicated bookkeeping, but presenting all details would obscure
+  the exposition of the central mechanism.}
 
 \begin{figure}
 \begin{center}
@@ -397,40 +397,6 @@ I will refer to this entire operation as
 
 \begin{align*}
   \nfrac{
-    \fusesto
-    {\texttt{\{$os$\}}}
-    {\texttt{mapT($l_{a}$,$es_a$)}}
-    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
-  }{
-    \fusesto
-    {\texttt{$os$}}
-    {\texttt{mapT($l_{a}$,$es_a$)}}
-    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
-  }
-  \tagsc{Fuse-Map-Reduce}
-\end{align*}
-
-\begin{align*}
-  \nfrac{
-    \fusesto
-    {\texttt{\{$os$\}}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
-  }{
-    \fusesto
-    {\texttt{$os$}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
-  }
-  \tagsc{Fuse-Filter-Reduce}
-\end{align*}
-
-\begin{align*}
-  \nfrac{
     \mapcompose
     {\texttt{fn $t_{b_{r}}$ ($ps_{b}$) => $e_{b}$}}
     {es_{b}}
@@ -467,6 +433,61 @@ I will refer to this entire operation as
     {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{r}$) => $e_{r}$},\{$vs$\},$es_{a}$)}}
   }
   \tagsc{Fuse-Filter-Redomap}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{reduceT($l_{r}$,\{$us$\},$es_a$)}}
+  } (os=es_{b})
+  \tagsc{Fuse-Filter-Reduce-1}
+\end{align*}
+
+Fusing \texttt{map}-\texttt{reduce} and
+\texttt{filter}-\texttt{reduce} is done by first rewriting
+\texttt{reduce} to \texttt{redomap}.
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {\texttt{mapT($l_{a}$,$es_a$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{mapT($l_{a}$,$es_a$)}}
+    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }
+  \tagsc{Fuse-Map-Reduce}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+  }
+  \tagsc{Fuse-Filter-Reduce-2}
 \end{align*}
 
 \section{Dataflow}
@@ -650,7 +671,7 @@ if p(map(v,b)) then map(g,b)
 \label{fig:fuse-across-if-bad-condition}
 \end{figure}
 
-\item[Case $e \equiv \texttt{let $vs$ = mapT(fn $t$ ($t_{1}$ $v_{p_{1}}$, \ldots, $t_{n}$ $v_{p_{n}}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$) in $e_{b}$}$]
+\item[Case $e \equiv \texttt{let \{$vs$\} = mapT(fn $t$ ($p_1$, \ldots, $p_n$) => $e_f$, $es$) in $e_{b}$}$]
 
   The big question here is whether the SOAC can be fused as producer
   with something in $\soacs(e_{b})$.  In the following, $\ell_{p}$ is
@@ -677,19 +698,24 @@ if p(map(v,b)) then map(g,b)
   &
 \end{align*}
 
-\item[Can fuse with some SOAC $\ell_{c}$:]\hfill\\
+\item[Can fuse with some SOAC $soac_{c}$ with label $\ell_{c}$:]\hfill\\
 
-  Let $(vs',s') = \textsc{doThatFunkyFusionThing}(\ell, \ell_{c})$.
-  \fxnote{Magic happens -- I probably need to factor the precise fusion
-    mechanics into a separate section, putting them inline here would
-    be really confusing.}
+\[
+   \fusesto
+    {vs}
+    {\texttt{mapT(fn $t$ ($p_1$, \ldots, $p_n$) => $e_f$, $es$)}}
+    {soac_{c}}
+    {soac_{r}}
+\]
+
+Let $es_{r}$ be the inputs of $soac_{r}$.
 
 \begin{align*}
-  & \soacs(e) = (\soacs(e_{b}) \backslash \ell_{c}) \cup \soacs(e_{f}) \cup \{ (\ell_{c}, (vs', s')) \}\\
+  & \soacs(e) = (\soacs(e_{b}) \backslash \ell_{c}) \cup \soacs(e_{f}) \cup \{ (\ell_{c}, (vs, soac_{r})) \}\\
   \\
   & \inputs(e) =\\
   & \quad (\textrm{$\inputs(e_{b})$ with all mappings to $\ell_{c}$ removed}) \\
-  & \quad \sqcup \{ (v,\ell_{c}) |\ \textrm{for all array inputs $v$ to $s'$} \}
+  & \quad \sqcup \{ (v,\ell_{c}) |\ \textrm{for all array inputs $v$ in $es_{r}$} \}
 \end{align*}
 \end{description}
 
