@@ -201,17 +201,32 @@ map(fn [int] (\{int,int,[int]\} t) =>
 \newcommand\inputmapping[0]{\mathcal{I}}
 \newcommand\arrparams[1]{\textrm{params}(#1)}
 
+To begin our discussion of the precise mechanics of fusion, I will
+present the mechanics behind composing the functions involved in a
+fusion operation.  For example, consider the trivial example of
+\texttt{map}-\texttt{map}-fusion.  In principle, the equation seems
+simple enough:
+\[
+\texttt{map} f \circ \texttt{map} g = \texttt{map} (f \circ g).
+\]
+However, while the intuition behind the above equation is correct, it
+is woefully imprecise.  Fusion in \LO{} is not performed on simple
+\texttt{map}s that take input from only one other \texttt{map}, but
+complex \texttt{mapT}s that may take input from several sources, where
+only some may be fusable.  Hence, a more detailed elaboration is
+necessary.
+
 In this section, we will assume that each output of a producer is used
 exactly once in every relevant \texttt{redomap}- and
-\texttt{map}-consumer.  This property can be guaranteed through
+\texttt{map}-consumer.  This assumption can be provided through
 trivial rewriting prior to performing function composition, as
-illustrated on \fref{fig:single-input-transform}.  We gain the benefit
-that each output of the producer is bound to exactly one parameter of
-the consumer's function, making it easier to describe the relationship
-between producer and consumer.\footnote{In the actual implementation,
-  this transformation is not done.  Instead, the composition uses more
-  complicated bookkeeping, but presenting all details would obscure
-  the exposition of the central mechanism.}
+illustrated on \fref{fig:single-input-transform}.  We gain the
+property that each output of the producer is bound to exactly one
+parameter of the consumer's function, making it easier to describe the
+relationship between producer and consumer.\footnote{In the actual
+  implementation, this transformation is not done.  Instead, the
+  composition uses more complicated bookkeeping, but presenting all
+  details would obscure the exposition of the central mechanism.}
 
 \begin{figure}
 \begin{center}
@@ -233,7 +248,17 @@ mapT(fn int (int a, int b, int d) =>
 \label{fig:single-input-transform}
 \end{figure}
 
+The presentation will be of the form of \textit{judgements}.  To skip
+ahead a bit, I will write the \texttt{map}-composition of two
+functions as
+\[
+\mapcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{o_1,\ldots,o_k}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}.
+\]
+This judgement is said to \textit{hold} if the preconditions specified
+for the judgement are upheld.
+
 \subsection{\texttt{map}-\texttt{map} composition}
+\label{sec:map-map-composition}
 
 We are given two functions:
 \[
@@ -300,11 +325,12 @@ outputs are \texttt{$o_1$,\ldots,$o_k$}; and
 \[
 l_{b}\equiv\texttt{fn \{bool\} ($p_{b_{1}}$, \ldots, $p_{b_{n}}$) => $e_{b}$},
 \]
-whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$}, every input
-$e_{b_{i}}$ corresponds to some output $o_{j}$, and every output
-$o_{i}$ corresponds to some input $e_{b_{i}}$.  That is, the producer
-set of $l_{a}$ is equal to the input set of $l_{b}$.  Or to put it
-another way, $l_{b}$ takes input from no other source.
+whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$}.
+
+Every input $e_{b_{i}}$ must correspond to some output $o_{j}$, and
+every output $o_{i}$ must correspond to some input $e_{b_{i}}$.  That
+is, the producer set of $l_{a}$ is equal to the input set of $l_{b}$.
+Or to put it another way, $l_{b}$ takes input from no other source.
 
 The goal is to compute a function
 \[
@@ -315,7 +341,7 @@ whose inputs are \texttt{$i_{r_{1}}$,\ldots,$i_{r_{l}}$}, that
 corresponds to the intuitive composition of $l_{a} \wedge l_{b}$.
 Note that the parameters are the same as for $l_{a}$, which means that
 we have to explicitly create a \texttt{let}-binding for the names of
-the parameters of $l_{b}$ before $e_{b}$ makes sense.  To this end,
+the parameters of $l_{b}$ or they will be free in $e_{b}$.  To this end,
 define the mapping
 \[
 \inputmapping(o_{i}) = p_{b_{j}} \quad \textrm{when $o_{i} = e_{b_{j}}$}.
@@ -382,6 +408,16 @@ I will refer to this entire operation as
 
 \newcommand\fusesto[4]{\bfrac{#2\overset{#1}{\leadsto}#3}{\Rightarrow #4}}
 
+With function composition defined, we can define fusion rules for
+SOACs.  I present fusion as a judgement
+\[
+\fusesto{os}{producer}{consumer}{result}.
+\]
+This means that $producer$, which produces outputs $os$, can be fused
+with $consumer$, yielding $result$ as the combined SOAC.  Valid
+judgements of this form are given by the following inference rules,
+which should mostly be intuitive.
+
 \begin{align*}
   \nfrac{
     \mapcompose{l_{b}}{es_{b}}{os}{l_{a}}{es_{a}}{l_{r}}{es_{r}}
@@ -435,23 +471,6 @@ I will refer to this entire operation as
   \tagsc{Fuse-Filter-Redomap}
 \end{align*}
 
-\begin{align*}
-  \nfrac{
-    \fusesto
-    {\texttt{\{$os$\}}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
-  }{
-    \fusesto
-    {\texttt{$os$}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{reduceT($l_{r}$,\{$us$\},$es_a$)}}
-  } (os=es_{b})
-  \tagsc{Fuse-Filter-Reduce-1}
-\end{align*}
-
 Fusing \texttt{map}-\texttt{reduce} and
 \texttt{filter}-\texttt{reduce} is done by first rewriting
 \texttt{reduce} to \texttt{redomap}.
@@ -472,6 +491,28 @@ Fusing \texttt{map}-\texttt{reduce} and
   }
   \tagsc{Fuse-Map-Reduce}
 \end{align*}
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{redomapT($l_{b}$,$l_{r}$,\{$us$\},$es_r$)}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {\texttt{filterT($l_{a}$,$es_a$)}}
+    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
+    {\texttt{reduceT($l_{r}$,\{$us$\},$es_a$)}}
+  } (os=es_{b}, \textrm{types of $os = $ types of $es_{b}$})
+  \tagsc{Fuse-Filter-Reduce-1}
+\end{align*}
+
+Note that \textsc{Fuse-Filter-Reduce-1} has a side condition that
+implies that the types of $es_{a}$ are equal to the types of $es_{b}$.
+This permits us to keep the result as a \texttt{reduceT} rather than a
+\texttt{redomapT}.
 
 \begin{align*}
   \nfrac{
@@ -502,14 +543,14 @@ Fusing \texttt{map}-\texttt{reduce} and
 We will track the following pieces of information.\fxnote{All of this can be done in one pass - explain how and why.}
 
 \begin{description}
-\item[$\soacs : Exp \rightarrow Label \rightarrow Pat \times Exp$.] The set
+\item[$\soacs : Exp \rightarrow Label \times Pat \times Exp$.] The set
   of all SOAC expressions in an expression, modelled as a mapping from
   a (unique) identifier to a pair of a SOAC expression and its output
   pattern.  We shall say $\soacs(e)$ to refer to this mapping, and
   $\soacs(e)[l]$ to refer to the SOAC with label $l$.  For example,
   \begin{align*}
   & \soacs(\texttt{let \{$a$,$b$,$c$\} = mapT($f$,$x$,$y$,$z$) in \{$a$,$b$,$c$\}}) =\\
-  & \quad \{ (\ell, (\texttt{\{$a$,$b$,$c$\}},\texttt{mapT($f$,$x$,$y$,$z$)})) \},
+  & \quad \{ (\ell, \texttt{\{$a$,$b$,$c$\}},\texttt{mapT($f$,$x$,$y$,$z$)}) \},
   \end{align*}
   where $\ell$ is a fresh label.  After the $\soacs$ set has been
   computed, we can use $\soacs(e_{b})$, where $e_{b}$ is the body of a
@@ -584,8 +625,9 @@ Now for specific rules, based on the shape of the given expression.
 \begin{description}[style=nextline]
 \item[Case $e \equiv v$]
 
-  This rule is only applied when $v$ is not an array input to a SOAC,
-  which implies that the producer of $v$ cannot be fused.
+  This rule is only applied when $v$ is not an array input to a SOAC.
+  This implies that the producer of $v$ cannot be fused, as its output
+  $v$ is used here.
 \begin{align*}
   & \unfusable(e) = \{v\} \\
 \end{align*}
@@ -600,7 +642,7 @@ Now for specific rules, based on the shape of the given expression.
   operation by an inlined copy of the \texttt{map} function, and let
   the original \texttt{map} be fused.  Duplicating computation of a
   single element is likely acceptable, but not done by the current
-  implementation.
+  implementation. \fxnote{We actually do this in limited cases.}
   \begin{align*}
   & \unfusable(e) = \{v\} \cup \bigcup_{1\leq i \leq n}\unfusable(e_{i}) \\
 \end{align*}
@@ -671,18 +713,67 @@ if p(map(v,b)) then map(g,b)
 \label{fig:fuse-across-if-bad-condition}
 \end{figure}
 
-\item[Case $e \equiv \texttt{let \{$vs$\} = mapT(fn $t$ ($p_1$, \ldots, $p_n$) => $e_f$, $es$) in $e_{b}$}$]
+\item[Case $e \equiv \texttt{let \{$vs$\} = $soac$ in $e_{b}$}$]
 
-  The big question here is whether the SOAC can be fused as producer
+  The big question here is whether $soac$ can be fused as producer
   with something in $\soacs(e_{b})$.  In the following, $\ell_{p}$ is
-  a fresh name.
+  a fresh name.  Let
+  \[
+  \zeta = \bigcup_{v \in vs} \inputs(e_{b},v)
+  \]
+  be the set of the labels of all SOACs that take our output as input.
+  Additionally, let $e_{f}$ be the body of the function of $soac$.  In
+  case $soac$ is \texttt{redomapT}, the second function (the inner
+  fold) is used, as this is the one that is actually composed.
 
-  \fxnote{Finish description.  Not sure how to explain this in a simple
-    manner, there are a ton of rules, after all.  There's also the
-    annoying issue of turning the SOAC array arguments into names...}
+  For all $\ell_{c} \in \zeta$, we find the corresponding triple
+  $(\ell_{c},vs_{c},soac_{c})$ in $\soacs(e_{b})$.  We can check
+  whether fusion is possible by determining whether the following
+  judgement is derivable.
+
+\[
+   \fusesto
+    {vs}
+    {soac}
+    {soac_{c}}
+    {soac_{c_{r}}}
+\]
+
+If so, we can fuse $soac$ with $soac_{c}$ and get $soac_{c_{r}}$.  We
+only perform fusion if we can fuse with \textit{all} consumers in
+$\zeta$, as we might otherwise duplicate computation.
+
+Additionally, we must also check whether any of $vs$ are in the
+unfusable set.  Thus, if the intersection
+\[
+vs \cap \unfusable(e_{b})
+\]
+is non-empty, we cannot fuse at all.
 
 \begin{description}
+\item[Can fuse:]
+
+  In this case, we are fusing with several SOACs $soac_{c}$, each with
+  a corresponding label $\ell_{c}$, and fused as $soac_{c_{r}}$.
+
+\begin{align*}
+  & \soacs(e) =\\
+  & \quad (\soacs(e_{b}) \backslash \zeta)\\
+  & \quad \cup \soacs(e_{f})\\
+  & \quad \cup \{ (\ell_{c}, (vs, soac_{r})) | \textrm{for each $soac_{c_{r}}$} \}\\
+  \\
+  & \inputs(e) =\\
+  & \quad (\textrm{$\inputs(e_{b})$ with all mappings to each $\ell_{c}$ removed}) \\
+  & \quad \sqcup \{ (v,\ell_{c}) |\ \textrm{for all array inputs $v$ in each $soac_{c_{r}}$} \}
+\end{align*}
+
 \item[Cannot fuse:]
+
+  If we \textit{cannot} fuse with all consumers in $\zeta$, or one of
+  the outputs of $soac$ is in the unfusable set, then we cannot fuse
+  with $soac$ as a producer, and we must add it by itself.  It may be
+  fused as the consumer at some later stage of the algorithm, however.
+
 \begin{align*}
   & \unfusable(e) =\\
   & \quad \unfusable(e_{b})\\
@@ -694,28 +785,8 @@ if p(map(v,b)) then map(g,b)
   & \quad \sqcup \inputs(e_{f})\\
   & \quad \sqcup \{(e_{1},\{\ell_{p}\}), \ldots, (e_{n},\{\ell_{p}\})\}\\
   \\
-  & \soacs(e) = \soacs(e_{b}) \cup \{(\ell_{p}, (vs, \texttt{mapT(\ldots)}))\} \\
+  & \soacs(e) = \soacs(e_{b}) \cup \{(\ell_{p}, (vs, soac))\} \\
   &
-\end{align*}
-
-\item[Can fuse with some SOAC $soac_{c}$ with label $\ell_{c}$:]\hfill\\
-
-\[
-   \fusesto
-    {vs}
-    {\texttt{mapT(fn $t$ ($p_1$, \ldots, $p_n$) => $e_f$, $es$)}}
-    {soac_{c}}
-    {soac_{r}}
-\]
-
-Let $es_{r}$ be the inputs of $soac_{r}$.
-
-\begin{align*}
-  & \soacs(e) = (\soacs(e_{b}) \backslash \ell_{c}) \cup \soacs(e_{f}) \cup \{ (\ell_{c}, (vs, soac_{r})) \}\\
-  \\
-  & \inputs(e) =\\
-  & \quad (\textrm{$\inputs(e_{b})$ with all mappings to $\ell_{c}$ removed}) \\
-  & \quad \sqcup \{ (v,\ell_{c}) |\ \textrm{for all array inputs $v$ in $es_{r}$} \}
 \end{align*}
 \end{description}
 

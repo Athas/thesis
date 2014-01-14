@@ -1,6 +1,40 @@
 \chapter{Fusion-enabling SOAC transformations}
 \label{chap:fusion-enabling-soac-transformations}
 
+In this chapter, we will have need of a more convenient notation for
+perfectly nested \texttt{mapT}s.
+
+\begin{colorcode}
+mapT\(\myindu{1}\)(f, a\(\myindx{1}\), \ldots , a\(\myindx{k}\)) \emphh{\(\equiv\)}
+mapT(g, a\(\myindx1\), \ldots, a\(\myindx{k}\))
+
+mapT\(\myindu{n+1}\)(f, a\(\myindx{1}\), \ldots, a\(\myindx{k}\)) \emphh{\(\equiv\)}
+mapT(fn \{[\(\beta\myindx{1}\)], \ldots, [\(\beta\myindx{t}\)]\} ([\(\alpha\myindx{1}\)] x\(\myindx{1}\), \ldots, [\(\alpha\myindx{k}\)] x\(\myindx{k}\))) =>
+       mapT\(\myindu{n}\)(f, x\(\myindx{1}\), \ldots, x\(\myindx{k}\))
+\end{colorcode}
+
+\section{Fusing across \texttt{reshape}}
+
+\section{Fusing across \texttt{transpose}}
+
+\begin{colorcode}
+let x=mapT\mymath{\myindu{n}}(f,a) in let y=transpose(1,n-k,x) in mapT\mymath{\myindu{n}}(g,y)
+        \emphh{\mymath{\equiv}}
+mapT\mymath{\myindu{n}}(g o f, transpose(1,n-k,a) ) 
+// \emphh{i.e., the mapT produced by ISWIM may be further fused.}
+\end{colorcode}
+
+\section{ISWIM - Interchange scan with inner maps}
+
+Interchanging Scan With Inner Maps (ISWIM) Example
+
+\begin{colorcode}
+scanT( fn [real] ([real] x, [real] y) => mapT(op +, x, y), 
+     , \{0.0,..,0.0\}, a )   \emphh{\mymath{\equiv}}
+transpose( mapT (fn [real] ([real] x)=>scanT(op +,0.0,x)
+                , transpose(a) )
+\end{colorcode}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "thesis.tex"
