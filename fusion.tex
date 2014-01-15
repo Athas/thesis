@@ -472,8 +472,10 @@ which should mostly be intuitive.
 \end{align*}
 
 Fusing \texttt{map}-\texttt{reduce} and
-\texttt{filter}-\texttt{reduce} is done by first rewriting
-\texttt{reduce} to \texttt{redomap}.
+\texttt{filter}-\texttt{reduce} is usually done by first rewriting
+\texttt{reduce} to \texttt{redomap}, although when the producer-output
+and consumer-input match exactly, \texttt{filter}-\texttt{reduce} can
+fuse to \texttt{reduce}.
 
 \begin{align*}
   \nfrac{
@@ -498,16 +500,19 @@ Fusing \texttt{map}-\texttt{reduce} and
     {\texttt{\{$os$\}}}
     {\texttt{filterT($l_{a}$,$es_a$)}}
     {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($l_{b}$,$l_{r}$,\{$us$\},$es_r$)}}
+    {\texttt{redomapT($l_{b}$,$l_{r}$,\{$us$\},$es_a$)}}
+    \quad
+    os:es_{b}\ ::\ us:us'
   }{
     \fusesto
     {\texttt{$os$}}
     {\texttt{filterT($l_{a}$,$es_a$)}}
     {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{reduceT($l_{r}$,\{$us$\},$es_a$)}}
-  } (os=es_{b}, \textrm{types of $os = $ types of $es_{b}$})
+    {\texttt{reduceT($l_{r}$,\{$us'$\},$es_a$)}}
+  } (\textrm{types of $os = $ types of $es_{b}$})
   \tagsc{Fuse-Filter-Reduce-1}
 \end{align*}
+\fxnote{Define $::$}
 
 Note that \textsc{Fuse-Filter-Reduce-1} has a side condition that
 implies that the types of $es_{a}$ are equal to the types of $es_{b}$.

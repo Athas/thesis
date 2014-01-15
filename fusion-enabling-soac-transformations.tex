@@ -24,6 +24,23 @@ mapT\mymath{\myindu{n}}(g o f, transpose(1,n-k,a) )
 // \emphh{i.e., the mapT produced by ISWIM may be further fused.}
 \end{colorcode}
 
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$os$\}}}
+    {soac_{p}}
+    {\texttt{mapT$^{k+n}$($f$,$es'$)}}
+    {soac_{r}}
+  }{
+    \fusesto
+    {\texttt{$os$}}
+    {soac_{p}}
+    {\texttt{mapT$^{k+n}$($f$,$es$)}}
+    {\texttt{transpose(k, n, $soac_{r}$)}}
+  }
+  \tagsc{Push-Transpose}
+\end{align*}
+
 \section{ISWIM - Interchange scan with inner maps}
 
 Interchanging Scan With Inner Maps (ISWIM) Example

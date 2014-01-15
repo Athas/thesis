@@ -1,2 +1,343 @@
 \chapter{Uniqueness types}
 \label{chap:uniqueness-types}
+
+While \LO{} is through and through a pure functional language, it may
+occasionally prove useful to express certain algorithms in an
+imperative style.  In such cases, we may also want to update arrays
+\textit{in-place}, that is, with a static guarantee that the operation
+will not require any additional memory allocation, such as copying the
+array.  In order to perform such updates without violating referential
+transparency, we need to know that no other references to the array
+exist, or at least that they will not be used.  In LO{}, this is done
+through a type system feature known as \textit{uniqueness types},
+similar to, although simpler, than the one found in
+Clean~\cite{clean-uniqueness-types}\cite{barendsen1996uniqueness}.
+Alongside a (relatively) simple aliasing analysis in the type checker,
+this is sufficient to determine a compile time whether an in-place
+modification is safe.
+
+The simplest way to introduce uniqueness types are through examples.
+To that end, let us consider the following function definition.
+
+\begin{colorcode}
+fun \emp{*}[int] modify(\emp{*}[int] a, int i, int x) =
+  let b = a with [i] <- a[i] + x in
+  b
+\end{colorcode}
+
+The function \texttt{modify(a,i,x)} returns \texttt{a}, but where the
+element at index \texttt{i} has been increased by \texttt{x}.  Note
+the \emp{asterisks}: In the parameter declaration \texttt{*[int] a},
+this means that the function \texttt{modify} has been given
+``ownership'' of the array \texttt{a}, meaning that it can do whatever
+it wants with its contents - the caller will never reference it again.
+In particular, it can modify the element at index \texttt{i} without
+first copying the array.  Furthermore, the return value of
+\texttt{modify} is also unique - this means that there are no other
+references to the underlying memory, and the caller can use it as it
+sees fit.
+
+Let us consider a call to \texttt{modify}, which might look as
+follows.
+
+\begin{colorcode}
+let b = modify(a, i, x) in
+...
+\end{colorcode}
+
+Under which circumstances is this call valid?  Two things must hold:
+\begin{enumerate}
+\item The type of \texttt{a} must be \texttt{*[int]}, of course.
+
+\item Neither \texttt{a} or any variable that \textit{aliases}
+  \texttt{a} may be used on any execution path following the call to
+  \texttt{modify}.
+\end{enumerate}
+
+In general, when a value is passed as a unique-typed argument in a
+function call, we consider that value to be \textit{consumed}, and
+neither it nor any of its aliases can be used again.  Otherwise, we
+would break the contract that gives the function liberty to manipulate
+the argument however it wants.  Note that it is the type in the
+argument declaration that must be unique - it is permissible to pass a
+unique-typed variable as a non-unique argument (that is, a unique type
+is a subtype of the corresponding nonunique type).
+
+A variable aliases \texttt{a} if it may share the same memory.  As the
+most trivial case, after evaluating the binding \texttt{let b = a},
+the variable \texttt{b} will alias \texttt{a}.  As another example, if
+we extract a row from a two-dimensional array, the row will alias its
+source.  Section \ref{sec:l0-sharing} will cover sharing and sharing
+analysis in greater detail.
+
+Let us consider the definition of a function returning a unique array:
+
+\begin{colorcode}
+fun *[int] f([int] a) = \(e\)
+\end{colorcode}
+
+Note that the argument, \texttt{a}, is non-unique, and hence we cannot
+modify it.  But there is another restriction: \texttt{a} must not be
+aliased to our return value, as the uniqueness contract requires us to
+ensure that there are no other references to the unique return value.
+This requirement would be violated if we permitted the return value in
+a unique-returning function to alias its (non-unique) parameters.
+
+\begin{description}
+\item[Uniqueness Rule 1] When a value is passed in the place of a
+  unique parameter in a function call, neither that value, nor any
+  value that aliases it, may be used on any execution path following
+  the function call.
+
+\item[Uniqueness Rule 2] If a function definition is declared to
+  return a unique value, the return value (that is, the result of the
+  body of the function) must not share memory with any non-unique
+  arguments to the function.
+
+\item[Uniqueness Rule 3] If a function call yields a unique
+  return value, the caller has exclusive access to that value.  The
+  value may not share memory with any variable used in any execution
+  path following the function call.
+\end{description}
+
+\subsection{Sharing analysis}
+\label{sec:l0-sharing}
+
+Whenever the memory regions for two values overlap, we say that they
+are \textit{aliased}, or that \textit{sharing} is present.  As an
+example, if you have a two-dimensional array \texttt{a} and extract
+its first row as the one-dimensional array \texttt{b}, we say that
+\texttt{a} and \texttt{b} are aliased.  While the \LO{} compiler may
+do a deep copy if it wishes, it is not required, and this operation
+thus holds the potential for sharing memory.  Sharing analysis is
+necessarily conservative, and merely imposes an upper bound on the
+amount of sharing happening at runtime.  The sharing analysis in \LO{}
+has been carefully designed to make the bound as tight as possible,
+but still easily computable.
+
+In \LO{}, the only values that can have any sharing are arrays -
+everything else is considered ``primitive''.  Tuples are special, in
+that they are not considered to have any identity beyond their
+elements.  Therefore, when we store sharing information for a
+tuple-typed expression, we do it for each of its element types, rather
+than the tuple value as a whole.
+
+To be precise, sharing information for an expression $e$, written
+$\aliases{e}$, can take one of two forms:
+
+\begin{enumerate}
+\item $l$, where $l$ is a subset of the variables in scope at $e$.
+  This means that $e$ may share data with some of the variables in
+  $l$.
+
+\item $\langle s_{1}, \ldots, s_{n} \rangle$, which requires that the
+  type of $e$ is a tuple $\{t_{1}, \ldots, t_{n}\}$, and denotes that
+  the sharing of the $i$th component is $s_{i}$.
+\end{enumerate}
+
+We need a way to combine sharing information.  The typical case is for
+computing sharing information for the expression \texttt{if c then e1
+  else e2}, where the sharing of the resulting value is the
+``combination'' of the sharing in both \texttt{e1} and \texttt{e2}.
+We make this combination precise by the associative, commutative
+operation $s_{1} \oplus s_{2}$, which is defined by the following
+equation.
+
+\begin{align*}
+  l_{1} \oplus l_{2} &= l_{1} \cup l_{2} \\
+  l \oplus \langle s_{1}, \ldots, s_{n} \rangle &= \langle l \oplus s_1, \ldots, l \oplus s_n \rangle \\
+   \langle s_{1}, \ldots, s_{n} \rangle \oplus l &= \langle l \oplus s_1, \ldots, l \oplus s_n \rangle \\
+  \langle s_{1}, \ldots, s_{n} \rangle \oplus \langle s_{n+1}, \ldots, s_{2n} \rangle &= \langle s_{1} \oplus s_{n+1}, \ldots, s_{n} \oplus s_{2n} \rangle \\
+\end{align*}
+
+Now we can define
+\[
+\aliases{\texttt{if c then e1 else e2}} = \aliases{\texttt{e1}} \oplus \aliases{\texttt{e2}}.
+\]
+Note that $(\oplus, \emptyset)$ constitutes a monoid - this is
+exploited in the \LO{} compiler.  We will often treat sharing
+information as a set and write things such as $\forall
+v\in\aliases{e}.p(v)$ -- in these cases, the set elements are all
+variables contained anywhere in the sharing information.
+
+Aliasing is transitive -- if $v\in\aliases{e}$, then
+$v'\in\aliases{e}\Rightarrow v\in\aliases{v'}$.  Aliasing is mostly
+intuitive, but here's a few rules describing how sharing is propagated
+by various expressions.
+
+\begin{align*}
+  \aliases{\texttt{\textit{e}}} &= \emptyset & (\text{Whenever $e$ has a basic type}) \\
+  \aliases{\texttt{copy(\textit{e})}} &= \emptyset \\
+  \aliases{\texttt{if \textit{c} then ${e}_{1}$ else ${e}_{2}$}} &= \aliases{e_{1}} \oplus \aliases{e_{2}} \\
+\end{align*}
+
+The rule for function application is more complicated.  To begin with,
+and this was indeed the original rule in \LO{}, we can state that the
+return value of a function call aliases all of its arguments.
+
+\begin{align*}
+  \aliases{\textit{f}(e_{1}, \ldots, e_{n})} &= \bigcup_{1 \leq i \leq n} \aliases{e_{i}} & \textit{(--Too restrictive!)}
+\end{align*}
+
+However, it turns out that this is far too restrictive.  Consider a
+call \texttt{f1(a)} to the function \texttt{f1} whose type is shown on
+\fref{fig:unique-arguments} - if the return value aliased the
+argument \texttt{a}, then we could never use the return value at all,
+as it would alias something that has been consumed, namely the
+parameter \texttt{a}.  Hence, a first elaboration is that the return
+value should only alias those function arguments that are not
+consumed:
+
+\begin{align*}
+  \aliases{\textit{f}(e_{1}, \ldots, e_{n})} &= \bigcup_{1 \leq i \leq n, \text{$e_{i}$ is not consumed}} \aliases{e_{i}}  & \textit{(--Still too restrictive!)}
+\end{align*}
+
+The argument for the soundness of this rule is as follows: even if the
+return value may at runtime alias a consumed argument, we do not need
+to record it, as that argument will never be accessed elsewhere.
+
+Unfortunately, the above rule is still too restrictive, as can be
+illustrated by function \texttt{f2} from \ref{fig:unique-arguments}.
+Consider a call \texttt{f2(a)} - by the above rule, the return value
+would be aliased to \texttt{a}, which would violate Uniqueness
+Rule 3, as \texttt{a} may be used again.
+
+Hence, we add another elaboration, wherein the alias set is empty if
+the return value is unique.
+
+\begin{align*}
+  \aliases{f(e_{1}, \ldots, e_{n})} &=
+  \begin{cases}
+    \emptyset & \mbox{If $f$ returns a unique value}\\
+    \bigcup_{\overset{1 \leq i \leq n}{\text{$e_{i}$ is not consumed}}} \aliases{e_{i}} & \mbox{Otherwise}
+  \end{cases}
+\end{align*}
+
+The final rule is essentially correct, except that it ignores tuples.
+As mentioned earlier, sharing information for tuples is represented
+element-wise.  Hence, we can simply apply the above rule piecewise for
+each element in the tuple.
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+fun [int] f1(*[int] a) = ...
+
+fun *[int] f2([int] a) = ...
+\end{bcolorcode}
+\end{center}
+\caption{Unique arguments}
+\label{fig:unique-arguments}
+\end{figure}
+
+\subsection{Tracking uniqueness}
+\label{subsec:l0-tracking-uniqueness}
+
+If the type of an array parameter is preceded by a single asterisk, it
+denotes that the array is unique - that it will never be reused
+outside of the current function.  The source operand to a let-with
+\textit{must} be unique.  If it is not, it is reported as a type
+error.  Let-with and function calls are the only places in which
+variable consumption can happen.  As a first example, let us consider
+a function that replaces the value at a given position in an integer
+array.
+
+\begin{colorcode}
+  fun *[int] replace(*[int] arr, int i, int x) =
+    let arr[i] = x in arr
+\end{colorcode}
+
+The type of this function expresses the fact that it consumes its
+array argument, and also returns a unique array.  This permits
+composition - \texttt{replace(replace(a, i1, x), i2, y)} is a valid
+application.  Defining \texttt{replace} as
+\begin{colorcode}
+  fun [int] replace2(*[int] arr, int i, int x) =
+    let arr[i] = x in arr
+\end{colorcode}
+would still be type correct (a unique array can be used anywhere a
+nonunique is expected), but the composition
+\texttt{replace2(replace2(a, i1, x), i2, y)} would no longer be well
+typed.
+
+Checking that uniqueness invariants are being upheld is far subtler
+than normal type checking.  In particular, detailed sharing analysis
+has to be performed, in order to ensure that after an array $a$ is
+modified, it becomes an error to use any value that may refer to
+(parts of) the old value of the array.  Whenever we consume a variable
+$a$, we mark as inaccessible all of its aliases.
+
+\begin{colorcode}
+  let b = a in               // Now \(\texttt{b}\in\aliases{\texttt{a}}\).
+  let c = a with [i] <- x in // \(\forall{}v\in\aliases{\texttt{a}}\Rightarrow\textrm{Mark \(v\) as consumed.}\)
+  b                          // Error, because \(\texttt{b}\in\aliases{\texttt{a}}\)!
+\end{colorcode}
+
+A key principle is that of \textit{sequence points}, that lexically
+delimit the uses of variables.  As an exampe, assume that we are given
+a function \texttt{f} of type \texttt{*[int] -> int}.  That is,
+\texttt{f} consumes an array and returns an integer.  The expression
+\begin{colorcode}
+  f(a) + a[i]
+\end{colorcode}
+is invalid because a consumption and observation of the same variable
+happens within the same \textit{sequence}.  It is valid for a sequence
+to contain multiple observations of the same variable, but if a
+variable is consumed, that must be the only occurence of the variable
+(or any of its aliases) within the sequence.  Binding constructs
+(lets, let-withs and loops) create sequence points that delimit
+sequences.  If we rewrite the expression to cordon the consumption
+into its own sequence, all will be well.
+\begin{colorcode}
+  let c = a[i] // Since a[i] is of primitive type,
+               // c does not alias a.
+  in f(a) + c
+\end{colorcode}
+
+The reason for this rule is to enable simpler code generation, as any
+necessary order of operations is evident in the code.  It does require
+a certain amount of care when doing program transformations, as for
+example copy propagation may result in invalid programs.
+
+In the previous examples, function arguments that were consumed were
+all simple variables, making it easy to describe what was being
+consumed.  But in general, we might have an expression
+\begin{colorcode}
+  replace(e, i, x)
+\end{colorcode}
+where \texttt{e} is some arbitrary expression.  In this case, we mark
+as consumed all variables in $\aliases{\texttt{e}}$.
+
+Constant, literal arrays are not considered unique, as the compiler
+may put them in read-only memory and return the same reference every
+time they are accessed.  For example, the following program is
+invalid.
+\begin{colorcode}
+  fun [int] fibs(int i, int x) =
+    let a = [1, 1, 2, 3, 5, 8, 13] in
+    let a[i] = x in a
+\end{colorcode}
+Since \texttt{a} is not unique, its use in the let-with is a type
+error.  However, we can use \texttt{copy} to create a unique duplicate
+of the array.
+\begin{colorcode}
+  fun [int] fibs(int i, int x) =
+    let a = copy([1, 1, 2, 3, 5, 8, 13]) in
+    let a[i] = x in a
+\end{colorcode}
+
+If we have a function such as
+\begin{colorcode}
+  fun int f(*[int] a, int x) = x
+\end{colorcode}
+then it is not valid to curry it in such a way that we provide values
+for the consumed parameters.  For example, \texttt{map(f (a), b)}
+would be an error.  The reason for this is that \texttt{t} may be
+called an unbounded number of times during the mapping, but \texttt{a}
+can only be consumed once.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis.tex"
+%%% End: 
