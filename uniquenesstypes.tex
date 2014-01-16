@@ -273,9 +273,9 @@ $a$, we mark as inaccessible all of its aliases.
   b                          // Error, because \(\texttt{b}\in\aliases{\texttt{a}}\)!
 \end{colorcode}
 
-A key principle is that of \textit{sequence points}, that lexically
-delimit the uses of variables.  As an exampe, assume that we are given
-a function \texttt{f} of type \texttt{*[int] -> int}.  That is,
+A key principle is that of \textit{sequence points} that lexically
+checkpoint the use of variables.  As an exampe, assume that we are
+given a function \texttt{f} of type \texttt{*[int] -> int}.  That is,
 \texttt{f} consumes an array and returns an integer.  The expression
 \begin{colorcode}
   f(a) + a[i]
@@ -333,9 +333,8 @@ If we have a function such as
 then it is not valid to curry it in such a way that we provide values
 for the consumed parameters.  For example, \texttt{map(f (a), b)}
 would be an error.  The reason for this is that \texttt{t} may be
-called an unbounded number of times during the mapping, but \texttt{a}
+called an arbitrary number of times during the mapping, but \texttt{a}
 can only be consumed once.
-
 
 %%% Local Variables: 
 %%% mode: latex

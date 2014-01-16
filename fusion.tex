@@ -405,6 +405,7 @@ I will refer to this entire operation as
 \]
 
 \section{Fusion rules}
+\label{sec:fusion-rules}
 
 \newcommand\fusesto[4]{\bfrac{#2\overset{#1}{\leadsto}#3}{\Rightarrow #4}}
 
@@ -420,13 +421,13 @@ which should mostly be intuitive.
 
 \begin{align*}
   \nfrac{
-    \mapcompose{l_{b}}{es_{b}}{os}{l_{a}}{es_{a}}{l_{r}}{es_{r}}
+    \mapcompose{l_{b}}{\overline{es_{b}}}{\overline{os}}{l_{a}}{\overline{es_{a}}}{l_{r}}{\overline{es_{r}}}
   }{
     \fusesto
-    {\texttt{$os$}}
-    {\texttt{mapT($l_{a}$,$es_a$)}}
-    {\texttt{mapT($l_{b}$,$es_b$)}}
-    {\texttt{mapT($l_{r}$,$es_r$)}}
+    {\texttt{$\overline{os}$}}
+    {\texttt{mapT($l_{a}$,$\overline{es_a}$)}}
+    {\texttt{mapT($l_{b}$,$\overline{es_b}$)}}
+    {\texttt{mapT($l_{r}$,$\overline{es_r}$)}}
   }
   \tagsc{Fuse-Map-Map}
 \end{align*}
@@ -434,41 +435,21 @@ which should mostly be intuitive.
 \begin{align*}
   \nfrac{
     \mapcompose
-    {\texttt{fn $t_{b_{r}}$ ($ps_{b}$) => $e_{b}$}}
-    {es_{b}}
-    {os}
+    {l_{b}}
+    {\overline{es_{b}}}
+    {\overline{os}}
     {l_{a}}
-    {es_{a}}
-    {\texttt{fn $t_{b_{r}}$ ($ps_{r}$) => $e_{r}$}}
-    {es_{r}}
+    {\overline{es_{a}}}
+    {l_{r}}
+    {\overline{es_{r}}}
   }{
     \fusesto
-    {\texttt{$os$}}
-    {\texttt{mapT($l_{a}$,$es_{a}$)}}
-    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{b}$) => $e_{b}$},\{$vs$\},$es_{b}$)}}
-    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{r}$) => $e_{r}$},\{$vs$\},$es_{r}$)}}
-  }
-  \tagsc{Fuse-Map-Redomap}
-\end{align*}
-
-\begin{align*}
-  \nfrac{
-    \foldcompose
-    {\texttt{fn $t_{b_{r}}$ ($ps_{b}$) => $e_{b}$}}
-    {es_{b}}
-    {os}
-    {l_{a}}
-    {es_{a}}
-    {\texttt{fn $t_{b_{r}}$ ($ps_{r}$) => $e_{r}$}}
-    {es_{a}}
-  }{
-    \fusesto
-    {\texttt{$os$}}
-    {\texttt{filterT($l_{a}$,$es_{a}$)}}
-    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{b}$) => $e_{b}$},\{$vs$\},$es_{b}$)}}
-    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($us_{b}$, $ps_{r}$) => $e_{r}$},\{$vs$\},$es_{a}$)}}
-  }
-  \tagsc{Fuse-Filter-Redomap}
+    {\texttt{$\overline{os}$}}
+    {\texttt{mapT($l_{a}$,$\overline{es_a}$)}}
+    {\texttt{scanT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
+    {\texttt{scanT($l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
+  } \mbox{($\overline{es_{a}}$ and $\overline{es_{b}}$ match)}
+  \tagsc{Fuse-Map-Scan}
 \end{align*}
 
 Fusing \texttt{map}-\texttt{reduce} and
@@ -480,58 +461,78 @@ fuse to \texttt{reduce}.
 \begin{align*}
   \nfrac{
     \fusesto
-    {\texttt{\{$os$\}}}
-    {\texttt{mapT($l_{a}$,$es_a$)}}
-    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+    {\texttt{\{$\overline{os}$\}}}
+    {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
+    {\texttt{redomapT($l_{b}$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
   }{
     \fusesto
-    {\texttt{$os$}}
-    {\texttt{mapT($l_{a}$,$es_a$)}}
-    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
-  }
-  \tagsc{Fuse-Map-Reduce}
-\end{align*}
-
-\begin{align*}
-  \nfrac{
-    \fusesto
-    {\texttt{\{$os$\}}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($l_{b}$,$l_{r}$,\{$us$\},$es_a$)}}
-    \quad
-    os:es_{b}\ ::\ us:us'
-  }{
-    \fusesto
-    {\texttt{$os$}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{reduceT($l_{r}$,\{$us'$\},$es_a$)}}
-  } (\textrm{types of $os = $ types of $es_{b}$})
+    {\texttt{$\overline{os}$}}
+    {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
+    {\texttt{reduceT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
+    {\texttt{reduceT($l_{r}$,\{$\overline{us}$\},$\overline{es_a}$)}}
+  } (\textrm{types of $os = $ types of $\overline{es_{r}}$})
   \tagsc{Fuse-Filter-Reduce-1}
 \end{align*}
-\fxnote{Define $::$}
 
 Note that \textsc{Fuse-Filter-Reduce-1} has a side condition that
-implies that the types of $es_{a}$ are equal to the types of $es_{b}$.
+implies that the types of $\overline{es_{a}}$ are equal to the types of $\overline{es_{b}}$.
 This permits us to keep the result as a \texttt{reduceT} rather than a
 \texttt{redomapT}.
 
 \begin{align*}
   \nfrac{
-    \fusesto
-    {\texttt{\{$os$\}}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+    \mapcompose
+    {\texttt{fn $t_{b_{r}}$ ($\overline{ps_{b}}$) => $e_{b}$}}
+    {\overline{es_{b}}}
+    {\overline{os}}
+    {l_{a}}
+    {\overline{es_{a}}}
+    {\texttt{fn $t_{b_{r}}$ ($\overline{ps_{r}}$) => $e_{r}$}}
+    {\overline{es_{r}}}
   }{
     \fusesto
-    {\texttt{$os$}}
-    {\texttt{filterT($l_{a}$,$es_a$)}}
-    {\texttt{reduceT($l_{b}$,\{$us$\},$es_b$)}}
-    {\texttt{redomapT($\oplus$,$l_{r}$,\{$us$\},$es_r$)}}
+    {\texttt{$\overline{os}$}}
+    {\texttt{mapT($l_{a}$,$\overline{es_{a}}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{b}}$) => $e_{b}$},\{$\overline{vs}$\},$\overline{es_{b}}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{r}}$) => $e_{r}$},\{$\overline{vs}$\},$\overline{es_{r}}$)}}
+  }
+  \tagsc{Fuse-Map-Redomap}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \foldcompose
+    {\texttt{fn $t_{b_{r}}$ ($\overline{ps_{b}}$) => $e_{b}$}}
+    {\overline{es_{b}}}
+    {\overline{os}}
+    {l_{a}}
+    {\overline{es_{a}}}
+    {\texttt{fn $t_{b_{r}}$ ($\overline{ps_{r}}$) => $e_{r}$}}
+    {\overline{es_{a}}}
+  }{
+    \fusesto
+    {\texttt{$\overline{os}$}}
+    {\texttt{filterT($l_{a}$,$\overline{es_{a}}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{b}}$) => $e_{b}$},\{$\overline{vs}$\},$\overline{es_{b}}$)}}
+    {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{r}}$) => $e_{r}$},\{$\overline{vs}$\},$\overline{es_{a}}$)}}
+  }
+  \tagsc{Fuse-Filter-Redomap}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {\texttt{\{$\overline{os}$\}}}
+    {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
+    {\texttt{redomapT($l_{b}$,$l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
+  }{
+    \fusesto
+    {\texttt{$\overline{os}$}}
+    {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
+    {\texttt{reduceT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
+    {\texttt{redomapT($\oplus$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
   }
   \tagsc{Fuse-Filter-Reduce-2}
 \end{align*}
@@ -718,7 +719,35 @@ if p(map(v,b)) then map(g,b)
 \label{fig:fuse-across-if-bad-condition}
 \end{figure}
 
-\item[Case $e \equiv \texttt{let \{$vs$\} = $soac$ in $e_{b}$}$]
+\item[Case $e \equiv \texttt{loop ($p$ = $e_{1}$) = for $v$ < $e_{2}$ do $e_{3}$ in $e_{4}$}$]
+
+  For loops, we add any arrays used as SOAC inputs in the loop body to
+  the unfusable set, as fusing into the loop would duplicate
+  computation, by re-evaluating the function in the consumer for every
+  iteration of the loop -- see \fref{fig:cannot-fuse-loop} for an
+  example of this.  This is similar to how we ban fusing into
+  SOAC-functions.
+\begin{align*}
+  & \unfusable(e) =\\
+  & \quad \unfusable(e_{1}) \cup \unfusable(e_{2}) \cup \unfusable(e_{3}) \cup \unfusable(e_{4}) \\
+  & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{3}) \}
+\end{align*}
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+let b = \emphh{map(f, a)} in
+loop (v) = for i < n do
+             let c = \emp{map(g, b)} in
+             h(v,c) in
+...
+\end{bcolorcode}
+\end{center}
+\caption{Fusing the \emphh{producer} into the \emp{consumer} in the loop body would duplicate computation}
+\label{fig:cannot-fuse-loop}
+\end{figure}
+
+\item[Case $e \equiv \texttt{let \{$\overline{vs}$\} = $soac$ in $e_{b}$}$]
 
   The big question here is whether $soac$ can be fused as producer
   with something in $\soacs(e_{b})$.  In the following, $\ell_{p}$ is
@@ -748,10 +777,10 @@ If so, we can fuse $soac$ with $soac_{c}$ and get $soac_{c_{r}}$.  We
 only perform fusion if we can fuse with \textit{all} consumers in
 $\zeta$, as we might otherwise duplicate computation.
 
-Additionally, we must also check whether any of $vs$ are in the
-unfusable set.  Thus, if the intersection
+Additionally, we must also check whether any of $\overline{vs}$ are in
+the unfusable set.  That is, if the intersection
 \[
-vs \cap \unfusable(e_{b})
+\overline{vs} \cap \unfusable(e_{b})
 \]
 is non-empty, we cannot fuse at all.
 
@@ -765,11 +794,15 @@ is non-empty, we cannot fuse at all.
   & \soacs(e) =\\
   & \quad (\soacs(e_{b}) \backslash \zeta)\\
   & \quad \cup \soacs(e_{f})\\
-  & \quad \cup \{ (\ell_{c}, (vs, soac_{r})) | \textrm{for each $soac_{c_{r}}$} \}\\
+  & \quad \cup \{ (\ell_{c}, (vs, soac_{r}))\ |\ \textrm{for each $soac_{c_{r}}$} \}\\
   \\
   & \inputs(e) =\\
   & \quad (\textrm{$\inputs(e_{b})$ with all mappings to each $\ell_{c}$ removed}) \\
-  & \quad \sqcup \{ (v,\ell_{c}) |\ \textrm{for all array inputs $v$ in each $soac_{c_{r}}$} \}
+  & \quad \sqcup \{ (v,\ell_{c})\ |\ \textrm{for all array inputs $v$ in each $soac_{c_{r}}$} \}\\
+  \\
+  & \unfusable(e) =\\
+  & \quad \unfusable(e_{b})\\
+  & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{f}) \} \\
 \end{align*}
 
 \item[Cannot fuse:]
@@ -783,7 +816,7 @@ is non-empty, we cannot fuse at all.
   & \unfusable(e) =\\
   & \quad \unfusable(e_{b})\\
   & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{f}) \} \\
-  & \quad \cup \{ v\ |\ \textrm{$v$ is used as input here but is also in $\inputs(e_{b})$} \}\\
+  & \quad \cup \{ v\ |\ \textrm{$v$ is used as input to $soac$ but is also in $\inputs(e_{b})$} \}\\
   \\
   & \inputs(e) =\\
   & \quad \inputs(e_{b})\\
@@ -793,39 +826,11 @@ is non-empty, we cannot fuse at all.
   & \soacs(e) = \soacs(e_{b}) \cup \{(\ell_{p}, (vs, soac))\} \\
   &
 \end{align*}
-\end{description}
+\end{description}\fixme{unfusable rule is still too unclear.}
 
 \item[Case $e \equiv \texttt{let $v_{1}$ = $v_{2}$ with [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$ in $e_b$}$]
 
 Record the in-place modification of $v_{2}$. \fxnote{Not sure how to model this yet.}
-
-\item[Case $e \equiv \texttt{loop ($p$ = $e_{1}$) = for $v$ < $e_{2}$ do $e_{3}$ in $e_{4}$}$]
-
-  For loops, we add any arrays used as SOAC inputs in the loop body to
-  the unfusable set, as fusing into the loop would duplicate
-  computation, by re-evaluating the function in the consumer for every
-  iteration of the loop -- see \fref{fig:cannot-fuse-loop} for an
-  example of this.  This is similar to how we ban fusing into
-  SOAC-functions.
-\begin{align*}
-  & \unfusable(e) =\\
-  & \quad \unfusable(e_{1}) \cup \unfusable(e_{2}) \cup \unfusable(e_{3}) \cup \unfusable(e_{4}) \\
-  & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{3}) \}
-\end{align*}
-
-\begin{figure}
-\begin{center}
-\begin{bcolorcode}
-let b = \emphh{map(f, a)} in
-loop (v) = for i < n do
-             let c = \emp{map(g, b)} in
-             h(v,c) in
-...
-\end{bcolorcode}
-\end{center}
-\caption{Fusing the \emphh{producer} into the \emp{consumer} in the loop body would duplicate computation}
-\label{fig:cannot-fuse-loop}
-\end{figure}
 
 \end{description}
 

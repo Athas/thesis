@@ -1,9 +1,8 @@
 \chapter{Fusion-enabling SOAC transformations}
 \label{chap:fusion-enabling-soac-transformations}
 
-In this chapter, we will have need of a more convenient notation for
-perfectly nested \texttt{mapT}s.
-
+\begin{figure}
+\begin{center}
 \begin{colorcode}
 mapT\(\myindu{1}\)(f, a\(\myindx{1}\), \ldots , a\(\myindx{k}\)) \emphh{\(\equiv\)}
 mapT(g, a\(\myindx1\), \ldots, a\(\myindx{k}\))
@@ -11,6 +10,84 @@ mapT(g, a\(\myindx1\), \ldots, a\(\myindx{k}\))
 mapT\(\myindu{n+1}\)(f, a\(\myindx{1}\), \ldots, a\(\myindx{k}\)) \emphh{\(\equiv\)}
 mapT(fn \{[\(\beta\myindx{1}\)], \ldots, [\(\beta\myindx{t}\)]\} ([\(\alpha\myindx{1}\)] x\(\myindx{1}\), \ldots, [\(\alpha\myindx{k}\)] x\(\myindx{k}\))) =>
        mapT\(\myindu{n}\)(f, x\(\myindx{1}\), \ldots, x\(\myindx{k}\))
+\end{colorcode}
+\end{center}
+\caption{Nested maps}
+\label{fig:nested-maps}
+\end{figure}
+
+The fusion rules in section \ref{sec:fusion-rules} cover only simple
+cases, where the output of the producer is used directly by the
+consumer, without any intermediary steps.  This means that the
+following program, where the output of the producer is first passed
+through \texttt{transpose}, cannot be fused.
+\begin{colorcode}
+let \{\emphh{b}\} = mapT(f, a) in
+mapT(fn [int] ([int] r) => mapT(g, r), \emp{transpose}(\emphh{b}))
+\end{colorcode}
+However, it is actually possible to fuse this case by first moving the
+transposition to after the consumer instead:
+\begin{colorcode}
+let \{\emphh{b}\} = mapT(f, a) in
+\emp{transpose}(mapT(fn [int] ([int] r) => mapT(g, r), \emphh{b}))
+\end{colorcode}
+After this transformation, the simple \texttt{map}-\texttt{map} fusion
+rule applies.
+
+In many cases, such rewriting of a producer-consumer pair is necessary
+before the simple fusion rules can apply.  Indeed, one might consider
+the \textsc{Fuse-Map-Redomap} rule a particularly simple example of
+such a rewriting.  Fortunately, the these rewritings can be fit into
+the existing fusion framework simply by considering them as additional
+inference rules.  The above rewriting specifically can be defined as
+follows (using the nested map notation from \fref{fig:nested-maps}).
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {e_{b}}
+    {\texttt{mapT($l_{a}$,$e_a$)}}
+    {\texttt{mapT$^{2}$($l_{b}$,$e_b$)}}
+    {soac}
+  }{
+    \fusesto
+    {e_{b}}
+    {\texttt{mapT($l_{a}$,$e_a$)}}
+    {\texttt{mapT$^{2}$($l_{b}$,transpose($e_b$))}}
+    {\texttt{transpose($soac$)}}
+  }
+  \tagsc{Fuse-Map-Transpose-Map-Single}
+\end{align*}
+
+Of course, this rule is far too specific - it covers only producers
+and consumers with a single output and input respectively.  In the
+next section, we will see a more general treatment of when we can fuse
+across arrays.
+
+Furthermore, we will need to extend the SOAC notation we use for
+expressing fusion judgements.  The
+\textsc{Fuse-Map-Transpose-Map-Single} rule already uses
+\texttt{transpose} in places where we have previously considered only
+plain variables and SOAC expression.  However, there is fundamentally
+nothing dubious about this usage, and we will not need to modify the
+previously defined rules.
+
+\section{ISWIM - Interchange scan with inner maps}
+
+The fusion algebra for \texttt{scanT} is quite poor -- in particular,
+it can never be fused as a producer.  In some cases, however, we can
+rewrite \texttt{scanT} to expose producer-fusability.  Specifically,
+when the body of a \texttt{scanT} operation consists of a nested
+\texttt{mapT}, we can interchange the two loops and transpose both
+input and output.  A simple example is as follows.
+
+\begin{colorcode}
+scanT(fn [real] ([real] x, [real] y) =>
+        mapT(op +, x, y), 
+     , \{0.0,..,0.0\}, a)   \emphh{\mymath{\equiv}}
+transpose(mapT (fn [real] ([real] x) =>
+                  scanT(op +,0.0,x)
+               , transpose(a) )
 \end{colorcode}
 
 \section{Fusing across \texttt{reshape}}
@@ -35,22 +112,11 @@ mapT\mymath{\myindu{n}}(g o f, transpose(1,n-k,a) )
     \fusesto
     {\texttt{$os$}}
     {soac_{p}}
-    {\texttt{mapT$^{k+n}$($f$,$es$)}}
-    {\texttt{transpose(k, n, $soac_{r}$)}}
+    {\texttt{mapT$^{k+n}$($f$,transpose(k, n, $es$))}}
+    {\texttt{transpose$^{-1}$(k, n, $soac_{r}$)}}
   }
   \tagsc{Push-Transpose}
 \end{align*}
-
-\section{ISWIM - Interchange scan with inner maps}
-
-Interchanging Scan With Inner Maps (ISWIM) Example
-
-\begin{colorcode}
-scanT( fn [real] ([real] x, [real] y) => mapT(op +, x, y), 
-     , \{0.0,..,0.0\}, a )   \emphh{\mymath{\equiv}}
-transpose( mapT (fn [real] ([real] x)=>scanT(op +,0.0,x)
-                , transpose(a) )
-\end{colorcode}
 
 %%% Local Variables: 
 %%% mode: latex
