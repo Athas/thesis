@@ -31,13 +31,19 @@ $k$ & $::=$ & $n$ & (Integer)\\
 \\
 $p$ & $::=$ & \texttt{\textbf{id}} & (Name pattern)\\
 & $|$ & \texttt{($p_{1}$, \ldots, $p_{n}$)} & (Tuple pattern) \\
-\\
+\end{tabular}
+\caption{\LO{} syntax}
+\label{fig:fo-syntax}
+\end{figure}
+
+\begin{figure}[bt]
+\begin{tabular}{lrll}
 $e$ & $::=$ & $k$ & (Constant)\\
 & $|$ & $v$ & (Variable)\\
 & $|$ & \texttt{($e_{1}$,\ldots,$e_{n}$)} & (Tuple expression) \\
 & $|$ & \texttt{\{$e_{1}$,\ldots,$e_{n}$\}} & (Array expression) \\
 & $|$ & $e_{1} \odot{} e_{2}$ & (Binary operator) \\
-& $|$ & \texttt{\tilde{} $e$} & (Prefix minus) \\
+& $|$ & \texttt{-$e$} & (Prefix minus) \\
 & $|$ & \texttt{not $e$} & (Logical negation) \\
 & $|$ & \texttt{if $e_{1}$ then $e_{2}$ else $e_{3}$} & (Branching) \\
 & $|$ & \texttt{$v$[$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
@@ -66,18 +72,17 @@ $fun$ & $::=$ & \texttt{fun $t$ $v$($t_{1}$ $v_{1}$,\ldots $t_{n}$ $v_{n}$) = $e
 $prog$ & $::=$ & $\epsilon$ \\
        & $|$   & $fun$ $prog$
 \end{tabular}
-\caption{\LO{} syntax}
-\label{fig:fo-syntax}
+\caption{\LO{} syntax, continued}
+\label{fig:fo-syntax-continued}
 \end{figure}
 
-The syntax of \LO{}, as seen on \fref{fig:fo-syntax}, is heavily
-inspired by Haskell and Standard ML.  An identifier stats with a
-letter, followed by any number of letters, digits and underscores.
-Numeric constants use the same notation as Haskell, except that we use
-tilde (\tilde{}) for unary minus.  String and character literals use
-Haskell syntax (which is very similar to C), including all escape
-characters.  Comments are indicated with \texttt{//} and span to end
-of line.
+The syntax of \LO{}, as seen on \fref{fig:fo-syntax} and
+\fref{fig:fo-syntax-continued}, is heavily inspired by Haskell and
+Standard ML.  An identifier stats with a letter, followed by any
+number of letters, digits and underscores.  Numeric, string and
+character literals use the same notation as Haskell (which is very
+similar to C), including all escape characters.  Comments are
+indicated with \texttt{//} and span to end of line.
 
 An \LO{} program consists of a sequence of \emph{function
   definitions}, of the following form.
@@ -336,7 +341,7 @@ the language.
   \item[\texttt{not \textit{x}}]\hfill\\
     Logical negation of \textit{x}, which must be of type \boolt.
 
-  \item[\texttt{\tilde \textit{x}}]\hfill\\
+  \item[\texttt{-\textit{x}}]\hfill\\
     Numerical negation of \textit{x}, which must be of type \realt{} or \intt.
 
   \item[\texttt{a[i]}]\hfill\\
@@ -384,14 +389,17 @@ the language.
     The number of elements in \textit{a} must be equal to
     $\texttt{dim}_{1}\times\ldots\times\texttt{dim}_{n}$.
 
-  \item[\texttt{\textit{transpose}(a)}]\hfill\\
+  \item[\texttt{transpose(a)}]\hfill\\
     Return the transpose of \textit{a}.
 
-  \item[\texttt{\textit{transpose}(k,n,a)}]\hfill\\
+  \item[\texttt{transpose(k,n,a)}]\hfill\\
     Return the generalised transpose of \textit{a}.  If
-    \texttt{b=transpose(k,n,a)}, then $a[i_1, ..., i_k, i_{k+1}, ...,
-    i_{k+n}, ..., i_q ] = b[i_1 ,.., i_{k+1} , ..., i_{k+n}, i_k, ...,
-    i_q ]$.
+    \texttt{b=transpose(k,n,a)}, then
+    \[
+    \texttt{a}[i_1, ..., i_k, i_{k+1}, ..., i_{k+n}, ..., i_q ]
+    =
+    \texttt{b}[i_1 ,.., i_{k+1} , ..., i_{k+n}, i_k, ..., i_q ].
+    \]
 
     Thus, \texttt{transpose(0,1,a)} is the common two-dimensional
     transpose.
@@ -412,7 +420,7 @@ the language.
     If \textit{c} evaluates to \textit{True}, evaluate \textit{a},
     else evaluate \textit{b}.
 
-  \item[\texttt{loop (\textit{pat} = \textit{initial}) = for \textit{i} < \textit{bound} do \textit{loopbody} in \textit{body}}]
+  \item[\texttt{loop (\textit{pat} = \textit{initial}) = for \textit{i} < \textit{bound} do \textit{loopbody} in \textit{body}}]\hfill
     \begin{enumerate}
     \item Bind \textit{pat} to the initial values given in \textit{initial}.
     \item While $\textit{i} < \textit{bound}$, evaluate \textit{loopbody},
@@ -442,21 +450,19 @@ the language.
 \subsection{Tuple shimming}
 
 In a SOAC, if the given function expects $n$ arguments of types
-\texttt{t$_{1}$,\ldots,{}t$_{n}$}, but the SOAC will call the function
-with a single argument of type \texttt{\{t$_{1}$,\ldots{},t$_{n}$\}}
-(that is, a tuple), the \LO{} compiler will automatically generate an
-anonymous unwrapping function in such a way that it still works.  This
-allows the following expression to type-check (and run):
+$t_{1}, \ldots, t_{n}$, but the SOAC will call the function with a
+single argument of type \texttt{\{$t_{1}, \ldots, t_{n}$\}} (that is,
+a tuple), the \LO{} compiler will automatically generate an anonymous
+unwrapping function.  This allows the following expression to
+type-check (and run):
 
 \begin{colorcode}
   map(op +, zip(as, bs))
 \end{colorcode}
 
-Without the above transformation, you would get an error, as
+Without the above transformation, the above would cause an error, as
 \texttt{op +} is a function that takes two arguments, but is passed a
-tuple by \texttt{map}.
-
-This eliminates the need for a dedicated \texttt{zipWith} construct.
+two-element tuple by \texttt{map}.
 
 \subsection{Arrays of tuples}
 

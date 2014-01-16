@@ -83,11 +83,14 @@ ensure that there are no other references to the unique return value.
 This requirement would be violated if we permitted the return value in
 a unique-returning function to alias its (non-unique) parameters.
 
+We can crystallise these observations as three principal rules:
+
 \begin{description}
 \item[Uniqueness Rule 1] When a value is passed in the place of a
-  unique parameter in a function call, neither that value, nor any
-  value that aliases it, may be used on any execution path following
-  the function call.
+  unique parameter in a function call, or used as the source in a
+  \texttt{let-with} expression, neither that value, nor any value that
+  aliases it, may be used on any execution path following the function
+  call.
 
 \item[Uniqueness Rule 2] If a function definition is declared to
   return a unique value, the return value (that is, the result of the
@@ -99,6 +102,12 @@ a unique-returning function to alias its (non-unique) parameters.
   value may not share memory with any variable used in any execution
   path following the function call.
 \end{description}
+
+Finally, it is worth noting that everything in this chapter is used as
+part of a static analysis.  \textit{All} violations of uniqueness
+constraints will be discovered at compile-time (in fact, during
+type-checking), thus leaving the code generator and runtime system at
+liberty to exploit them for low-level optimisation.
 
 \subsection{Sharing analysis}
 \label{sec:l0-sharing}

@@ -1,4 +1,4 @@
-\chapter{Internal representations}
+\chapter{Internal representation}
 \label{chap:internal}
 
 \section{Tuple-SOACs}
@@ -36,8 +36,9 @@ $e$ & $::=$ & \texttt{assert($e$)} & (Assertion) \\
 & $|$ & \texttt{<$c$>split($e_{1}$, $e_{2}$)} & (Split $e_{2}$ at index $e_{1}$) \\
 & $|$ & \texttt{<$c$>concat($e_{1}$, $e_{2}$)} & (Concatenation) \\
 & $|$ & \texttt{let <$c$>$v_{1}$ = $v_{2}$ with} & (In-place update) \\
-&     & \texttt{\ \ [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
+&     & \texttt{\ \ [<$c$>|$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$} \\
 &     & \texttt{in $e_{b}$} \\
+& $|$ & \texttt{$v$[<$c$>|$e_{1}$, \ldots, $e_{n}$]} & (Indexing) \\
 \end{tabular}
 \caption{Assertions}
 \label{fig:assertions}

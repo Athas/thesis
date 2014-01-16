@@ -35,9 +35,9 @@ would be ``\texttt{map}-\texttt{map}''-fusion.
 The language used to describe the fusion algorithm in this chapter is
 \texttt{let}-normalised, internal \LO{}, as described in chapter
 \ref{chap:internal}.  We will also assume that all instances of
-\texttt{replicate(n,x)} have been rewritten as \texttt{map(fn t (int
-  i) => x, iota(n))}.  For clarity, expository examples will use the
-external \LO{}.
+\texttt{replicate(n,x)} have been rewritten as
+\texttt{map(fn~t~(int~i)~=>~x,~iota(n))}.  For clarity, expository
+examples will use the external \LO{}.
 
 \begin{figure}
   \begin{center}
@@ -108,7 +108,29 @@ T$_{1}$-T$_{2}$-transformation~\cite{red_dragon}.\fxnote{Insert more
 \section{Invalid fusion}
 \label{sec:invalidfusion}
 
-Mumble mumble, something about uniqueness types.\fxnote{Finish this.}
+We must be careful not to run afoul of uniqueness constraints when
+doing fusion.  For example, consider the following program.
+
+\begin{colorcode}
+let b = map(f, a) in
+let c = a with [i] <- x in
+map(g, b)
+\end{colorcode}
+
+Without the contraints imposed upon us by the semantics of in-place
+modification, we could fuse to the following program.
+
+\begin{colorcode}
+let c = a with [i] <- x in
+map(g \(\circ\) f, a)
+\end{colorcode}
+
+However, this results in a violation of Uniqueness Rule 1, and the
+resulting program is thus invalid.  In general, we must track the
+possible execution paths from the producer-SOAC to the consumer-SOAC,
+and only fuse if none of the inputs of the producer have been consumed
+(in the uniqueness type sense of the word) by a \texttt{let-with} or
+function call on any possible execution paths.
 
 \section{When to fuse}
 \label{sec:whentofuse}
@@ -207,7 +229,7 @@ fusion operation.  For example, consider the trivial example of
 \texttt{map}-\texttt{map}-fusion.  In principle, the equation seems
 simple enough:
 \[
-\texttt{map} f \circ \texttt{map} g = \texttt{map} (f \circ g).
+\texttt{map}\ f \circ \texttt{map}\ g = \texttt{map}\ (f \circ g).
 \]
 However, while the intuition behind the above equation is correct, it
 is woefully imprecise.  Fusion in \LO{} is not performed on simple
