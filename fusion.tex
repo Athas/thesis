@@ -412,7 +412,9 @@ I will refer to this entire operation as
 With function composition defined, we can define fusion rules for
 SOACs.  I present fusion as a judgement
 \[
+\boxed{
 \fusesto{os}{producer}{consumer}{result}.
+}
 \]
 This means that $producer$, which produces outputs $os$, can be fused
 with $consumer$, yielding $result$ as the combined SOAC.  Valid
@@ -424,7 +426,7 @@ which should mostly be intuitive.
     \mapcompose{l_{b}}{\overline{es_{b}}}{\overline{os}}{l_{a}}{\overline{es_{a}}}{l_{r}}{\overline{es_{r}}}
   }{
     \fusesto
-    {\texttt{$\overline{os}$}}
+    {os}
     {\texttt{mapT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{mapT($l_{b}$,$\overline{es_b}$)}}
     {\texttt{mapT($l_{r}$,$\overline{es_r}$)}}
@@ -444,7 +446,7 @@ which should mostly be intuitive.
     {\overline{es_{r}}}
   }{
     \fusesto
-    {\texttt{$\overline{os}$}}
+    {os}
     {\texttt{mapT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{scanT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{scanT($l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
@@ -461,13 +463,13 @@ fuse to \texttt{reduce}.
 \begin{align*}
   \nfrac{
     \fusesto
-    {\texttt{\{$\overline{os}$\}}}
+    {\texttt{\{$os$\}}}
     {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{redomapT($l_{b}$,$l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{redomapT($l_{b}$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
   }{
     \fusesto
-    {\texttt{$\overline{os}$}}
+    {os}
     {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{reduceT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{reduceT($l_{r}$,\{$\overline{us}$\},$\overline{es_a}$)}}
@@ -492,7 +494,7 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
     {\overline{es_{r}}}
   }{
     \fusesto
-    {\texttt{$\overline{os}$}}
+    {os}
     {\texttt{mapT($l_{a}$,$\overline{es_{a}}$)}}
     {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{b}}$) => $e_{b}$},\{$\overline{vs}$\},$\overline{es_{b}}$)}}
     {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{r}}$) => $e_{r}$},\{$\overline{vs}$\},$\overline{es_{r}}$)}}
@@ -512,7 +514,7 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
     {\overline{es_{a}}}
   }{
     \fusesto
-    {\texttt{$\overline{os}$}}
+    {os}
     {\texttt{filterT($l_{a}$,$\overline{es_{a}}$)}}
     {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{b}}$) => $e_{b}$},\{$\overline{vs}$\},$\overline{es_{b}}$)}}
     {\texttt{redomapT($\oplus$,\texttt{fn $t_b$ ($\overline{us_{b}}$, $\overline{ps_{r}}$) => $e_{r}$},\{$\overline{vs}$\},$\overline{es_{a}}$)}}
@@ -523,13 +525,13 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
 \begin{align*}
   \nfrac{
     \fusesto
-    {\texttt{\{$\overline{os}$\}}}
+    {\texttt{\{$os$\}}}
     {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{redomapT($l_{b}$,$l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{redomapT($\oplus$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
   }{
     \fusesto
-    {\texttt{$\overline{os}$}}
+    {os}
     {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{reduceT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{redomapT($\oplus$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}

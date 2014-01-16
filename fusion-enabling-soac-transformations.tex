@@ -1,21 +1,6 @@
 \chapter{Fusion-enabling SOAC transformations}
 \label{chap:fusion-enabling-soac-transformations}
 
-\begin{figure}
-\begin{center}
-\begin{colorcode}
-mapT\(\myindu{1}\)(f, a\(\myindx{1}\), \ldots , a\(\myindx{k}\)) \emphh{\(\equiv\)}
-mapT(g, a\(\myindx1\), \ldots, a\(\myindx{k}\))
-
-mapT\(\myindu{n+1}\)(f, a\(\myindx{1}\), \ldots, a\(\myindx{k}\)) \emphh{\(\equiv\)}
-mapT(fn \{[\(\beta\myindx{1}\)], \ldots, [\(\beta\myindx{t}\)]\} ([\(\alpha\myindx{1}\)] x\(\myindx{1}\), \ldots, [\(\alpha\myindx{k}\)] x\(\myindx{k}\))) =>
-       mapT\(\myindu{n}\)(f, x\(\myindx{1}\), \ldots, x\(\myindx{k}\))
-\end{colorcode}
-\end{center}
-\caption{Nested maps}
-\label{fig:nested-maps}
-\end{figure}
-
 The fusion rules in section \ref{sec:fusion-rules} cover only simple
 cases, where the output of the producer is used directly by the
 consumer, without any intermediary steps.  This means that the
@@ -59,18 +44,66 @@ follows (using the nested map notation from \fref{fig:nested-maps}).
   \tagsc{Fuse-Map-Transpose-Map-Single}
 \end{align*}
 
-Of course, this rule is far too specific - it covers only producers
-and consumers with a single output and input respectively.  In the
-next section, we will see a more general treatment of when we can fuse
-across arrays.
+\begin{figure}
+\begin{center}
+\begin{colorcode}
+mapT\(\myindu{1}\)(f, a\(\myindx{1}\), \ldots , a\(\myindx{k}\)) \emphh{\(\equiv\)}
+mapT(g, a\(\myindx1\), \ldots, a\(\myindx{k}\))
+
+mapT\(\myindu{n+1}\)(f, a\(\myindx{1}\), \ldots, a\(\myindx{k}\)) \emphh{\(\equiv\)}
+mapT(fn \{[\(\beta\myindx{1}\)], \ldots, [\(\beta\myindx{t}\)]\} ([\(\alpha\myindx{1}\)] x\(\myindx{1}\), \ldots, [\(\alpha\myindx{k}\)] x\(\myindx{k}\))) =>
+       mapT\(\myindu{n}\)(f, x\(\myindx{1}\), \ldots, x\(\myindx{k}\))
+\end{colorcode}
+\end{center}
+\caption{Nested map notation}
+\label{fig:nested-maps}
+\end{figure}
+
+Of course, this rule is far too specific - it covers only
+\texttt{map}-producers and -consumers, and with a single output and
+input respectively.  In the next section, we will see a more general
+treatment of when we can fuse across arrays.
 
 Furthermore, we will need to extend the SOAC notation we use for
 expressing fusion judgements.  The
-\textsc{Fuse-Map-Transpose-Map-Single} rule already uses
-\texttt{transpose} in places where we have previously considered only
-plain variables and SOAC expression.  However, there is fundamentally
-nothing dubious about this usage, and we will not need to modify the
-previously defined rules.
+\textsc{Fuse-Map-Transpose-Map-Single} rule uses \texttt{transpose} in
+places where we have previously considered only plain variables and
+SOAC expression.  However, there is fundamentally nothing dubious
+about this usage, and we will not need to modify the previously
+defined rules.
+
+We will need a judgement to determine which SOAC inputs are simply
+transformations of an origin array.  The judgement
+\[
+\boxed{
+  \Re(e) = v
+}
+\]
+means that $e$ is a transformation of the array-typed variable $v$.
+Valid judgements are defined by the following inference rules.
+
+\begin{align*}
+\nfrac{
+  \Re(e) = v
+}{
+  \Re(\texttt{transpose}(k,n,e)) = v
+}
+\end{align*}
+
+\begin{align*}
+\nfrac{
+  \Re(v) = v
+}{
+  \Re(\texttt{reshape}(shape,e)) = v
+}
+\end{align*}
+
+\begin{align*}
+  \nfrac{
+  }{
+    \Re(v) = v
+} \quad (\mbox{If $v$ is a variable})
+\end{align*}
 
 \section{ISWIM - Interchange scan with inner maps}
 
@@ -83,8 +116,8 @@ input and output.  A simple example is as follows.
 
 \begin{colorcode}
 scanT(fn [real] ([real] x, [real] y) =>
-        mapT(op +, x, y), 
-     , \{0.0,..,0.0\}, a)   \emphh{\mymath{\equiv}}
+        mapT(op +, x, y),
+     , \{0.0, \ldots, 0.0\}, a)   \emphh{\mymath{\equiv}}
 transpose(mapT (fn [real] ([real] x) =>
                   scanT(op +,0.0,x)
                , transpose(a) )
@@ -94,29 +127,105 @@ transpose(mapT (fn [real] ([real] x) =>
 
 \section{Fusing across \texttt{transpose}}
 
+Push-transpose example:
+
 \begin{colorcode}
-let x=mapT\mymath{\myindu{n}}(f,a) in let y=transpose(1,n-k,x) in mapT\mymath{\myindu{n}}(g,y)
-        \emphh{\mymath{\equiv}}
-mapT\mymath{\myindu{n}}(g o f, transpose(1,n-k,a) ) 
-// \emphh{i.e., the mapT produced by ISWIM may be further fused.}
+let \{\emphh{b}\} = mapT(f, a) in
+mapT\(\myindu{2}\)(g, \emp{transpose}(\emphh{b}))
+  \emphh{\(\Downarrow\)}
+let \{\emphh{b}\} = mapT(f, a) in
+\emp{transpose}(mapT\(\myindu{2}\)(g, \emphh{b})
 \end{colorcode}
+
+\[
+\boxed{
+  \text{untranspose}(k,n,os,es) \Rightarrow es'
+}
+\]
+
+\begin{align*}
+\nfrac{
+}{
+  \text{untranspose}(k,n,os,()) \Rightarrow ()
+}
+\end{align*}
+
+\begin{align*}
+& \nfrac{
+  \Re(e) = v
+  \quad
+  \text{untranspose}(k,n,os,es) \Rightarrow es'
+}{
+  \text{untranspose}(k,n,os,(\texttt{transpose}(k,n,e),es)) \Rightarrow (e,es')
+} & \quad (v \in os)
+\\
+\\
+& \nfrac{
+  \Re(e) = v
+  \quad
+  \text{untranspose}(k,n,os,es) \Rightarrow es'
+}{
+  \text{untranspose}(k,n,os,(e,es)) \Rightarrow (e,es')
+} & \quad (v \notin os)
+\end{align*}
+
+And rule:
 
 \begin{align*}
   \nfrac{
     \fusesto
-    {\texttt{\{$os$\}}}
+    {os}
     {soac_{p}}
-    {\texttt{mapT$^{k+n}$($f$,$es'$)}}
+    {\texttt{mapT$^{k+n}$($f$,$\overline{es'}$)}}
     {soac_{r}}
+    \quad
+    \text{untranspose}(k,n,os,es) \Rightarrow es'
   }{
     \fusesto
-    {\texttt{$os$}}
+    {os}
     {soac_{p}}
     {\texttt{mapT$^{k+n}$($f$,transpose(k, n, $es$))}}
     {\texttt{transpose$^{-1}$(k, n, $soac_{r}$)}}
   }
   \tagsc{Push-Transpose}
 \end{align*}
+
+Pull-transpose example:
+
+\begin{colorcode}
+let \{\emphh{b}\} = mapT\(\myindu{2}\)(f, a) in
+reduceT(g, v, \emp{transpose}(\emphh{b}))
+  \emphh{\(\Downarrow\)}
+let \{\emphh{b}\} = mapT\(\myindu{2}\)(f, \emp{transpose}(a)) in
+reduceT(g, v, \emphh{b})
+\end{colorcode}
+
+And (incomplete) rule:
+
+\begin{align*}
+  \nfrac{
+    \fusesto
+    {os}
+    {\texttt{mapT$^{k+n}$($f$,transpose(k, n, $\overline{es_{p}'}$))}}
+    {soac_{p}'}
+    {soac_{r}}
+  }{
+    \fusesto
+    {os}
+    {\texttt{mapT$^{k+n}$($f$,$\overline{es_{p}}$)}}
+    {soac_{p}}
+    {soac_{r}}
+  }
+  \tagsc{Pull-Transpose}
+\end{align*}
+
+\begin{figure}
+\begin{center}
+\texttt{transpose\mymath{\myindu{-1}}(k,n,e)} $\equiv$ \texttt{transpose(k+n,-n,e)}
+\end{center}
+\caption{Inverse transpose}
+\label{fig:inverse-transpose}
+\end{figure}
 
 %%% Local Variables: 
 %%% mode: latex
