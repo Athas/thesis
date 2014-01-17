@@ -31,6 +31,7 @@ producer and $c_{2}$ as the consumer.  Therefore, the previous example
 would be ``\texttt{map}-\texttt{map}''-fusion.
 
 \section{Fusion in \LO{}}
+\label{sec:fusion-in-l0}
 
 The language used to describe the fusion algorithm in this chapter is
 \texttt{let}-normalised, internal \LO{}, as described in chapter
@@ -92,20 +93,167 @@ yet the size of the output of \texttt{filter} cannot be known in
 advance, which preclude an efficient fused form.
 
 The \textit{fusion algebra} in section \ref{sec:fusionalgebra}
-describes in detail which producer-consumer pairs can be fused, as
+describes superficially which producer-consumer pairs can be fused, as
 well as the form of the resulting SOAC.
 
 Section \ref{sec:invalidfusion} goes into greater detail on invalid
 fusion, and section \ref{sec:whentofuse} covers cases in which fusion
 may actually be detrimental to performance.
 
-...
+\subsection{Fusion algebra}
+\label{sec:fusionalgebra}
 
-My structural analysis is rooted in the
-T$_{1}$-T$_{2}$-transformation~\cite{red_dragon}.\fxnote{Insert more
-  about the transformation.}
+In this section, I will give an informal introduction to which SOACs
+can be fused, as well as the form of the result.  In order to preserve
+clarity, I will not go into great detail in this section.
 
-\section{Invalid fusion}
+The quintessential example of fusion is composing two consecutive
+\texttt{map} operations into a single \texttt{map}, as follows.
+
+\begin{center}
+\begin{bcolorcode}
+let \{x1, x2\} = mapT(f, a1)
+in  mapT(g, x1, y)
+    \emphh{\mymath{\Downarrow}}
+mapT(fn \mymath{\beta} (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} y\mymath{\myindx{i}}) =>
+      let \{x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}\} = f(a1\mymath{\myindx{i}})
+      in  g(x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
+    , a1, y )
+\end{bcolorcode}
+\end{center}
+
+\texttt{replicate} is an interesting case.  We wish to always be able
+to fuse replicate into a consumer, like this:
+
+\begin{center}
+\begin{bcolorcode}
+let x = replicate(N,a) in
+mapT(f, x) in
+    \emphh{\mymath{\Downarrow}}
+mapT(fn \mymath{\beta\myindx{1}} (int i) =>
+       f(a), b)
+\end{bcolorcode}
+\end{center}
+
+And indeed, this can be done through ordinary \texttt{map}-fusion if
+\texttt{replicate(N,a)} is first rewritten to \texttt{map} as
+described in section \ref{sec:fusion-in-l0}.
+
+The result of \texttt{map}-\texttt{reduce}-fusion is always
+\texttt{redomap}.
+
+\begin{center}
+\begin{bcolorcode}
+let \{x1, x2\} = mapT(f, a1)
+in  reduceT(\mymath{\oplus},e\mymath{\myindx{1}},e\mymath{\myindx{2}}, x1,y)
+    \emphh{\mymath{\Downarrow}}
+redomapT(\mymath{\oplus}
+, fn (\mymath{\beta\myindx{1}},\mymath{\beta\myindx{2}}) ( \mymath{\beta\myindx{1}} e\mymath{\myindx{1}}, \mymath{\beta\myindx{2}} e\mymath{\myindx{2}}
+             , \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}},\mymath{\alpha\myindx{2}} y\mymath{\myindx{i}})
+   => let \{x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}\} = f(a1\mymath{\myindx{i}})
+      in  \mymath{\oplus}(e\mymath{\myindx{1}},e\mymath{\myindx{2}},x1\mymath{\myindx{i}},y\mymath{\myindx{i}})
+, (e\mymath{\myindx{1}}, e\mymath{\myindx{2}}), a1, y )
+\end{bcolorcode}
+\end{center}
+
+We cannot in general fuse \texttt{map} and \texttt{reduce} to another
+\texttt{reduce}, as the accumulator type of a reduction must match the
+element type of the input array. Adding the input of the \texttt{map}
+to the input of the \texttt{reduce} may violate this requirement, as
+demonstrated on \fref{fig:map-reduce-error}.
+
+\begin{figure}
+
+\begin{bcolorcode}
+let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\}, a, b) in
+reduceT(op +, 0, c)
+    \emphh{\mymath{\Downarrow}}
+reduceT(op +, 0, a, b) \emp{// Type error}
+\end{bcolorcode}
+
+\caption{Cannot fuse to \texttt{reduce}}
+\label{fig:map-reduce-error}
+\end{figure}
+
+We can always fuse \texttt{map} with \texttt{redomap}.
+
+\begin{center}
+\begin{bcolorcode}
+let \{x1, x2\} = mapT(f, a1)
+in  redomapT(\mymath{\oplus}, g, e, x1, y)
+    \emphh{\mymath{\Downarrow}}
+redomapT(\mymath{\oplus}
+, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} y\mymath{\myindx{i}})
+   => let \{x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}\} = f(a1\mymath{\myindx{i}})
+      in  g(e, x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
+, e, a1, y )
+\end{bcolorcode}
+\end{center}
+
+\begin{center}
+\begin{bcolorcode}
+//\emp{filterT o filterT\mymath{\Rightarrow}filterT}
+//\emp{{\em{}IFF} consumer's input set}
+//\emp{  \mymath{\subseteq} producer's output set}
+let (x1,x2)=filterT(c\mymath{\myindx{1}},a1,a2)
+in  let y = filterT(c\mymath{\myindx{2}}, x1) ..
+    \emphh{\mymath{\Downarrow}}
+let (y, dead) = filterT(
+  fn bool (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}},\mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})=>
+      if   c\mymath{\myindx{1}}(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
+      then c\mymath{\myindx{2}}(a1\mymath{\myindx{i}})
+      else false
+, a1, a2 )
+\end{bcolorcode}
+\end{center}
+
+\begin{center}
+\begin{bcolorcode}
+//\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
+//\emp{{\em{}IFF} consumer's input list}
+//\emp{  \mymath{\Rightarrow} producer's output list}
+let x = filterT(c, a)
+in  reduceT(\mymath{\oplus}, e, x)
+    \emphh{\mymath{\Downarrow}}
+reduceT(fn \mymath{\beta} (\mymath{\beta} e, \mymath{\beta} a\mymath{\myindx{i}}) =>
+  if c(a\mymath{\myindx{i}}) then \mymath{\oplus}(e,a\mymath{\myindx{i}}) else e
+, e, a )
+\end{bcolorcode}
+\end{center}
+
+\begin{center}
+\begin{bcolorcode}
+//\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
+//\emp{{\em{}IFF} consumer's input set}
+//\emp{  \mymath{\subseteq} producer's output set}
+let (x1,x2)=filterT(c, a1, a2)
+in  reduceT(\mymath{\oplus}, e, x1)
+    \emphh{\mymath{\Downarrow}}
+redomapT(\mymath{\oplus}
+, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})
+   => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
+      then \mymath{\oplus}(e, a1\mymath{\myindx{i}}) else e
+, e, a1, a2 )
+\end{bcolorcode}
+\end{center}
+
+\begin{center}
+\begin{bcolorcode}
+//\emp{redomapT o filterT\mymath{\Rightarrow}redomapT}
+//\emp{{\em{}IFF} consumer's input set}
+//\emp{  \mymath{\subseteq} producer's output set}
+let (x1,x2)=filterT(c, a1, a2)
+in  redomapT(\mymath{\oplus}, g, e, x1)
+    \emphh{\mymath{\Downarrow}}
+redomapT(\mymath{\oplus}
+, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})
+   => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
+      then g(e, a1\mymath{\myindx{i}}) else e
+, e, a1, a2 )
+\end{bcolorcode}
+\end{center}
+
+\subsection{Invalid fusion}
 \label{sec:invalidfusion}
 
 We must be careful not to run afoul of uniqueness constraints when
@@ -130,9 +278,11 @@ resulting program is thus invalid.  In general, we must track the
 possible execution paths from the producer-SOAC to the consumer-SOAC,
 and only fuse if none of the inputs of the producer have been consumed
 (in the uniqueness type sense of the word) by a \texttt{let-with} or
-function call on any possible execution paths.
+function call on any possible execution paths.  This is easier than it
+may appear at first glance, as the fusion algorithm will only fuse
+when the consumer is within the lexical scope of the producer anyway.
 
-\section{When to fuse}
+\subsection{When to fuse}
 \label{sec:whentofuse}
 
 Even when fusion is possible, it may not be beneficial, and may be
@@ -274,7 +424,9 @@ The presentation will be of the form of \textit{judgements}.  To skip
 ahead a bit, I will write the \texttt{map}-composition of two
 functions as
 \[
-\mapcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{o_1,\ldots,o_k}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}.
+\boxed{
+\mapcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{o_1,\ldots,o_k}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}
+}.
 \]
 This judgement is said to \textit{hold} if the preconditions specified
 for the judgement are upheld.
@@ -435,8 +587,8 @@ With function composition defined, we can define fusion rules for
 SOACs.  I present fusion as a judgement
 \[
 \boxed{
-\fusesto{os}{producer}{consumer}{result}.
-}
+\fusesto{os}{producer}{consumer}{result}
+}.
 \]
 This means that $producer$, which produces outputs $os$, can be fused
 with $consumer$, yielding $result$ as the combined SOAC.  Valid
@@ -472,7 +624,7 @@ which should mostly be intuitive.
     {\texttt{mapT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{scanT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{scanT($l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
-  } \mbox{($\overline{es_{a}}$ and $\overline{es_{b}}$ match)}
+  } \quad \mbox{($\overline{es_{a}}$ and $\overline{es_{b}}$ match)}
   \tagsc{Fuse-Map-Scan}
 \end{align*}
 
@@ -485,7 +637,7 @@ fuse to \texttt{reduce}.
 \begin{align*}
   \nfrac{
     \fusesto
-    {\texttt{\{$os$\}}}
+    {\overline{os}}
     {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{redomapT($l_{b}$,$l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{redomapT($l_{b}$,$l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
@@ -561,7 +713,7 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
   \tagsc{Fuse-Filter-Reduce-2}
 \end{align*}
 
-\section{Dataflow}
+\section{The fusion algorithm}
 
 \newcommand{\unfusable}[0]{\textsc{unfusable}}
 \newcommand{\inputs}[0]{\textsc{arrInputs}}
@@ -570,7 +722,40 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
 \newcommand{\childExps}[1]{\textsc{childExps}(#1)}
 \newcommand{\parentExp}[1]{\textsc{parentExp}(#1)}
 
-We will track the following pieces of information.\fxnote{All of this can be done in one pass - explain how and why.}
+The entire algorithm consists of two distinct stages:
+
+\begin{enumerate}
+\item Traverse the program, collecting SOAC-expressions and fusing
+  producers into consumers where possible.  The end result is a
+  mapping from SOACs in the original program, to replacement SOAC
+  expressions (the result of fusion operations).  This is called the
+  \textit{gathering} phase.
+
+\item Traverse the program again, using the result of the gathering
+  phase to replace SOAC expressions with their fully fused forms.
+  This may lead to dead code, as the output variables of producers
+  that have been fused into their consumers are no longer used.  These
+  can be removed using standard dead code removal.
+\end{enumerate}
+
+The replacement stage is trivial, hence the rest of this section will
+be concerned solely with the gathering stage.
+
+\LO{}, as a block-structured language, is suited to region-based
+analysis, and the fusion algorithm is indeed designed as a reduction
+of a dataflow graph.
+
+My structural analysis is rooted in the
+T$_{1}$-T$_{2}$-reduction~\cite{red_dragon}.\fxnote{Insert more about
+  the transformation.}
+
+\LO{} always produces a reducible graph, and we process rules at each
+reduction.
+
+\subsection{Dataflow rules}
+
+We will track the following pieces of information.\fxnote{All of this
+  can be done in one pass - explain how and why.}
 
 \begin{description}
 \item[$\soacs : Exp \rightarrow Label \times Pat \times Exp$.] The set
@@ -857,111 +1042,6 @@ is non-empty, we cannot fuse at all.
 Record the in-place modification of $v_{2}$. \fxnote{Not sure how to model this yet.}
 
 \end{description}
-
-\section{Fusion algebra}
-\label{sec:fusionalgebra}
-
-\fxnote{This is horrible.  Fix me.}
-
-\begin{figure}[bt]
-\begin{colorcode}
-// \emp{replicate can be fused}
-// \emp{without restrictions}
-let x = replicate(N,a)in 
-let y = mapT(f, x, b) in
-let z = mapT(g, x, c) in 
-let x[i] = ...
-    \emphh{\mymath{\equiv}}
-let x = replicate(N, a) in 
-let y = mapT( fn \mymath{\beta\myindx{1}} (\mymath{\alpha\myindx{1}} b\mymath{\myindx{i}}) 
-              => f(a,b\mymath{\myindx{i}}), b)
-let z = mapT( fn \mymath{\beta\myindx{2}} (\mymath{\alpha\myindx{2}} c\mymath{\myindx{i}}) 
-              => g(a,c\mymath{\myindx{i}}), c)
-in let x[i] = ...   
-
-
-//\emp{mapT o mapT \mymath{\Rightarrow} mapT}  
-let (x1, x2) = mapT(f, a1)
-in  mapT(g, x1, y)   
-    \emphh{\mymath{\equiv}}
-mapT(fn \mymath{\beta} (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} y\mymath{\myindx{i}})
-  =>let (x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}) = f(a1\mymath{\myindx{i}})
-    in  g(x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
-, a1, y )
-
-
-//\emp{reduceT o mapT\mymath{\Rightarrow}redomapT}
-let (x1, x2) = mapT(f, a1)
-in  reduceT(\mymath{\oplus},e\mymath{\myindx{1}},e\mymath{\myindx{2}}, x1,y)   
-    \emphh{\mymath{\equiv}}
-redomapT(\mymath{\oplus}
-, fn (\mymath{\beta\myindx{1}},\mymath{\beta\myindx{2}}) ( \mymath{\beta\myindx{1}} e\mymath{\myindx{1}}, \mymath{\beta\myindx{2}} e\mymath{\myindx{2}}
-             , \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}},\mymath{\alpha\myindx{2}} y\mymath{\myindx{i}})
-   => let (x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}) = f(a1\mymath{\myindx{i}})
-      in  \mymath{\oplus}(e\mymath{\myindx{1}},e\mymath{\myindx{2}},x1\mymath{\myindx{i}},y\mymath{\myindx{i}})
-, (e\mymath{\myindx{1}}, e\mymath{\myindx{2}}), a1, y )
-
-
-//\emp{redomapT o mapT\mymath{\Rightarrow}redomapT}
-let (x1, x2) = mapT(f, a1)
-in  redomapT(\mymath{\oplus}, g, e, x1, y)
-    \emphh{\mymath{\equiv}}
-redomapT(\mymath{\oplus}
-, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} y\mymath{\myindx{i}})
-   => let (x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}) = f(a1\mymath{\myindx{i}})
-      in  g(e, x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
-, e, a1, y )
-
-//\emp{filterT o filterT\mymath{\Rightarrow}filterT}
-//\emp{{\em{}IFF} consumer's input set}
-//\emp{  \mymath{\subseteq} producer's output set}
-let (x1,x2)=filterT(c\mymath{\myindx{1}},a1,a2)
-in  let y = filterT(c\mymath{\myindx{2}}, x1) ..
-    \emphh{\mymath{\equiv}}
-let (y, dead) = filterT(
-  fn bool (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}},\mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})=> 
-      if   c\mymath{\myindx{1}}(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}}) 
-      then c\mymath{\myindx{2}}(a1\mymath{\myindx{i}}) 
-      else false 
-, a1, a2 ) ..
-
-//\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
-//\emp{{\em{}IFF} consumer's input list}
-//\emp{  \mymath{\equiv} producer's output list}
-let x = filterT(c, a)
-in  reduceT(\mymath{\oplus}, e, x)
-    \emphh{\mymath{\equiv}}
-reduceT(fn \mymath{\beta} (\mymath{\beta} e, \mymath{\beta} a\mymath{\myindx{i}}) =>
-  if c(a\mymath{\myindx{i}}) then \mymath{\oplus}(e,a\mymath{\myindx{i}}) else e
-, e, a )
-
-//\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
-//\emp{{\em{}IFF} consumer's input set}
-//\emp{  \mymath{\subseteq} producer's output set}
-let (x1,x2)=filterT(c, a1, a2)
-in  reduceT(\mymath{\oplus}, e, x1)
-    \emphh{\mymath{\equiv}}
-redomapT(\mymath{\oplus}
-, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})
-   => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
-      then \mymath{\oplus}(e, a1\mymath{\myindx{i}}) else e
-, e, a1, a2 )
-
-//\emp{redomapT o filterT\mymath{\Rightarrow}redomapT}
-//\emp{{\em{}IFF} consumer's input set}
-//\emp{  \mymath{\subseteq} producer's output set}
-let (x1,x2)=filterT(c, a1, a2)
-in  redomapT(\mymath{\oplus}, g, e, x1)
-    \emphh{\mymath{\equiv}}
-redomapT(\mymath{\oplus}
-, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})
-   => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
-      then g(e, a1\mymath{\myindx{i}}) else e
-, e, a1, a2 )
-\end{colorcode}
-\caption{Compositional Algebra For Fusion}
-\label{fig:fusion-algebra}
-\end{figure}
 
 %%% Local Variables: 
 %%% mode: latex

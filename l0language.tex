@@ -304,6 +304,36 @@ $e$ & $::=$ & \texttt{map($l$, $e$)} \\
 \label{fig:soacs}
 \end{figure}
 
+The semantics of the \textsc{soac}s is identical to the similarly-named
+higher-order functions found in many functional languages, but we
+reproduce it here for completeness.  The types given are not \LO{}
+types, but a Haskell-inspired notation, since the \textsc{soac}s cannot
+be typed in \LO{} itself.
+\begin{align*}
+\texttt{map($f$,$a$)}
+& :: (\alpha\rightarrow\beta)\rightarrow[\alpha]\rightarrow[\beta] \\
+& \equiv \texttt{\{$f$($a$[0]), \ldots, $f$($a$[n])\}}
+\end{align*}
+\begin{align*}
+\texttt{ filter}
+& :: (\alpha\rightarrow\texttt{bool})\rightarrow[\alpha]\rightarrow[\alpha] \\
+\texttt{ filter($f$,a)} & \equiv \texttt{\{$a$[i] | $f$($a$[i]) = \texttt{True }\}}
+\end{align*}
+\begin{align*}
+\texttt{ reduce}
+& :: (\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow\alpha\rightarrow[\alpha]\rightarrow\alpha \\
+\texttt{ reduce($f$,$x$,$a$)} & \equiv \texttt{ $f$(\ldots($f$($f$($x$,$a$[0]), $a$[1])\ldots), $a$[n])}
+\end{align*}
+\begin{align*}
+\texttt{ scan}
+& :: (\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow\alpha\rightarrow[\alpha]\rightarrow[\alpha] \\
+\texttt{ scan($f$,$x$,a)} & \equiv \texttt{\{$f$($x$,$a$[0]), $f$($f$($x$,$a$[0]),$v$[1]),\ldots\}}
+\end{align*}
+
+In particular, note that \texttt{scan} and \texttt{reduce} require
+binary associative operators and \texttt{scan} is an inclusive prefix
+scan.
+
 \section{Language reference}
 \label{sec:l0-reference}
 

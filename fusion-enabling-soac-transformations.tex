@@ -92,7 +92,7 @@ Valid judgements are defined by the following inference rules.
 
 \begin{align*}
 \nfrac{
-  \Re(v) = v
+  \Re(e) = v
 }{
   \Re(\texttt{reshape}(shape,e)) = v
 }
@@ -200,20 +200,54 @@ let \{\emphh{b}\} = mapT\(\myindu{2}\)(f, \emp{transpose}(a)) in
 reduceT(g, v, \emphh{b})
 \end{colorcode}
 
-And (incomplete) rule:
+And rule:
+
+\[
+\boxed{
+  \text{transpose}(k,n,os,es) \Rightarrow es'
+}
+\]
+
+\begin{align*}
+\nfrac{
+}{
+  \text{transpose}(k,n,os,()) \Rightarrow ()
+}
+\end{align*}
+
+\begin{align*}
+& \nfrac{
+  \Re(e) = v
+  \quad
+  \text{transpose}(k,n,os,es) \Rightarrow es'
+}{
+  \text{transpose}(k,n,os,(e,es)) \Rightarrow (\texttt{transpose}(k,n,e),es')
+} & \quad (v \in os)
+\\
+\\
+& \nfrac{
+  \Re(e) = v
+  \quad
+  \text{transpose}(k,n,os,es) \Rightarrow es'
+}{
+  \text{transpose}(k,n,os,(e,es)) \Rightarrow (e,es')
+} & \quad (v \notin os)
+\end{align*}
 
 \begin{align*}
   \nfrac{
+    \text{transpose}(k,n,os,es_{p}) \Rightarrow es_{p}'
+    \quad
     \fusesto
     {os}
-    {\texttt{mapT$^{k+n}$($f$,transpose(k, n, $\overline{es_{p}'}$))}}
-    {soac_{p}'}
+    {\texttt{mapT$^{k+n}$($f$,$\overline{es_{p}'}$)}}
+    {\texttt{mapT($g$, $\overline{es_{c}}$)}}
     {soac_{r}}
   }{
     \fusesto
     {os}
     {\texttt{mapT$^{k+n}$($f$,$\overline{es_{p}}$)}}
-    {soac_{p}}
+    {\texttt{mapT($g$, transpose(k, n, $\overline{es_{c}}$))}}
     {soac_{r}}
   }
   \tagsc{Pull-Transpose}
