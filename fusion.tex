@@ -745,12 +745,37 @@ be concerned solely with the gathering stage.
 analysis, and the fusion algorithm is indeed designed as a reduction
 of a dataflow graph.
 
-My structural analysis is rooted in the
-T$_{1}$-T$_{2}$-reduction~\cite{red_dragon}.\fxnote{Insert more about
-  the transformation.}
+My structural analysis is inspired by the
+T$_{1}$-T$_{2}$-reduction~\cite{red_dragon}.  We say that a flow graph
+is reducible if it can be reduced to a single node by the following
+two transformations:
 
-\LO{} always produces a reducible graph, and we process rules at each
-reduction.
+\begin{description}
+  \item[T$_{1}$:] Remove an edge from a node to itself.
+
+  \item[T$_{2}$:] Combine two nodes $m$ and $n$, where $m$ is the
+    single predecessor of $n$, and $n$ is not the entry of the flow
+    graph.
+\end{description}
+
+On \fref{fig:t1t2-1} is shown a small flow graph and highlights
+instances where the two reductions could apply.  The overall idea is
+to construct a flow graph of the \LO{} program, reduce it to a single
+point, and at each reduction step combine the information stored at
+the nodes being combined.
+
+\LO{} always produces a reducible graph.  Each node corresponds to an
+expression, with the successors of the node being its subexpressions.
+This means that we can implement the reduction simply as a bottoms-up
+traversal of the \LO{} syntax tree.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=5cm]{img/t1t2-1.pdf}
+\end{center}
+\caption{T$_{1}$-T$_{2}$-reduction}
+\label{fig:t1t2-1}
+\end{figure}
 
 \subsection{Dataflow rules}
 
