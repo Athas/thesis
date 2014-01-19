@@ -1,23 +1,178 @@
 \chapter{Internal representation}
 \label{chap:internal}
 
-\section{Tuple-SOACs}
+It is a common compilation technique to transform the externally
+visible language into a simpler intermediate language, on which all
+optimisation and further compilation is performed.  This is usually
+necessary, because languages written for human consumption have a
+large amount of bells and whistles that make programming more
+convenient, but offer no significant avenues for optimisation, but
+rather just leave more cases for the optimiser to handle.
+
+We do not suffer as badly from that problem with \LO{}, as it was
+designed as an intermediate language itself.  Nevertheless, before
+embarking on any optimisation, we do transform the input program to an
+internal dialect of \LO{}.  In most compilers, it is usually not
+possible to transform the intermediate language to the external
+language, at least not without losing much of the structure of the
+original program.  In comparison, the transformation from external to
+internal \LO{} is comparatively simple and (mostly) reversible.
+
+\section{Tuple transformation}
+\label{sec:tuple-transformation}
+
+The most important difference between external and internal \LO{} is
+the total absense of arrays of tuples in the latter.  There are
+several reasons for this - Chapter \ref{chap:fusion} will describe how
+this benefits the fusion algorithm, and when generating the final
+machine code, we will also not be able to conveniently represent
+arrays of tuples in memory.
+
+\texttt{zip} and \texttt{unzip} are not allowed in internal \LO{}.
+
+\subsection{Tupleless SOACs}
+
+As internal \LO{} does not permit tuples of arrays, we need to find a
+way to convert an expression such as
+\begin{colorcode}
+map(fn int ({int,int} t) =>
+      let {x,y} = t in
+      f(x,y),
+    zip(a, b))
+\end{colorcode}
+The solution is tupleless SOACs: variants of the normal SOACs in which
+several arrays are traversed in parallel.  For example, the previous
+expression will be converted to
+\begin{colorcode}
+mapT(fn \{int\} (int x, int y) =>
+       f(x,y),
+     a, b)
+\end{colorcode}
+Conceptually, we can imagine that the tuple-SOACs all have a built-in
+\texttt{zip}.  Furthermore, initial values for tuple-typed
+accumulators (for \texttt{reduceT}, \texttt{scanT} and
+\texttt{redomapT}) are given element-wise, and also passed
+element-wise to the function.  This, combined with the ban on arrays
+of tuples, implies that no parameter of a function in a tupleless SOAC
+is ever tuple-typed.
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}
 $e$ & $::=$ & \texttt{<$c$>mapT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$)} \\
     & $|$ & \texttt{<$c$>filterT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $e_{1}$, \ldots, $e_{n}$)} \\
-    & $|$ & \texttt{<$c$>reduceT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
-    & $|$ & \texttt{<$c$>scanT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{<$c$>reduceT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, \{$x_{1}$, \ldots, $x_{n}$\}, $e_{1}$, \ldots, $e_{n}$)} \\
+    & $|$ & \texttt{<$c$>scanT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$) => $e_f$, \{$x_{1}$, \ldots, $x_{n}$\}, $e_{1}$, \ldots, $e_{n}$)} \\
     & $|$ & \texttt{<$c$>redomapT(fn $t_{o}$ ($t_{o_{1}}$ $v_{o_{1}}$, \ldots, $t_{o_{n}}$ $v_{o_{n}}$) => $e_o$,} \\
     &     & \texttt{\ \ \ \ \ \ \ \ \ \ \ \ fn $t_{i}$ ($t_{i_{1}}$ $v_{i_{1}}$, \ldots, $t_{i_{n}}$ $v_{i_{n}}$) => $e_i$,} \\
-    &     & \texttt{\ \ \ \ \ \ \ \ \ \ \ \ $x_{1}$, \ldots, $x_{n}$, $e_{1}$, \ldots, $e_{n}$)} \\
+    &     & \texttt{\ \ \ \ \ \ \ \ \ \ \ \ \{$x_{1}$, \ldots, $x_{n}$\}, $e_{1}$, \ldots, $e_{n}$)} \\
 \end{tabular}
-\caption{Second-order tuple-array combinators}
-\label{fig:tuple-soacs}
+\caption{Tupleless Second-order array combinators}
+\label{fig:tupleless-soacs}
 \end{figure}
 
+As an aside, curried functions are also not permitted in tupleless
+SOACs.  The notation is summarised on \fref{fig:tupleless-soacs} - the
+\texttt{<$c$>} stuff is explained in the next section.
+
 \section{Assertions}
+\label{sec:assertions}
+
+Removal of \texttt{zip} carries with it an additional complication.
+Recall that \texttt{zip} is responsible for checking that the input
+arrays are of the same (outer) size, and if they are not, terminate
+the program with an error.  The obvious solution is to make each
+tupleless SOAC do the same check, but that seems wasteful.  Even
+worse, it's not a full solution to the problem.  Consider the
+following expression.
+\begin{colorcode}
+let c = zip(a,b) in
+c[0]
+\end{colorcode}
+How should this be transformed?  There is an obvious solution:
+\begin{colorcode}
+\{a[0], b[0]\}
+\end{colorcode}
+But it is of course wrong - there is no checking that \texttt{a} and
+\texttt{b} are of the same length, hence the original expression may
+fail, while the transformed expression may evaluate succesfully.  The
+solution is to \textit{predicate} the expression on the fact that
+\texttt{a} and \texttt{b} must match.
+\begin{colorcode}
+if \textit{\texttt{a} and \texttt{b} have the same length}
+then \{a[0], b[0]\}
+else \textit{fail}
+\end{colorcode}
+Using branches to accomplish this somewhat complicates further
+transformation and optimisation, however, so an approach based on
+\textit{assertions} was chosen.  First, we introduce a new type,
+\texttt{cert}, which is inhabited by only one value \texttt{Checked}.
+The idea is that a value of type \texttt{cert} acts as a
+\textit{certificate}, certifying that some property has been checked.
+We then add tree new language constructs:
+
+\begin{description}
+\item[\texttt{assert($e$)}]\hfill\\
+  Returns \texttt{Checked} if the boolean expression $e$ returns
+  \texttt{True}, otherwise terminates the program with an error.
+
+\item[\texttt{conjoin($e_{1}, \ldots, e_{n}$)}]\hfill\\
+  All of $e_{1}, \ldots, e_{n}$ must be expressions of type
+  \texttt{cert}.  Always returns \texttt{Checked}.  The purpose of
+  \texttt{conjoin} is to combine several \texttt{cert} values into
+  one.
+
+\item[\texttt{<$v_{1},\ldots,v_{n}$>$e$}]\hfill\\
+  Evaluate $e$ and return its value.  The variables
+  $v_{1},\ldots,v_{n}$ must each be of type \texttt{cert}, but their
+  values are not checked.  They exist solely to express a dependency
+  between the expression $e$ and whichever assertions it is predicated
+  upon.
+\end{description}
+
+Now the index expression given above can be transformed into the
+following.
+
+\begin{colorcode}
+let c = assert(size(0,a) == size(0,b)) in
+\{<c>a[0], <c>b[0]\}
+\end{colorcode}
+
+This design has the particularly nice property that even if later
+transformations pick apart the tuple literal, the individual
+components will still be predicated on the original property.  Even
+more importantly, the condition \texttt{size(0,a) == size(0,b)} is
+seen as a perfectly ordinary expression by the rest of the compiler,
+and can be simplified (or removed altogether) by size analysis, copy
+propagation, constant folding, common-subexpression elemination and
+other standard optimisations.
+
+Having introduced an assertion mechanism to solve the problem of
+tupleless SOACs, it is of course worth to consider whether it can be
+used for other purposes as well.  And as it turns out, we can use
+assertions to express bounds-checking (using a somewhat ugly syntax):
+
+\begin{minipage}{0.1\columnwidth}
+\begin{center}
+\begin{colorcode}
+a[i]
+\end{colorcode}
+\end{center}
+\end{minipage}
+$\Rightarrow$
+\begin{minipage}{0.46\columnwidth}
+\begin{center}
+\begin{colorcode}
+let c = assert(0 <= i && i < size(0,a)) in
+a[<c> | i]
+\end{colorcode}
+\end{center}
+\end{minipage}
+
+Again, what we gain is the ability to exploit our standard
+expression-optimisation machinery to simplify and perhaps even remove
+the bounds check.  In particular, range analysis\fixme{insert cite or
+  something} can be used to hoist such expressions out of inner loops
+- all the while staying within the (internal) \LO{} language.
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}

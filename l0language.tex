@@ -380,10 +380,11 @@ the language.
     may be a comma-separated list of indexes.
 
   \item[\texttt{zip($a_1, \ldots, a_n$)}]\hfill\\
-    Zips together the elements of the outer dimensions of arrays $a_1, \ldots, a_n$.
-    Static or runtime check is required to check that the sizes of
-    the outermost dimension of arrays $a_1, \ldots, a_n$ are the same.
-    If this invariant does not hold program execution stops with an error.
+    Zips together the elements of the outer dimensions of arrays $a_1,
+    \ldots, a_n$.  Static or runtime check is required to check that
+    the sizes of the outermost dimension of arrays $a_1, \ldots, a_n$
+    are the same.  If this invariant does not hold, program execution
+    stops with an error.
   \item[\texttt{unzip($a$)}]\hfill\\
     If the type of $a$ is $[\{t_1, \ldots, t_n\}]$ then the result is
     a tuple of $n$ arrays, i.e., $\{[t_1], \ldots, [t_n]\}$, otherwise
@@ -497,7 +498,7 @@ two-element tuple by \texttt{map}.
 
 \subsection{Arrays of tuples}
 
-For reasons that will be explained in chapter \ref{chap:fusion},
+For reasons that will be explained in Chapter \ref{chap:fusion},
 arrays of tuples are in a sense merely syntactic sugar for tuples of
 arrays.  The type \texttt{[\{int, real\}]} is transformed to
 \texttt{\{[int], [real]\}} during the compilation process, and all
@@ -527,6 +528,9 @@ is not a full array.  Hence, when determining whether a program
 generates full arrays, we must hence look at the \textit{transformed}
 values - in a sense, the fullness requirement ``transcends'' the
 tuples.
+
+Section \ref{sec:tuple-transformation} contains more information on
+the transformation of arrays of tuples.
 
 %%% Local Variables:
 %%% mode: latex
