@@ -38,18 +38,26 @@ vocally the lack of syntactical niceties in the language.
 
 \fxnote{Surely I have contributed something?}
 
+Parts of this thesis, in particular the core of the fusion algorithm
+in \cref{chap:fusion}, has been previously published as
+
+\begin{quote}
+\fullcite{Henriksen:2013:TGA:2502323.2502328}
+\end{quote}
+
 \section{Report outline}
 
-The remainder of the report is structured as follows.  Chapters
-\ref{chap:l0language} and \ref{chap:uniqueness-types} will introduce
-the programmer-visible part of \LO{} and serves as a language
-reference.  Chapter \ref{chap:internal} presents a slight modification
-of the external language, that makes it more amenable to
-transformation and optimisation.  Chapter \ref{chap:fusion} covers
-\textit{loop fusion}, an important optimisation, while chapters
-\ref{chap:fusion-enabling-soac-transformations} and
-\ref{chap:hindrance-removal} cover transformations that enable other
-optimisations (particularly fusion).
+The remainder of the report is structured as follows.
+\Cref{chap:l0language,chap:uniqueness-types} will introduce the
+programmer-visible part of \LO{} and serves as a language reference.
+\Cref{chap:internal} presents a slight modification of the external
+language, that makes it more amenable to transformation and
+optimisation.  \Cref{chap:hoisting} discusses loop-hoisting in the
+context of \LO{}.  \Cref{chap:fusion} covers \textit{loop fusion}, an
+important optimisation, while
+\cref{chap:fusion-enabling-soac-transformations,chap:hindrance-removal}
+cover transformations that enable other optimisations (although
+particularly fusion).
 
 \section{Notation}
 

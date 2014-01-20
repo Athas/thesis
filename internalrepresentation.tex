@@ -17,14 +17,14 @@ possible to transform the intermediate language to the external
 language, at least not without losing much of the structure of the
 original program.  In comparison, the transformation from external to
 internal \LO{} is comparatively simple and reversible (with some loss
-in information; see Section \ref{sec:internal-to-external}).
+in information; see \cref{sec:internal-to-external}).
 
 \section{Tuple transformation}
 \label{sec:tuple-transformation}
 
 The principal difference between external and internal \LO{} is the
 total absense of arrays of tuples in the latter.  There are several
-reasons for this - Chapter \ref{chap:fusion} will describe how this
+reasons for this - \cref{chap:fusion} will describe how this
 benefits the fusion algorithm, and when generating the final machine
 code, we will also not be able to conveniently represent arrays of
 tuples in memory.
@@ -43,7 +43,7 @@ recursively.  All other types are left unchanged.  A few examples:
 Both are removed during the conversion process, as they perform a
 transformation between representations that is not necessary in
 internal \LO{}, although \texttt{zip} has some additional
-complications that I discuss in Section \ref{sec:assertions}.
+complications that I discuss in \cref{sec:assertions}.
 
 Most expressions operating on arrays-of-tuples have to be modified to
 operate on the components of the replacement tuples-of-arrays instead,
@@ -92,7 +92,7 @@ $e$ & $::=$ & \texttt{<$c$>mapT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$
 
 As an aside, curried functions are also not permitted in tupleless
 SOACs, although I will still use them for notational convenience.  The
-notation is summarised on \fref{fig:tupleless-soacs} - the
+notation is summarised on \cref{fig:tupleless-soacs} - the
 \texttt{<$c$>} notation is explained in the next section.
 
 \section{Assertions}
@@ -334,10 +334,10 @@ mapT<c>(g, a1, a2)
 
 The return type of \texttt{f} has been modified to include a
 certificate for the postcondition that the two return arrays have the
-same outer size.\footnote{In this specific case, optimisations will
-  result in the assertion being removed and replaced with the literal
-  \texttt{Checked}, but it has been retained for clarity in this
-  example.}
+same outer size.\footnote{In this specific case, later simplification
+  will eventually result in the assertion being removed and replaced
+  with the literal \texttt{Checked}, but it has been retained for
+  clarity in this example.}
 
 This solution requires a large amount of tedious tracking of
 certificates in the module that converts external to internal \LO{},
@@ -345,7 +345,7 @@ but as a tradeoff, the rest of the compiler can be kept simpler, as
 all dependencies between predicated expressions and assertions are
 explicit.
 
-\section{Converting from Internal to External}
+\section{Converting from Internal to External \LO{}}
 \label{sec:internal-to-external}
 
 The internal language matches the external quite closely;

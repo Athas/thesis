@@ -1,11 +1,11 @@
 \chapter{Fusion-enabling SOAC transformations}
 \label{chap:fusion-enabling-soac-transformations}
 
-The fusion rules in section \ref{sec:fusion-rules} cover only simple
-cases, where the output of the producer is used directly by the
-consumer, without any intermediary steps.  This means that the
-following program, where the output of the producer is first passed
-through \texttt{transpose}, cannot be fused.
+The fusion rules in \cref{sec:fusion-rules} cover only simple cases,
+where the output of the producer is used directly by the consumer,
+without any intermediary steps.  This means that the following
+program, where the output of the producer is first passed through
+\texttt{transpose}, cannot be fused.
 \begin{colorcode}
 let \{\emphh{b}\} = mapT(f, a) in
 mapT(fn [int] ([int] r) => mapT(g, r), \emp{transpose}(\emphh{b}))
@@ -25,7 +25,7 @@ the \textsc{Fuse-Map-Redomap} rule a particularly simple example of
 such a rewriting.  Fortunately, the these rewritings can be fit into
 the existing fusion framework simply by considering them as additional
 inference rules.  The above rewriting specifically can be defined as
-follows (using the nested map notation from \fref{fig:nested-maps}).
+follows (using the nested map notation from \cref{fig:nested-maps}).
 
 \begin{align*}
   \nfrac{

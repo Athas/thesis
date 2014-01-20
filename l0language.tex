@@ -3,11 +3,10 @@
 
 \LO{} is a purely functional, call-by-value, mostly first-order
 language that permits bulk operations on arrays using
-\textit{second-order array combinatrs} (SOACs).  Sections
-\ref{sec:fo-l0} and \ref{sec:soacs} will present \LO{} through
-informal walkthrough of the major language concepts, whilst a complete
-reference of language constructs is given in section
-\ref{sec:l0-reference}.
+\textit{second-order array combinatrs} (SOACs).
+\Cref{sec:fo-l0,sec:soacs} will present \LO{} through informal
+walkthrough of the major language concepts, whilst a complete
+reference of language constructs is given in \cref{sec:l0-reference}.
 
 \section{First-order \LO{}}
 \label{sec:fo-l0}
@@ -26,8 +25,8 @@ $k$ & $::=$ & $n$ & (Integer)\\
 & $|$ & $x$ & (Decimal number) \\
 & $|$ & $b$ & (Boolean)\\
 & $|$ & $c$ & (Character)\\
-& $|$ & $\{v_{1},\ldots,v_{n}\}$ & (Tuple) \\
-& $|$ & $[v_{1},\ldots,v_{n}]$ & (Array) \\
+& $|$ & \texttt{\{$v_{1},\ldots,v_{n}$\}} & (Tuple) \\
+& $|$ & \texttt{[$v_{1},\ldots,v_{n}$]} & (Array) \\
 \\
 $p$ & $::=$ & \texttt{\textbf{id}} & (Name pattern)\\
 & $|$ & \texttt{($p_{1}$, \ldots, $p_{n}$)} & (Tuple pattern) \\
@@ -76,8 +75,8 @@ $prog$ & $::=$ & $\epsilon$ \\
 \label{fig:fo-syntax-continued}
 \end{figure}
 
-The syntax of \LO{}, as seen on \fref{fig:fo-syntax} and
-\fref{fig:fo-syntax-continued}, is heavily inspired by Haskell and
+The syntax of \LO{}, as seen on \cref{fig:fo-syntax} and
+\cref{fig:fo-syntax-continued}, is heavily inspired by Haskell and
 Standard ML.  An identifier stats with a letter, followed by any
 number of letters, digits and underscores.  Numeric, string and
 character literals use the same notation as Haskell (which is very
@@ -157,8 +156,8 @@ of a tuple.
 
 Function calls are written as the function name followed by the
 arguments enclosed in parentheses.  All function calls must be fully
-saturated - currying is only permitted in SOACs (see section
-\ref{sec:soacs}).
+saturated - currying is only permitted in SOACs (see
+\cref{sec:soacs}).
 
 \subsection{Sequential loops}
 
@@ -199,8 +198,8 @@ The purpose of \texttt{loop} is partly to render some sequential
 computations slightly more convenient, partly to express certain loop
 optimisations in the compiler.  Semantically, it is completely
 equivalent to the call to its corresponding tail-recursive function.
-For example, denoting by \texttt{t} the type of \texttt{x}, the loop in
-Figure~\ref{fig:loop-recursion} has the semantics of a call to the
+For example, denoting by \texttt{t} the type of \texttt{x}, the loop
+in \cref{fig:loop-recursion} has the semantics of a call to the
 tail-recursive function on the right-hand side.
 
 \begin{figure}
@@ -256,7 +255,7 @@ Whenever $\textit{dest} = \textit{src}$, we can write
 as a shortcut.  Note that this has no special semantic meaning, but is
 simply a case of normal name shadowing.  Let-with has some unusual
 restrictions to permit in-place modification of the \textit{src}
-array, as described in chapter \ref{chap:uniqueness-types}.
+array, as described in \cref{chap:uniqueness-types}.
 
 For example, the loop given below implements the ``imperative''
 version of matrix multiplication of two $M\times M$ matrices.
@@ -286,7 +285,7 @@ imperative-style loops in a natural way with \texttt{do}-loops.
 However, \LO{} is not intended to be used in such a way - bulk
 operations on arrays should be expressed via the four
 \textit{second-order array combinators} (SOACs) shown in
-\fref{fig:soacs}, as the optimisations covered in later chapters are
+\cref{fig:soacs}, as the optimisations covered in later chapters are
 expressed as transformations on these.
 
 \begin{figure}[bt]
@@ -299,6 +298,7 @@ $e$ & $::=$ & \texttt{map($l$, $e$)} \\
     & $|$ & \texttt{filter($l$, $e$)} \\
     & $|$ & \texttt{reduce($l$, $x$, $e$)} \\
     & $|$ & \texttt{scan($l$, $x$, $e$)} \\
+    & $|$ & \texttt{redomap($l_{r}$, $l_{m}$, $x$, $e$)} \\
 \end{tabular}
 \caption{Second-order array combinators}
 \label{fig:soacs}
@@ -332,8 +332,48 @@ be typed in \LO{} itself.
 
 In particular, note that \texttt{scan} and \texttt{reduce} require
 binary associative operators and \texttt{scan} is an inclusive prefix
-scan.  The associativity requirements are not checked by the \LO{}
-compiler, and are the responsibility of the programmer.
+scan.  The value given as the initial value of the accumulator must be
+the neutral element for the function.  These properties are not
+checked by the \LO{} compiler, and are the responsibility of the
+programmer.
+
+\texttt{redomap} is a special case -- it is not intended for use by
+the programmer, but used internally for fusing \texttt{reduce} and
+\texttt{map}.  Its semantics is as follows.
+\begin{align*}
+\texttt{redomap}
+& :: (\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow(\alpha\rightarrow\beta\rightarrow\alpha)\\
+& \quad\rightarrow\alpha\rightarrow[\beta]\rightarrow\alpha \\
+\texttt{redomap($\odot$,$g$,$x$,$v$)} & \equiv \texttt{foldl($g$, $x$, $v$)}
+\end{align*}
+Note that the runtime semantics is a left-fold, not a normal \LO{}
+\texttt{reduce}.  In particular, $g$ need not be associative.  We use
+a Haskell-like syntax to explain the
+rationale behind \texttt{redomap}:\\
+$(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)$ can be
+formally transformed, via the list homomorphism (\textsc{lh})
+promotion lemma~\cite{BirdListTh}, to an
+equivalent form:  \\
+$(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
+\emphh{\equiv}\ \texttt{reduce}\ \odot\
+e\ \circ\ \texttt{map}\ (\emp{\texttt{reduce}\ \odot\ e\ \circ\ \texttt{map}\ f})\ \circ\ \texttt{split}_{p}$\\
+where the original list is distributed to $p$ parallel processors,
+each of which execute the original map-reduce computation sequentially
+and, at the end, reduce in parallel the per-processor result using the
+operator $\odot$.  Hence, the \textit{inner} map-reduce can be
+rewritten as a left-fold:\\
+$(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
+\emphh{\equiv}\ \texttt{reduce}\ \odot\
+e\ \circ \texttt{map} \ (\emp{\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p}$\\
+Where $g$ is a function generated from the composition of $f$ and
+$\circ$.  It follows that in order to generate parallel code for \\
+\texttt{(reduce $\odot$ $e$) $\circ$ (map $f$)} it is sufficient to
+record either $\odot$ and $f$, or $\odot$ and $g$. We choose the
+latter, i.e., \texttt{redomap($\odot$, $g$, $e$)}, because it allows a
+richer compositional algebra for fusion.  In particular, it allows us
+to fuse \texttt{reduce~$\circ$~map~$\circ$~filter} into a
+\texttt{redomap} without duplicating computation, as described in
+\cref{chap:fusion}.
 
 \section{Language reference}
 \label{sec:l0-reference}
@@ -413,8 +453,7 @@ the language.
   \item[\texttt{copy(\textit{x})}]\hfill\\
     Return a deep copy of the argument.  Semantically, this is just
     the identity function, but it has special semantics related to
-    uniqueness types as described in chapter
-    \ref{chap:uniqueness-types}.
+    uniqueness types as described in \cref{chap:uniqueness-types}.
 
   \item[\texttt{reshape((\textit{dim}$_{1}$, \ldots, \textit{dim}$_{n}$), a)}]\hfill\\
     Reshape the elements of the given array into the specified shape.
@@ -498,7 +537,7 @@ two-element tuple by \texttt{map}.
 
 \subsection{Arrays of tuples}
 
-For reasons that will be explained in Chapter \ref{chap:fusion},
+For reasons that will be explained in \cref{chap:fusion},
 arrays of tuples are in a sense merely syntactic sugar for tuples of
 arrays.  The type \texttt{[\{int, real\}]} is transformed to
 \texttt{\{[int], [real]\}} during the compilation process, and all
@@ -529,8 +568,8 @@ generates full arrays, we must hence look at the \textit{transformed}
 values - in a sense, the fullness requirement ``transcends'' the
 tuples.
 
-Section \ref{sec:tuple-transformation} contains more information on
-the transformation of arrays of tuples.
+\Cref{sec:tuple-transformation} contains more information on the
+transformation of arrays of tuples.
 
 %%% Local Variables:
 %%% mode: latex

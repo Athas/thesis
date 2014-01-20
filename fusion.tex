@@ -34,8 +34,8 @@ would be ``\texttt{map}-\texttt{map}''-fusion.
 \label{sec:fusion-in-l0}
 
 The language used to describe the fusion algorithm in this chapter is
-\texttt{let}-normalised, internal \LO{}, as described in chapter
-\ref{chap:internal}.  We will also assume that all instances of
+\texttt{let}-normalised, internal \LO{}, as described in
+\cref{chap:internal}.  We will also assume that all instances of
 \texttt{replicate(n,x)} have been rewritten as
 \texttt{map(fn~t~(int~i)~=>~x,~iota(n))}.  For clarity, expository
 examples will use the external \LO{}.
@@ -55,7 +55,7 @@ examples will use the external \LO{}.
   \label{fig:producers-consumers}
 \end{figure}
 
-\fref{fig:producers-consumers} lists which \LO{} SOACs are producers,
+\Cref{fig:producers-consumers} lists which \LO{} SOACs are producers,
 which are consumers, and which are both.  In particular, note that
 even if we have a \texttt{reduce}-expression returning an array, this
 does not mean that the \texttt{reduce}-expression is a producer - it
@@ -92,13 +92,13 @@ size of the \texttt{map}-output is the same as the size of its input,
 yet the size of the output of \texttt{filter} cannot be known in
 advance, which preclude an efficient fused form.
 
-The \textit{fusion algebra} in section \ref{sec:fusionalgebra}
-describes superficially which producer-consumer pairs can be fused, as
-well as the form of the resulting SOAC.
+The \textit{fusion algebra} in \cref{sec:fusionalgebra} describes
+superficially which producer-consumer pairs can be fused, as well as
+the form of the resulting SOAC.
 
-Section \ref{sec:invalidfusion} goes into greater detail on invalid
-fusion, and section \ref{sec:whentofuse} covers cases in which fusion
-may actually be detrimental to performance.
+\Cref{sec:invalidfusion} goes into greater detail on invalid fusion,
+and \cref{sec:whentofuse} covers cases in which fusion may actually be
+detrimental to performance.
 
 \subsection{Fusion algebra}
 \label{sec:fusionalgebra}
@@ -137,7 +137,7 @@ mapT(fn \mymath{\beta\myindx{1}} (int i) =>
 
 And indeed, this can be done through ordinary \texttt{map}-fusion if
 \texttt{replicate(N,a)} is first rewritten to \texttt{map} as
-described in section \ref{sec:fusion-in-l0}.
+described in \cref{sec:fusion-in-l0}.
 
 The result of \texttt{map}-\texttt{reduce}-fusion is always
 \texttt{redomap}.
@@ -160,7 +160,7 @@ We cannot in general fuse \texttt{map} and \texttt{reduce} to another
 \texttt{reduce}, as the accumulator type of a reduction must match the
 element type of the input array. Adding the input of the \texttt{map}
 to the input of the \texttt{reduce} may violate this requirement, as
-demonstrated on \fref{fig:map-reduce-error}.
+demonstrated on \cref{fig:map-reduce-error}.
 
 \begin{figure}
 
@@ -168,7 +168,9 @@ demonstrated on \fref{fig:map-reduce-error}.
 let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\}, a, b) in
 reduceT(op +, 0, c)
     \emphh{\mymath{\Downarrow}}
-reduceT(op +, 0, a, b) \emp{// Type error}
+reduceT(fn int (int acc, int x, int y) =>
+          acc + x + y,
+        0, a, b) \emp{// Type error}
 \end{bcolorcode}
 
 \caption{Cannot fuse to \texttt{reduce}}
@@ -331,7 +333,7 @@ computation is in many cases preferable.
   will perform \textit{loop distribution} (sometimes called
   \textit{loop fission}).  This step is necessary in any case, as it
   can be used to improve the degree of parallelism, compared to the
-  original program.  \fref{fig:loop-distribution} demonstrates a fully
+  original program.  \Cref{fig:loop-distribution} demonstrates a fully
   fused \texttt{map} where the degree of parallelism is can be
   improved by distributing the inner reductions out of the loop.  In
   the original program, the inner map had to wait for the two
@@ -339,6 +341,9 @@ computation is in many cases preferable.
   executing its inner loop, whereas the distributed program consists
   of three parallel loop nests.
 \end{description}
+
+The fusion algorithm is currently designed to fuse as much as
+possible, although without duplicating computation.
 
 \begin{figure}
 \begin{center}
@@ -392,7 +397,7 @@ In this section, we will assume that each output of a producer is used
 exactly once in every relevant \texttt{redomap}- and
 \texttt{map}-consumer.  This assumption can be provided through
 trivial rewriting prior to performing function composition, as
-illustrated on \fref{fig:single-input-transform}.  We gain the
+illustrated on \cref{fig:single-input-transform}.  We gain the
 property that each output of the producer is bound to exactly one
 parameter of the consumer's function, making it easier to describe the
 relationship between producer and consumer.\footnote{In the actual
@@ -758,7 +763,7 @@ two transformations:
     graph.
 \end{description}
 
-On \fref{fig:t1t2-1} is shown a small flow graph and highlights
+On \cref{fig:t1t2-1} is shown a small flow graph and highlights
 instances where the two reductions could apply.  The overall idea is
 to construct a flow graph of the \LO{} program, reduce it to a single
 point, and at each reduction step combine the information stored at
@@ -798,13 +803,13 @@ We will track the following pieces of information.\fxnote{All of this
   the fusion transformation is strictly intraprocedural, this is
   sufficient for our needs.
 
-\item[$\unfusable : Exp \rightarrow Names$.] The \textit{unfusable set}, which
-  is key to preventing unwanted fusion, as it indicates which SOACs
-  should never be fused.  The unfusable set prevents both undesired
-  and invalid fusion, as outlined in sections \ref{sec:whentofuse} and
-  \ref{sec:invalidfusion} respectively.  Given an \LO{} expression
-  $e$, we shall say $\unfusable(e)$ to refer to the unfusable set
-  produced by $e$.  For example:
+\item[$\unfusable : Exp \rightarrow Names$.] The \textit{unfusable
+    set}, which is key to preventing unwanted fusion, as it indicates
+  which SOACs should never be fused.  The unfusable set prevents both
+  undesired and invalid fusion, as outlined in sections
+  \cref{sec:whentofuse,sec:invalidfusion} respectively.  Given an
+  \LO{} expression $e$, we shall say $\unfusable(e)$ to refer to the
+  unfusable set produced by $e$.  For example:
   \begin{align*}
   \unfusable(&\texttt{let x = mapT(f,a) in}\\
   &\texttt{let y = mapT(g,a) in \{x,y\}}) = \{a\},
@@ -907,14 +912,14 @@ Now for specific rules, based on the shape of the given expression.
 \end{align*}
 
 The reason for these rules can be illustrated by the following
-examples.  In \fref{fig:fuse-across-if-ok}, it is clear that fusing
+examples.  In \cref{fig:fuse-across-if-ok}, it is clear that fusing
 computation of \texttt{b} with both \texttt{map(g,b)} and
 \texttt{map(g,b)} will not cause duplicated computation, as the two
 consumers are on separate control-flow paths.  On the other hand, if
 even one branch contains multiple uses, as in
-\fref{fig:fuse-across-if-bad}, we should not fuse.  Additionally, if
+\cref{fig:fuse-across-if-bad}, we should not fuse.  Additionally, if
 both the conditional expression and a branch consumes the same array,
-as on \fref{fig:fuse-across-if-bad-condition}, then we should also not
+as on \cref{fig:fuse-across-if-bad-condition}, then we should also not
 fuse.
 
 \begin{figure}
@@ -958,7 +963,7 @@ if p(map(v,b)) then map(g,b)
   For loops, we add any arrays used as SOAC inputs in the loop body to
   the unfusable set, as fusing into the loop would duplicate
   computation, by re-evaluating the function in the consumer for every
-  iteration of the loop -- see \fref{fig:cannot-fuse-loop} for an
+  iteration of the loop -- see \cref{fig:cannot-fuse-loop} for an
   example of this.  This is similar to how we ban fusing into
   SOAC-functions.
 \begin{align*}

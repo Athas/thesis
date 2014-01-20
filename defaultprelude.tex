@@ -46,8 +46,15 @@
 
 % Bibliography
 %\usepackage[style=alphabetic,natbib=true]{biblatex}
-\usepackage[hyperref,style=numeric,natbib=true, defernumbers=true]{biblatex}
+\usepackage[
+hyperref=auto,
+backend=biber,
+style=numeric,
+defernumbers=true
+]{biblatex}
+
 \usepackage[hyperindex,hidelinks]{hyperref}
+\usepackage{cleveref}
 
 % Fonts
 \usepackage{palatino}

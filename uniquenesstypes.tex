@@ -67,8 +67,8 @@ A variable aliases \texttt{a} if it may share the same memory.  As the
 most trivial case, after evaluating the binding \texttt{let b = a},
 the variable \texttt{b} will alias \texttt{a}.  As another example, if
 we extract a row from a two-dimensional array, the row will alias its
-source.  Section \ref{sec:l0-sharing} will cover sharing and sharing
-analysis in greater detail.
+source.  \Cref{sec:l0-sharing} will cover sharing and sharing analysis
+in greater detail.
 
 Let us consider the definition of a function returning a unique array:
 
@@ -190,12 +190,11 @@ return value of a function call aliases all of its arguments.
 
 However, it turns out that this is far too restrictive.  Consider a
 call \texttt{f1(a)} to the function \texttt{f1} whose type is shown on
-\fref{fig:unique-arguments} - if the return value aliased the
-argument \texttt{a}, then we could never use the return value at all,
-as it would alias something that has been consumed, namely the
-parameter \texttt{a}.  Hence, a first elaboration is that the return
-value should only alias those function arguments that are not
-consumed:
+\cref{fig:unique-arguments} - if the return value aliased the argument
+\texttt{a}, then we could never use the return value at all, as it
+would alias something that has been consumed, namely the parameter
+\texttt{a}.  Hence, a first elaboration is that the return value
+should only alias those function arguments that are not consumed:
 
 \begin{align*}
   \aliases{\textit{f}(e_{1}, \ldots, e_{n})} &= \bigcup_{1 \leq i \leq n, \text{$e_{i}$ is not consumed}} \aliases{e_{i}}  & \textit{(--Still too restrictive!)}
@@ -206,10 +205,10 @@ return value may at runtime alias a consumed argument, we do not need
 to record it, as that argument will never be accessed elsewhere.
 
 Unfortunately, the above rule is still too restrictive, as can be
-illustrated by function \texttt{f2} from \ref{fig:unique-arguments}.
+illustrated by function \texttt{f2} from \cref{fig:unique-arguments}.
 Consider a call \texttt{f2(a)} - by the above rule, the return value
-would be aliased to \texttt{a}, which would violate Uniqueness
-Rule 3, as \texttt{a} may be used again.
+would be aliased to \texttt{a}, which would violate Uniqueness Rule 3,
+as \texttt{a} may be used again.
 
 Hence, we add another elaboration, wherein the alias set is empty if
 the return value is unique.
