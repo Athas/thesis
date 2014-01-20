@@ -22,14 +22,33 @@ in information; see Section \ref{sec:internal-to-external}).
 \section{Tuple transformation}
 \label{sec:tuple-transformation}
 
-The most important difference between external and internal \LO{} is
-the total absense of arrays of tuples in the latter.  There are
-several reasons for this - Chapter \ref{chap:fusion} will describe how
-this benefits the fusion algorithm, and when generating the final
-machine code, we will also not be able to conveniently represent
-arrays of tuples in memory.
+The principal difference between external and internal \LO{} is the
+total absense of arrays of tuples in the latter.  There are several
+reasons for this - Chapter \ref{chap:fusion} will describe how this
+benefits the fusion algorithm, and when generating the final machine
+code, we will also not be able to conveniently represent arrays of
+tuples in memory.
+
+An array-of-tuples type is converted to a tuple containing arrays of
+the original tuple components, for which the process is then repeated
+recursively.  All other types are left unchanged.  A few examples:
+
+\begin{align*}
+\texttt{[int]} &\Rightarrow \texttt{[int]} \\
+\texttt{[\{int,real\}]} &\Rightarrow \texttt{\{[int],[real]\}} \\
+\texttt{[\{[int], real\}]} &\Rightarrow \texttt{\{[[int]], [real]\}} \\
+\end{align*}
 
 \texttt{zip} and \texttt{unzip} are not allowed in internal \LO{}.
+Both are removed during the conversion process, as they perform a
+transformation between representations that is not necessary in
+internal \LO{}, although \texttt{zip} has some additional
+complications that I discuss in Section \ref{sec:assertions}.
+
+Most expressions operating on arrays-of-tuples have to be modified to
+operate on the components of the replacement tuples-of-arrays instead,
+but the transformation is relatively trivial and not very interesting,
+so I will not describe it in detail.
 
 \subsection{Tupleless SOACs}
 
@@ -74,7 +93,7 @@ $e$ & $::=$ & \texttt{<$c$>mapT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$
 As an aside, curried functions are also not permitted in tupleless
 SOACs, although I will still use them for notational convenience.  The
 notation is summarised on \fref{fig:tupleless-soacs} - the
-\texttt{<$c$>} stuff is explained in the next section.
+\texttt{<$c$>} notation is explained in the next section.
 
 \section{Assertions}
 \label{sec:assertions}
@@ -128,7 +147,9 @@ We then add tree new language constructs:
   variables $v_{1},\ldots,v_{n}$ are certificates: variables that must
   each be of type \texttt{cert}.  They exist solely to express a
   dependency between the expression $e$ and whichever assertions it is
-  predicated upon.
+  predicated upon, which implies that on any execution path leading to
+  $e$, the assertions computing the certificates will have been
+  executed first.
 \end{description}
 
 Now the index expression given above can be transformed into the
