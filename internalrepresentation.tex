@@ -16,7 +16,8 @@ internal dialect of \LO{}.  In most compilers, it is usually not
 possible to transform the intermediate language to the external
 language, at least not without losing much of the structure of the
 original program.  In comparison, the transformation from external to
-internal \LO{} is comparatively simple and (mostly) reversible.
+internal \LO{} is comparatively simple and reversible (with some loss
+in information; see Section \ref{sec:internal-to-external}).
 
 \section{Tuple transformation}
 \label{sec:tuple-transformation}
@@ -71,7 +72,8 @@ $e$ & $::=$ & \texttt{<$c$>mapT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$
 \end{figure}
 
 As an aside, curried functions are also not permitted in tupleless
-SOACs.  The notation is summarised on \fref{fig:tupleless-soacs} - the
+SOACs, although I will still use them for notational convenience.  The
+notation is summarised on \fref{fig:tupleless-soacs} - the
 \texttt{<$c$>} stuff is explained in the next section.
 
 \section{Assertions}
@@ -122,29 +124,53 @@ We then add tree new language constructs:
   one.
 
 \item[\texttt{<$v_{1},\ldots,v_{n}$>$e$}]\hfill\\
-  Evaluate $e$ and return its value.  The variables
-  $v_{1},\ldots,v_{n}$ must each be of type \texttt{cert}, but their
-  values are not checked.  They exist solely to express a dependency
-  between the expression $e$ and whichever assertions it is predicated
-  upon.
+  A predicated expression.  Evaluate $e$ and return its value.  The
+  variables $v_{1},\ldots,v_{n}$ are certificates: variables that must
+  each be of type \texttt{cert}.  They exist solely to express a
+  dependency between the expression $e$ and whichever assertions it is
+  predicated upon.
 \end{description}
 
 Now the index expression given above can be transformed into the
 following.
 
 \begin{colorcode}
-let c = assert(size(0,a) == size(0,b)) in
+let c = assert(size(0,a) = size(0,b)) in
 \{<c>a[0], <c>b[0]\}
 \end{colorcode}
 
-This design has the particularly nice property that even if later
-transformations pick apart the tuple literal, the individual
+An advantage of this approach is that the association between
+assertions and predicated expressions is given by the same
+variable-usage rules that govern all other expressions, and it is
+therefore not necessary to handle \texttt{assert} specially in the
+various transformations.  It is, however, necessary to maintain the
+list of certificates when transforming a predicated expression, but it
+turns out that this is simple in practice.  Essentially, the rule is
+that every expression derived from a predicated expression must be
+predicated likewise.
+
+The assertion design also has the particularly nice property that even
+if later transformations pick apart the tuple literal, the individual
 components will still be predicated on the original property.  Even
-more importantly, the condition \texttt{size(0,a) == size(0,b)} is
+more importantly, the condition \texttt{size(0,a) = size(0,b)} is
 seen as a perfectly ordinary expression by the rest of the compiler,
 and can be simplified (or removed altogether) by size analysis, copy
 propagation, constant folding, common-subexpression elemination and
 other standard optimisations.
+
+One thing is worth noting: the assertion itself, or the value that it
+computes, has no recognisable meaning by itself.  It is not a
+proposition in the sense of formal logics, and we can only determine
+which property it guarantees by the way in which it is used.  This
+limits what kinds of information the compiler can deduce from an
+assertion, compared to using a real theorem prover or dependent type
+system.  In particular, we can perform only very limited static
+checking, where through simplification we are able to obtain the
+expression \texttt{assert(False)}, although even then we cannot be
+certain that the assertion is not dead code.  Hence, the assertion
+system functions solely at run-time.  Nevertheless, the
+power-to-weight ratio is very high for this design, and it suits our
+purpose well.
 
 Having introduced an assertion mechanism to solve the problem of
 tupleless SOACs, it is of course worth to consider whether it can be
@@ -198,6 +224,136 @@ $e$ & $::=$ & \texttt{assert($e$)} & (Assertion) \\
 \caption{Assertions}
 \label{fig:assertions}
 \end{figure}
+
+\subsection{Function Calls}
+
+One question is left - namely how functions mesh with the assertion
+system.  One solution is to simply require function calls to be
+predicated.  That is, the program
+\begin{colorcode}
+fun [int] f([\{int,int\}] input) =
+  map(op+, input)
+
+f(zip(a,b))
+\end{colorcode}
+is converted into
+\begin{colorcode}
+fun [int] f([int] input1, [int] input2) =
+  mapT(op +, input1, input2)
+
+let c = assert(size(0,a) = size(0,b)) in
+f<c>(a,b)
+\end{colorcode}
+
+This is satisfactory from the point of view of the caller - the
+function \texttt{f} (after undergoing transformation) has the
+precondition that \texttt{a} and \texttt{b} are of the same size, and
+this is indeed checked by the above call.  The body of the function is
+slightly more dubious, as \texttt{mapT} is invoked without a
+certificate that its inputs are of the same size, but as long as the
+caller takes care to only invoke the function when this precondition
+is satisfied (which we do in the above case), all will be well.
+
+The real problem occurs if we inline \texttt{f}.  If we do it naïvely,
+we get this program:
+\begin{colorcode}
+let c = assert(size(0,a) = size(0,b)) in
+mapT(op +, a, b)
+\end{colorcode}
+And \textit{now} we have a problem -- \texttt{c} is not used anywhere,
+and may thus be moved to after the \texttt{mapT} expression, or maybe
+even removed as dead code!  This is bad.  A possible solution would be
+to make the inliner smarter, and modify the inlined function body such
+that every leaf of its syntax tree is predicated on the same
+certificates as the original function call.  This is a rather clumsy
+solution, however, and may cause unnecessary predication on branches
+of the function that do not depend on the precondition, which would
+inhibit some transformations, like hoisting.  A more fine-grained
+solution is needed.
+
+That solution is to embed the certificates directly into the parameter
+list of the function.  A function that originally accepted a single
+parameter of type \texttt{[\{int,int\}]} will, after conversion to
+internal \LO{}, accept three parameters of types \texttt{cert},
+\texttt{[int]}, \texttt{[int]}.  The example given at the beginning of
+the section will become:
+\begin{colorcode}
+fun [int] f(cert input_c, [int] input1, [int] input2) =
+  mapT<input_c>(op +, input1, input2)
+
+let c = assert(size(0,a) = size(0,b)) in
+f(c, a,b)
+\end{colorcode}
+Naïve inlining will produce:
+\begin{colorcode}
+let c = assert(size(0,a) = size(0,b)) in
+mapT<c>(op +, a, b)
+\end{colorcode}
+Which is the desired result.
+
+Return values can be handled in a similar fashion.  The program
+\begin{colorcode}
+fun [\{int,int\}] f(int x) =
+    zip(iota(x), iota(x))
+
+let a = f(10) in
+map(g,a)
+\end{colorcode}
+is converted into
+\begin{colorcode}
+fun \{cert, [int], [int]\} f(int x) =
+  let v1 = iota(x) in
+  let v2 = iota(x) in
+  let c = assert(size(0, v1) = size(0, v2)) in
+  \{c, v1, v2\}
+
+let \{c, a1, a2\} = f(10) in
+mapT<c>(g, a1, a2)
+\end{colorcode}
+
+The return type of \texttt{f} has been modified to include a
+certificate for the postcondition that the two return arrays have the
+same outer size.\footnote{In this specific case, optimisations will
+  result in the assertion being removed and replaced with the literal
+  \texttt{Checked}, but it has been retained for clarity in this
+  example.}
+
+This solution requires a large amount of tedious tracking of
+certificates in the module that converts external to internal \LO{},
+but as a tradeoff, the rest of the compiler can be kept simpler, as
+all dependencies between predicated expressions and assertions are
+explicit.
+
+\section{Converting from Internal to External}
+\label{sec:internal-to-external}
+
+The internal language matches the external quite closely;
+nevertheless, the transformation from external to internal language
+does not have a fully defined inverse.  That is, given a program in
+internal \LO{}, we can compute an equivalent program in external
+\LO{}, but it might not be the original program.  The steps are simple
+in principle:
+
+\begin{enumerate}
+\item Convert tupleless SOACs to ordinary SOACs, \texttt{zip}ping the
+  arguments and \texttt{unzip}ping the return value.
+
+\item Remove all expressions and bindings of type \texttt{cert},
+  including function parameters.
+
+\item Remove predicates from all predicated expressions.
+
+\item Remove all \texttt{assert}s.
+\end{enumerate}
+
+The problem is that we cannot reconstruct the original
+arrays-of-tuples from the tuples-of-arrays of internal \LO{}.  We
+cannot know whether any tuple-of-arrays we encounter was originally an
+array-of-tuples or not.  However, as long as the entry point of the
+program, the \texttt{main} function, does not use arrays of tuples as
+argument or return value, there should be no observable difference.
+If necessary, we could handle \texttt{main} on an ad-hoc basis to
+preserve its original type.
 
 %%% Local Variables: 
 %%% mode: latex
