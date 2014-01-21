@@ -1,0 +1,58 @@
+fun [real] main() =
+  let {untuple_11} =
+    mapT(fn {int} (int y_36) =>
+           let val_9 = 1 + y_36 in
+           {val_9},
+         iota(1825)) in
+  let {untuple_14} =
+    mapT(fn {real} (int param_0_38) =>
+           let tmp_call_10 = toReal(param_0_38) in
+           {tmp_call_10},
+         untuple_11) in
+  let {soac_v_19, soac_v_20, soac_v_21, soac_v_22} =
+    mapT(fn {bool, real, real, real} (real x_40) =>
+           let {tup_elem_15, tup_elem_16, tup_elem_17, tup_elem_18} = {True,
+                                                                       58.0 + 4.0 * x_40 / 1825.0,
+                                                                       65.0,
+                                                                       x_40 / 365.0} in
+           {True, tup_elem_16, 65.0, tup_elem_18},
+         untuple_14) in
+  let {untuple_103} =
+    mapT(fn {real} (bool arg_90, real arg_91, real arg_92, real arg_93) =>
+           let tmp_call_6 = sqrt(arg_93) in
+           let v_sqrtT_51 = 0.3 * tmp_call_6 in
+           let val_98 = arg_91 / arg_92 in
+           let tmp_call_29 = log(val_98) in
+           let d1_52 = (tmp_call_29 + 0.125 * arg_93) / v_sqrtT_51 in
+           let d2_53 = d1_52 - v_sqrtT_51 in
+           let tmp_bop_4 = if d1_52 < 0.0
+                           then -d1_52
+                           else d1_52 in
+           let k_57 = 1.0 / (1.0 + 0.2316419 * tmp_bop_4) in
+           let p_64 = k_57 * (0.31938153 + k_57 * (-0.356563782 + k_57 * (1.781477937 + k_57 * (-1.821255978 + k_57 * 1.330274429)))) in
+           let val_99 = -(0.5 * d1_52 * d1_52) in
+           let tmp_call_28 = exp(val_99) in
+           let c_66 = 0.3989422804014327 * tmp_call_28 * p_64 in
+           let cndD1_67 = if 0.0 < d1_52
+                          then 1.0 - c_66
+                          else c_66 in
+           let tmp_bop_2 = if d2_53 < 0.0
+                           then -d2_53
+                           else d2_53 in
+           let k_71 = 1.0 / (1.0 + 0.2316419 * tmp_bop_2) in
+           let p_78 = k_71 * (0.31938153 + k_71 * (-0.356563782 + k_71 * (1.781477937 + k_71 * (-1.821255978 + k_71 * 1.330274429)))) in
+           let val_100 = -(0.5 * d2_53 * d2_53) in
+           let tmp_call_12 = exp(val_100) in
+           let c_80 = 0.3989422804014327 * tmp_call_12 * p_78 in
+           let cndD2_81 = if 0.0 < d2_53
+                          then 1.0 - c_80
+                          else c_80 in
+           let val_101 = -(0.08 * arg_93) in
+           let tmp_call_8 = exp(val_101) in
+           let x_expRT_82 = arg_92 * tmp_call_8 in
+           let val_102 = if arg_90
+                         then arg_91 * cndD1_67 - (x_expRT_82 * cndD2_81)
+                         else x_expRT_82 * (1.0 - cndD2_81) - (arg_91 * (1.0 - cndD1_67)) in
+           {val_102},
+         soac_v_19, soac_v_20, soac_v_21, soac_v_22) in
+  untuple_103

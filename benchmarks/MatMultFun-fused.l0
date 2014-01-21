@@ -1,0 +1,40 @@
+fun [[int]] main([[int]] x_0, [[int]] y_1) =
+  let N_2 = size(0, x_0) in
+  // br_3 aliases y_1
+  let br_3 = replicate(N_2, transpose(y_1)) in
+  let tmp_size_6 = size(2, br_3) in
+  let tmp_size_7 = size(1, br_3) in
+  // untuple_13 aliases x_0
+  let {untuple_13} =
+    mapT(fn {[[int]]} ([int] param_0_8) =>
+           // tmp_repl_11 aliases param_0_8
+           let tmp_repl_11 = replicate(N_2, param_0_8) in
+           {tmp_repl_11},
+         x_0) in
+  let tmp_size_14 = size(2, untuple_13) in
+  let tmp_e_15 = tmp_size_14 = tmp_size_6 in
+  let zip_assert_19 = assert(tmp_e_15) in
+  let tmp_size_20 = size(1, untuple_13) in
+  let tmp_e_24 = tmp_size_20 = tmp_size_7 in
+  let zip_assert_25 = assert(tmp_e_24) in
+  // untuple_84 aliases x_0, untuple_13
+  let {untuple_84} =
+    mapT(fn {[int]} ([[int]] arg_47) =>
+           let {untuple_81} =
+             <zip_assert_25>
+             mapT(fn {int} ([int] arg_55, [int] arg_56) =>
+                    let {untuple_79} =
+                      <zip_assert_19>
+                      redomapT(fn {int} (int x_66, int y_67) =>
+                                 let val_68 = x_66 + y_67 in
+                                 {val_68},
+                               fn {int} (int x_69, int arg_70, int arg_71) =>
+                                 let val_72 = arg_70 * arg_71 in
+                                 let val_77 = x_69 + val_72 in
+                                 {val_77},
+                               {0}, arg_55, arg_56) in
+                    {untuple_79},
+                  arg_47, transpose(y_1)) in
+           {untuple_81},
+         untuple_13) in
+  untuple_84
