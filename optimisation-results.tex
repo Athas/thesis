@@ -70,6 +70,35 @@ And the real world benchmarks:
 \item[R2] Some C++ mess we got from Nordea.
 \end{description}
 
+\newcommand{\dataflowtable}[1]{
+\begin{center}
+\begin{tabular}{p{4cm}|p{4cm}}
+\textbf{Before optimisation} & \hfill\textbf{After optimisation} \\
+& \\
+\includegraphics[width=2cm]{img/#1-unfused.pdf} &
+\hfill \includegraphics[width=2cm]{img/#1-fused.pdf}
+\end{tabular}
+\end{center}
+}
+
+\begin{figure}
+\dataflowtable{MatMultFun}
+\caption{P2 dataflows}
+\label{fig:p2-dataflows}
+\end{figure}
+
+\begin{figure}
+\dataflowtable{BlackScholes}
+\caption{P0 dataflows}
+\label{fig:p0-dataflows}
+\end{figure}
+
+\begin{figure}
+\dataflowtable{BabyBear}
+\caption{P1 dataflows}
+\label{fig:p1-dataflows}
+\end{figure}
+
 \section{Runtime results}
 \label{sec:runtime-results}
 
