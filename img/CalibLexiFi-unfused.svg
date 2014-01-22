@@ -20,6 +20,10 @@
      id="defs4">
     <inkscape:path-effect
        effect="spiro"
+       id="path-effect35786"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
        id="path-effect35528"
        is_visible="true" />
     <inkscape:path-effect
@@ -811,9 +815,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.38853905"
-     inkscape:cx="-298.82577"
-     inkscape:cy="758.57584"
+     inkscape:zoom="1.5541562"
+     inkscape:cx="579.42147"
+     inkscape:cy="764.55527"
      inkscape:document-units="px"
      inkscape:current-layer="g5317-6-4-1-67-5-7"
      showgrid="false"
@@ -2120,6 +2124,14 @@
          id="path35526"
          inkscape:path-effect="#path-effect35528"
          inkscape:original-d="m 55.335493,1028.5551 0,34.1021"
+         inkscape:connector-curvature="0"
+         transform="translate(-2.8571432,4.3334347)" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-start:none;marker-end:url(#marker33914)"
+         d="m 265.73906,143.18716 370.61911,0 25.73744,0 0,355.17665"
+         id="path35784"
+         inkscape:path-effect="#path-effect35786"
+         inkscape:original-d="m 265.73906,143.18716 370.61911,0 25.73744,0 0,355.17665"
          inkscape:connector-curvature="0"
          transform="translate(-2.8571432,4.3334347)" />
     </g>
