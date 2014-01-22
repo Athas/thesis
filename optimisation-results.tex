@@ -1,4 +1,4 @@
-\chapter{Optimization results}
+\chapter{Optimisation results}
 \label{chap:optimisation-results}
 
 Testing the impact of my optimisations presents three primary
@@ -49,12 +49,12 @@ The artificial benchmarks are the following:
 % data/benchmarks/BlackScholes.l0
 \item[P0] Black-Scholes\cite{black1973pricing} pricing computation.
 
-% data/benchmarks/BabyBear.l0
-\item[P1] BabyBear - a tiny ursine.
-
 % data/tests/MatMultFun.l0
-\item[P2] Matrix multiplication written in a functional style (i.e, no
+\item[P1] Matrix multiplication written in a functional style (i.e, no
   use of \texttt{loop} and \texttt{let-with}).
+
+% data/benchmarks/BabyBear.l0
+\item[P2] BabyBear - a tiny ursine.
 \end{description}
 
 And the real world benchmarks:
@@ -70,33 +70,56 @@ And the real world benchmarks:
 \item[R2] Some C++ mess we got from Nordea.
 \end{description}
 
-\newcommand{\dataflowtable}[1]{
-\begin{center}
-\begin{tabular}{p{4cm}|p{4cm}}
-\textbf{Before optimisation} & \hfill\textbf{After optimisation} \\
-& \\
-\includegraphics[width=2cm]{img/#1-unfused.pdf} &
-\hfill \includegraphics[width=2cm]{img/#1-fused.pdf}
+\begin{figure}
+\begin{tabular}{p{1.6cm}|p{1.6cm}|p{1.6cm}|p{1.6cm}|p{1.6cm}|p{1.6cm}}
+\multicolumn{2}{c}{\textbf{P0}} & \multicolumn{2}{c}{\textbf{P1}} & \multicolumn{2}{c}{\textbf{P2}} \\
+\hline
+Before & After & Before & After & Before & After \\
+\includegraphics[width=1.6cm]{img/BlackScholes-unfused.pdf} &
+\includegraphics[width=1.6cm]{img/BlackScholes-fused.pdf} &
+\includegraphics[width=1.6cm]{img/MatMultFun-unfused.pdf} &
+\includegraphics[width=1.6cm]{img/MatMultFun-fused.pdf} &
+\includegraphics[width=1.6cm]{img/BabyBear-unfused.pdf} &
+\includegraphics[width=1.6cm]{img/BabyBear-fused.pdf}
 \end{tabular}
+\caption{Artificial benchmark dataflows, before and after optimisation}
+\label{fig:artificial-dataflows}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=3.2cm]{img/PricingLexiFi-unfused.pdf}
+\hspace{1cm}
+\includegraphics[width=1.6cm]{img/PricingLexiFi-fused.pdf}
 \end{center}
-}
-
-\begin{figure}
-\dataflowtable{MatMultFun}
-\caption{P2 dataflows}
-\label{fig:p2-dataflows}
+\caption{R1 benchmark dataflow, before and after optimisation}
+\label{fig:r1-dataflow}
 \end{figure}
 
 \begin{figure}
-\dataflowtable{BlackScholes}
-\caption{P0 dataflows}
-\label{fig:p0-dataflows}
+\begin{center}
+\includegraphics[width=3.2cm]{img/HiperfitEgCos-unfused.pdf}
+\hspace{1cm}
+\includegraphics[width=3.2cm]{img/HiperfitEgCos-fused.pdf}
+\end{center}
+\caption{R2 benchmark dataflow, before and after optimisation}
+\label{fig:r2-dataflow}
 \end{figure}
 
 \begin{figure}
-\dataflowtable{BabyBear}
-\caption{P1 dataflows}
-\label{fig:p1-dataflows}
+\begin{center}
+\includegraphics[width=9.6cm]{img/CalibLexiFi-unfused.pdf}
+\end{center}
+\caption{R0 benchmark dataflow, before optimisation}
+\label{fig:r2-dataflow-unfused}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=9.6cm]{img/CalibLexiFi-fused.pdf}
+\end{center}
+\caption{R0 benchmark dataflow, after optimisation}
+\label{fig:r2-dataflow-fused}
 \end{figure}
 
 \section{Runtime results}

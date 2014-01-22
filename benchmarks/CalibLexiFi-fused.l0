@@ -1,0 +1,2372 @@
+fun real main() =
+  let {tup_arr_cert_0, tup_arr_elem_1, tup_arr_elem_2, tup_arr_elem_3,
+       tup_arr_elem_4} =
+    {Checked,
+     [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+      1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0,
+      30.0],
+     [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0],
+     [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0,
+      2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0,
+      3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0,
+      4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 5.0, 5.0, 5.0, 5.0,
+      5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+      6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
+      7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0,
+      8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,
+      9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0,
+      10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 15.0, 15.0, 15.0, 15.0, 15.0,
+      15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 20.0, 20.0, 20.0,
+      20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 25.0,
+      25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0,
+      25.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0,
+      30.0, 30.0, 30.0],
+     [1.052, 0.81485, 0.6165, 0.46995, 0.38295, 0.3325, 0.3016, 0.2815, 0.26435,
+      0.2496, 0.2516, 0.28835, 0.27155, 0.23465, 0.61445, 0.54805, 0.46795,
+      0.3919, 0.3434, 0.3083, 0.28655, 0.2697, 0.25775, 0.2443, 0.26495,
+      0.28195, 0.26845, 0.20995, 0.5835, 0.49255, 0.42825, 0.3695, 0.329,
+      0.3022, 0.28165, 0.26615, 0.25485, 0.24375, 0.2718, 0.28135, 0.26865,
+      0.2131, 0.5415, 0.46235, 0.403, 0.3559, 0.3232, 0.29675, 0.27715, 0.26385,
+      0.254, 0.2454, 0.27845, 0.2821, 0.2678, 0.2131, 0.517, 0.446, 0.3903,
+      0.34755, 0.3166, 0.29305, 0.2745, 0.2639, 0.2534, 0.2499, 0.28315, 0.2825,
+      0.277, 0.21175, 0.478, 0.42105, 0.37715, 0.3378, 0.311, 0.2895, 0.2745,
+      0.264, 0.2573, 0.25475, 0.28815, 0.28195, 0.26015, 0.2097, 0.452, 0.4074,
+      0.368, 0.3307, 0.30645, 0.2877, 0.27475, 0.2664, 0.26155, 0.26035, 0.292,
+      0.2825, 0.25685, 0.2081, 0.43395, 0.39445, 0.35885, 0.3281, 0.30395,
+      0.28745, 0.2767, 0.27065, 0.26625, 0.26625, 0.2921, 0.2814, 0.25265,
+      0.2083, 0.42285, 0.3857, 0.3521, 0.3239, 0.30285, 0.2895, 0.2799, 0.27485,
+      0.2712, 0.27205, 0.29205, 0.27855, 0.24945, 0.219, 0.41765, 0.38095,
+      0.34795, 0.3217, 0.30365, 0.2916, 0.2842, 0.27985, 0.2769, 0.2775, 0.306,
+      0.2763, 0.2458, 0.22, 0.37905, 0.35465, 0.33505, 0.31725, 0.3008, 0.29075,
+      0.28365, 0.2787, 0.27385, 0.2709, 0.2689, 0.24225, 0.2096, 0.18285,
+      0.37975, 0.3605, 0.3407, 0.321, 0.3063, 0.29315, 0.28395, 0.2777, 0.27205,
+      0.26675, 0.24875, 0.21735, 0.1939, 0.17205, 0.38115, 0.3627, 0.34425,
+      0.3222, 0.3084, 0.2941, 0.28285, 0.2751, 0.2663, 0.26055, 0.2338, 0.20735,
+      0.1823, 0.1686, 0.38285, 0.3633, 0.34125, 0.3188, 0.30305, 0.2888, 0.2748,
+      0.26725, 0.25985, 0.25165, 0.2267, 0.1989, 0.18115, 0.16355]} in
+  let tmp_lit_5 = [0.0, 0.6568095668820999, -0.6568095668820998,
+                   -1.3265570844949335, 1.326557084494933, 2.025948015825757,
+                   -2.025948015825756, -2.7832900997816497, 2.7832900997816474,
+                   3.6684708465595857, -3.668470846559584] in
+  let norm_6 = [0.6547592869145917, 0.6609604194409607, 0.6609604194409606,
+                0.6812118810666693, 0.681211881066669, 0.7219536247283848,
+                0.7219536247283852, 0.8025168688510406, 0.8025168688510397,
+                1.0065267861723648, 1.0065267861723775] in
+  let {untuple_2251} =
+    redomapT(fn {real} (real x_7, real y_8) =>
+               let val_9 = x_7 + y_8 in
+               {val_9},
+             fn {real} (real x_10, real arg_11, real arg_12, real arg_13,
+                        real arg_14) =>
+               let bop_15 = 12.0 * arg_14 in
+               let val_16 = bop_15 / arg_13 in
+               let tmp_call_17 = trunc(val_16) in
+               let bop_18 = tmp_call_17 - 1 in
+               let bop_19 = tmp_call_17 = 1 in
+               let val_20 = arg_11 * 12.0 in
+               let nbmonths_21 = trunc(val_20) in
+               let m_22 = 1 + nbmonths_21 in
+               let val_23 = m_22 - 1 in
+               let bop_24 = val_23 / 12 in
+               let bop_25 = bop_24 * 12 in
+               let bop_26 = 2012 + bop_24 in
+               let bop_28 = bop_26 - 1 in
+               let tmp_bop_29 = val_23 - bop_25 in
+               let bop_30 = tmp_bop_29 + 1 in
+               let bop_31 = bop_30 <= 0 in
+               let bop_32 = bop_30 + 12 in
+               let {y_33, m_34} = if bop_31
+                                  then {bop_28, bop_32}
+                                  else {bop_26, bop_30} in
+               let bop_35 = y_33 / 4 in
+               let bop_36 = bop_35 * 4 in
+               let bop_37 = y_33 / 100 in
+               let bop_38 = bop_37 * 100 in
+               let bop_39 = y_33 / 400 in
+               let bop_40 = bop_39 * 400 in
+               let bop_41 = m_34 = 2 in
+               let bop_42 = m_34 = 4 in
+               let bop_43 = m_34 = 6 in
+               let bop_44 = m_34 = 9 in
+               let bop_45 = m_34 = 11 in
+               let bop_46 = m_34 = 1 in
+               let norm_47 = bop_46 || bop_41 in
+               let bop_48 = y_33 + 4800 in
+               let bop_49 = bop_48 - 1 in
+               let bop_50 = 1461 * bop_49 in
+               let bop_51 = bop_50 / 4 in
+               let bop_52 = 1461 * bop_48 in
+               let bop_53 = bop_52 / 4 in
+               let bop_54 = m_34 + 10 in
+               let bop_55 = 367 * bop_54 in
+               let bop_56 = bop_55 / 12 in
+               let bop_57 = bop_51 + bop_56 in
+               let bop_58 = y_33 + 4900 in
+               let bop_59 = bop_58 - 1 in
+               let bop_60 = bop_59 / 100 in
+               let bop_61 = 3 * bop_60 in
+               let bop_62 = bop_61 / 4 in
+               let bop_63 = bop_57 - bop_62 in
+               let bop_64 = bop_58 / 100 in
+               let bop_65 = 3 * bop_64 in
+               let bop_66 = bop_65 / 4 in
+               let bop_67 = m_34 - 2 in
+               let bop_68 = 367 * bop_67 in
+               let bop_69 = bop_68 / 12 in
+               let bop_70 = bop_53 + bop_69 in
+               let bop_71 = bop_70 - bop_66 in
+               let ym_72 = if norm_47
+                           then bop_63
+                           else bop_71 in
+               let tmp_bop_73 = y_33 - bop_36 in
+               let bop_74 = tmp_bop_73 = 0 in
+               let tmp_bop_75 = y_33 - bop_38 in
+               let bop_76 = tmp_bop_75 = 0 in
+               let not_77 = not bop_76 in
+               let tmp_bop_78 = y_33 - bop_40 in
+               let bop_79 = tmp_bop_78 = 0 in
+               let norm_80 = not_77 || bop_79 in
+               let tmp_and_81 = bop_74 && norm_80 in
+               let norm_82 = bop_41 && tmp_and_81 in
+               let val_86 = if norm_82
+                            then 29
+                            else if bop_41
+                                 then 28
+                                 else let norm_83 = bop_42 || bop_43 in
+                                      let norm_84 = norm_83 || bop_44 in
+                                      let norm_85 = norm_84 || bop_45 in
+                                      if norm_85
+                                      then 30
+                                      else 31 in
+               let bop_87 = 1 < val_86 in
+               let tmp_lit_88 = if bop_87
+                                then 1
+                                else val_86 in
+               let bop_89 = ym_72 + tmp_lit_88 in
+               let bop_90 = bop_89 - 32075 in
+               let tmp_91 = bop_90 - 2444238 in
+               let bop_92 = tmp_91 * 1440 in
+               let resmin_93 = bop_92 + 720 in
+               let tmp_call_94 = toReal(resmin_93) in
+               let bop_95 = tmp_call_94 - 16834320.0 in
+               let tmp_bop_96 = bop_95 / 1440.0 in
+               let tmat0_97 = tmp_bop_96 / 365.0 in
+               let bop_98 = 0.02453 * tmat0_97 in
+               let val_99 = -bop_98 in
+               let tmp_call_100 = exp(val_99) in
+               let bop_101 = 1.0 - tmp_call_100 in
+               let bop_102 = 0.858792992801827 * bop_101 in
+               let ba_103 = bop_101 / 0.02453 in
+               let bop_104 = 81.53281695882593 * tmp_call_100 in
+               let exp2xtau_105 = tmp_call_100 * tmp_call_100 in
+               let bop_106 = 20.383204239706483 * exp2xtau_105 in
+               let bop_107 = 0.98376 * tmat0_97 in
+               let val_108 = -bop_107 in
+               let tmp_call_109 = exp(val_108) in
+               let bop_110 = 1.0 - tmp_call_109 in
+               let bop_111 = -0.08240592094585045 * bop_110 in
+               let bb_112 = bop_110 / 0.98376 in
+               let bop_113 = 2.033016182808815 * tmp_call_109 in
+               let exp2xtau_114 = tmp_call_109 * tmp_call_109 in
+               let bop_115 = 0.5082540457022038 * exp2xtau_114 in
+               let val_116 = val_108 - bop_98 in
+               let tmp_call_117 = exp(val_116) in
+               let val_118 = val_99 - bop_107 in
+               let tmp_call_119 = exp(val_118) in
+               let bop_120 = tmat0_97 + bop_104 in
+               let bop_121 = bop_120 - bop_106 in
+               let bop_122 = bop_121 - 61.149612719119446 in
+               let t1_123 = 0.9556596754408898 * bop_122 in
+               let bop_124 = tmat0_97 + bop_113 in
+               let bop_125 = bop_124 - bop_115 in
+               let bop_126 = bop_125 - 1.5247621371066113 in
+               let t2_127 = 0.014460761693212401 * bop_126 in
+               let bop_128 = t1_123 + t2_127 in
+               let bop_129 = 1.00829 * tmat0_97 in
+               let val_130 = -bop_129 in
+               let tmp_call_131 = exp(val_130) in
+               let bop_132 = 1.0 - tmp_call_131 in
+               let tmp_bop_133 = bop_132 / 1.00829 in
+               let bop_134 = tmat0_97 - ba_103 in
+               let bop_135 = bop_134 - bb_112 in
+               let bop_136 = bop_135 + tmp_bop_133 in
+               let t3_137 = -0.19373336527812574 * bop_136 in
+               let bop_138 = bop_128 + t3_137 in
+               let bop_139 = 0.03 * tmat0_97 in
+               let val_140 = -bop_139 in
+               let tmp_call_141 = exp(val_140) in
+               let bop_142 = 0.04906 * tmat0_97 in
+               let val_143 = -bop_142 in
+               let tmp_call_144 = exp(val_143) in
+               let bop_145 = 1.0 - tmp_call_144 in
+               let val_146 = bop_145 / 0.04906 in
+               let tmp_call_147 = sqrt(val_146) in
+               let sigmax_148 = 0.02398 * tmp_call_147 in
+               let eps_149 = 0.5 * sigmax_148 in
+               let sqrt2sigmax_150 = 1.4142135623730951 * sigmax_148 in
+               let bop_151 = 1.96752 * tmat0_97 in
+               let val_152 = -bop_151 in
+               let tmp_call_153 = exp(val_152) in
+               let bop_154 = 1.0 - tmp_call_153 in
+               let val_155 = bop_154 / 1.96752 in
+               let tmp_call_156 = sqrt(val_155) in
+               let sigmay_157 = 0.1183 * tmp_call_156 in
+               let bop_158 = sigmax_148 * sigmay_157 in
+               let bop_159 = -0.0023375512159999998 / bop_158 in
+               let rhoxy_160 = bop_159 * tmp_bop_133 in
+               let bop_161 = rhoxy_160 * rhoxy_160 in
+               let rhoxyc_162 = 1.0 - bop_161 in
+               let bop_163 = 0.5 * rhoxyc_162 in
+               let bop_164 = rhoxyc_162 / 0.98376 in
+               let rhoxycs_165 = sqrt(rhoxyc_162) in
+               let bop_166 = sigmax_148 * rhoxycs_165 in
+               let bop_167 = -3.71901648545568 * rhoxycs_165 in
+               let t2_168 = rhoxy_160 / bop_166 in
+               let bop_169 = rhoxy_160 * sigmay_157 in
+               let t4_170 = bop_169 / sigmax_148 in
+               let bop_171 = bop_163 * sigmay_157 in
+               let bop_172 = bop_171 * sigmay_157 in
+               let sigmay_rhoxycs_173 = sigmay_157 * rhoxycs_165 in
+               let bop_174 = tmat0_97 + tmat0_97 in
+               let bop_175 = 0.02453 * bop_174 in
+               let val_176 = -bop_175 in
+               let tmp_call_177 = exp(val_176) in
+               let bop_178 = 0.98376 * bop_174 in
+               let val_179 = -bop_178 in
+               let tmp_call_180 = exp(val_179) in
+               let val_181 = trunc(tmp_call_94) in
+               let jul_182 = val_181 / 1440 in
+               let bop_183 = jul_182 + 68569 in
+               let l_184 = bop_183 + 2444238 in
+               let bop_185 = 4 * l_184 in
+               let n_186 = bop_185 / 146097 in
+               let bop_187 = 146097 * n_186 in
+               let bop_188 = bop_187 + 3 in
+               let bop_189 = bop_188 / 4 in
+               let bop_190 = n_186 - 49 in
+               let bop_191 = 100 * bop_190 in
+               let l_192 = l_184 - bop_189 in
+               let bop_193 = l_192 + 1 in
+               let bop_194 = 4000 * bop_193 in
+               let i_195 = bop_194 / 1461001 in
+               let bop_196 = 1461 * i_195 in
+               let bop_197 = bop_196 / 4 in
+               let bop_198 = bop_191 + i_195 in
+               let bop_199 = l_192 - bop_197 in
+               let l_200 = bop_199 + 31 in
+               let bop_201 = 80 * l_200 in
+               let j_202 = bop_201 / 2447 in
+               let bop_203 = 2447 * j_202 in
+               let bop_204 = bop_203 / 80 in
+               let bop_205 = j_202 + 2 in
+               let l_206 = j_202 / 11 in
+               let bop_207 = 12 * l_206 in
+               let m_208 = bop_205 - bop_207 in
+               let y_209 = bop_198 + l_206 in
+               let d_210 = l_200 - bop_204 in
+               let bop_211 = jul_182 * 1440 in
+               let daytime_212 = val_181 - bop_211 in
+               let bop_213 = daytime_212 = 720 in
+               let bop_214 = daytime_212 / 60 in
+               let bop_215 = bop_214 * 60 in
+               let tmp_lit_216 = daytime_212 - bop_215 in
+               let {y_217, m_218, d_219, h_220, min_221} = if bop_213
+                                                           then {y_209, m_208,
+                                                                 d_210, 12, 0}
+                                                           else {y_209, m_208,
+                                                                 d_210, bop_214,
+                                                                 tmp_lit_216} in
+               let bop_222 = tmp_call_94 - tmp_call_94 in
+               let tmp_bop_223 = bop_222 / 1440.0 in
+               let tmatt_224 = tmp_bop_223 / 365.0 in
+               let bop_225 = 0.02453 * tmatt_224 in
+               let val_226 = -bop_225 in
+               let tmp_call_227 = exp(val_226) in
+               let tmp5_228 = tmp_call_227 - tmp_call_177 in
+               let bop_229 = 0.4778298377204449 * tmp5_228 in
+               let bop_230 = bop_102 - bop_229 in
+               let tmp6_231 = tmp_call_227 - tmp_call_119 in
+               let bop_232 = -0.09451007915679466 * tmp6_231 in
+               let bop_233 = 0.98376 * tmatt_224 in
+               let val_234 = -bop_233 in
+               let tmp_call_235 = exp(val_234) in
+               let tmp6_236 = tmp_call_235 - tmp_call_117 in
+               let bop_237 = -0.0023566034822682085 * tmp6_236 in
+               let tmp_neg_238 = bop_230 - bop_237 in
+               let mux_239 = -tmp_neg_238 in
+               let bop_240 = mux_239 * t4_170 in
+               let bop_241 = mux_239 - mux_239 in
+               let bop_242 = rhoxy_160 * bop_241 in
+               let val_243 = mux_239 + eps_149 in
+               let bop_244 = val_243 - mux_239 in
+               let bop_245 = rhoxy_160 * bop_244 in
+               let val_246 = mux_239 - eps_149 in
+               let bop_247 = val_246 - mux_239 in
+               let bop_248 = rhoxy_160 * bop_247 in
+               let tmp5_249 = tmp_call_235 - tmp_call_180 in
+               let bop_250 = 0.007230380846606201 * tmp5_249 in
+               let bop_251 = bop_111 - bop_250 in
+               let tmp_neg_252 = bop_251 - bop_232 in
+               let muy_253 = -tmp_neg_252 in
+               let val_257 = if norm_82
+                             then 29
+                             else if bop_41
+                                  then 28
+                                  else let norm_254 = bop_42 || bop_43 in
+                                       let norm_255 = norm_254 || bop_44 in
+                                       let norm_256 = norm_255 || bop_45 in
+                                       if norm_256
+                                       then 30
+                                       else 31 in
+               let bop_258 = 1 < val_257 in
+               let tmp_lit_259 = if bop_258
+                                 then 1
+                                 else val_257 in
+               let bop_260 = ym_72 + tmp_lit_259 in
+               let bop_261 = bop_260 - 32075 in
+               let tmp_262 = bop_261 - 2444238 in
+               let bop_263 = tmp_262 * 1440 in
+               let resmin_264 = bop_263 + 720 in
+               let tmp_call_265 = toReal(resmin_264) in
+               let bop_266 = tmp_call_265 - 16834320.0 in
+               let tmp_bop_267 = bop_266 / 1440.0 in
+               let sqrtt_268 = tmp_bop_267 / 365.0 in
+               let bop_269 = arg_12 * sqrtt_268 in
+               let val_270 = trunc(tmp_call_265) in
+               let jul_271 = val_270 / 1440 in
+               let bop_272 = jul_271 + 68569 in
+               let l_273 = bop_272 + 2444238 in
+               let bop_274 = 4 * l_273 in
+               let n_275 = bop_274 / 146097 in
+               let bop_276 = 146097 * n_275 in
+               let bop_277 = bop_276 + 3 in
+               let bop_278 = bop_277 / 4 in
+               let bop_279 = n_275 - 49 in
+               let bop_280 = 100 * bop_279 in
+               let l_281 = l_273 - bop_278 in
+               let bop_282 = l_281 + 1 in
+               let bop_283 = 4000 * bop_282 in
+               let i_284 = bop_283 / 1461001 in
+               let bop_285 = 1461 * i_284 in
+               let bop_286 = bop_285 / 4 in
+               let bop_287 = bop_280 + i_284 in
+               let bop_288 = l_281 - bop_286 in
+               let l_289 = bop_288 + 31 in
+               let bop_290 = 80 * l_289 in
+               let j_291 = bop_290 / 2447 in
+               let bop_292 = 2447 * j_291 in
+               let bop_293 = bop_292 / 80 in
+               let bop_294 = j_291 + 2 in
+               let l_295 = j_291 / 11 in
+               let bop_296 = 12 * l_295 in
+               let m_297 = bop_294 - bop_296 in
+               let y_298 = bop_287 + l_295 in
+               let d_299 = l_289 - bop_293 in
+               let bop_300 = jul_271 * 1440 in
+               let daytime_301 = val_270 - bop_300 in
+               let bop_302 = daytime_301 = 720 in
+               let bop_303 = daytime_301 / 60 in
+               let bop_304 = bop_303 * 60 in
+               let tmp_lit_305 = daytime_301 - bop_304 in
+               let {y_306, m_307, d_308, h_309, min_310} = if bop_302
+                                                           then {y_298, m_297,
+                                                                 d_299, 12, 0}
+                                                           else {y_298, m_297,
+                                                                 d_299, bop_303,
+                                                                 tmp_lit_305} in
+               let bop_311 = 0.5 * arg_12 in
+               let bop_312 = bop_311 * sqrtt_268 in
+               let nbmonths_313 = trunc(arg_13) in
+               let {soac_v_504, soac_v_505} =
+                 mapT(fn {real, real} (int i_314) =>
+                        let tmp_call_315 = toReal(i_314) in
+                        let val_316 = tmp_call_315 * arg_13 in
+                        let nbmonths_317 = trunc(val_316) in
+                        let m_318 = m_218 + nbmonths_317 in
+                        let val_319 = m_318 - 1 in
+                        let bop_320 = val_319 / 12 in
+                        let bop_321 = bop_320 * 12 in
+                        let bop_322 = y_217 + bop_320 in
+                        let bop_323 = bop_322 - 1 in
+                        let tmp_bop_324 = val_319 - bop_321 in
+                        let bop_326 = tmp_bop_324 + 1 in
+                        let bop_327 = bop_326 <= 0 in
+                        let bop_328 = bop_326 + 12 in
+                        let {y_329, m_330} = if bop_327
+                                             then {bop_323, bop_328}
+                                             else {bop_322, bop_326} in
+                        let bop_331 = y_329 / 4 in
+                        let bop_332 = bop_331 * 4 in
+                        let bop_333 = y_329 / 100 in
+                        let bop_334 = bop_333 * 100 in
+                        let bop_335 = y_329 / 400 in
+                        let bop_336 = bop_335 * 400 in
+                        let bop_337 = m_330 = 2 in
+                        let bop_338 = m_330 = 4 in
+                        let bop_339 = m_330 = 6 in
+                        let bop_340 = m_330 = 9 in
+                        let bop_341 = m_330 = 11 in
+                        let bop_342 = m_330 = 1 in
+                        let norm_343 = bop_342 || bop_337 in
+                        let bop_344 = y_329 + 4800 in
+                        let bop_345 = bop_344 - 1 in
+                        let bop_346 = 1461 * bop_345 in
+                        let bop_347 = bop_346 / 4 in
+                        let bop_348 = 1461 * bop_344 in
+                        let bop_349 = bop_348 / 4 in
+                        let bop_350 = m_330 + 10 in
+                        let bop_351 = 367 * bop_350 in
+                        let bop_352 = bop_351 / 12 in
+                        let bop_353 = bop_347 + bop_352 in
+                        let bop_354 = y_329 + 4900 in
+                        let bop_355 = bop_354 - 1 in
+                        let bop_356 = bop_355 / 100 in
+                        let bop_357 = 3 * bop_356 in
+                        let bop_358 = bop_357 / 4 in
+                        let bop_359 = bop_353 - bop_358 in
+                        let bop_360 = bop_354 / 100 in
+                        let bop_361 = 3 * bop_360 in
+                        let bop_362 = bop_361 / 4 in
+                        let bop_363 = m_330 - 2 in
+                        let bop_364 = 367 * bop_363 in
+                        let bop_365 = bop_364 / 12 in
+                        let bop_366 = bop_349 + bop_365 in
+                        let bop_367 = bop_366 - bop_362 in
+                        let ym_368 = if norm_343
+                                     then bop_359
+                                     else bop_367 in
+                        let tmp_bop_369 = y_329 - bop_332 in
+                        let bop_370 = tmp_bop_369 = 0 in
+                        let tmp_bop_371 = y_329 - bop_334 in
+                        let bop_372 = tmp_bop_371 = 0 in
+                        let not_373 = not bop_372 in
+                        let tmp_bop_374 = y_329 - bop_336 in
+                        let bop_375 = tmp_bop_374 = 0 in
+                        let norm_376 = not_373 || bop_375 in
+                        let tmp_and_377 = bop_370 && norm_376 in
+                        let norm_378 = bop_337 && tmp_and_377 in
+                        let val_382 = if norm_378
+                                      then 29
+                                      else if bop_337
+                                           then 28
+                                           else let norm_379 = bop_338 || bop_339 in
+                                                let norm_380 = norm_379 || bop_340 in
+                                                let norm_381 = norm_380 || bop_341 in
+                                                if norm_381
+                                                then 30
+                                                else 31 in
+                        let bop_383 = d_219 < val_382 in
+                        let tmp_lit_384 = if bop_383
+                                          then d_219
+                                          else val_382 in
+                        let bop_385 = ym_368 + tmp_lit_384 in
+                        let bop_386 = bop_385 - 32075 in
+                        let tmp_387 = bop_386 - 2444238 in
+                        let bop_388 = tmp_387 * 1440 in
+                        let resmin_389 = bop_388 + 720 in
+                        let tmp_call_390 = toReal(resmin_389) in
+                        let val_391 = trunc(tmp_call_390) in
+                        let jul_392 = val_391 / 1440 in
+                        let bop_393 = jul_392 + 68569 in
+                        let l_394 = bop_393 + 2444238 in
+                        let bop_395 = 4 * l_394 in
+                        let n_396 = bop_395 / 146097 in
+                        let bop_397 = 146097 * n_396 in
+                        let bop_398 = bop_397 + 3 in
+                        let bop_399 = bop_398 / 4 in
+                        let bop_400 = n_396 - 49 in
+                        let bop_401 = 100 * bop_400 in
+                        let l_402 = l_394 - bop_399 in
+                        let bop_403 = l_402 + 1 in
+                        let bop_404 = 4000 * bop_403 in
+                        let i_405 = bop_404 / 1461001 in
+                        let bop_406 = 1461 * i_405 in
+                        let bop_407 = bop_406 / 4 in
+                        let bop_408 = bop_401 + i_405 in
+                        let bop_409 = l_402 - bop_407 in
+                        let l_410 = bop_409 + 31 in
+                        let bop_411 = 80 * l_410 in
+                        let j_412 = bop_411 / 2447 in
+                        let bop_413 = 2447 * j_412 in
+                        let bop_414 = bop_413 / 80 in
+                        let bop_415 = j_412 + 2 in
+                        let l_416 = j_412 / 11 in
+                        let bop_417 = 12 * l_416 in
+                        let m_418 = bop_415 - bop_417 in
+                        let y_419 = bop_408 + l_416 in
+                        let d_420 = l_410 - bop_414 in
+                        let bop_421 = jul_392 * 1440 in
+                        let daytime_422 = val_391 - bop_421 in
+                        let bop_423 = daytime_422 = 720 in
+                        let bop_424 = daytime_422 / 60 in
+                        let bop_425 = bop_424 * 60 in
+                        let tmp_lit_426 = daytime_422 - bop_425 in
+                        let {y_427, m_428, d_429, h_430, min_431} = if bop_423
+                                                                    then {y_419,
+                                                                          m_418,
+                                                                          d_420,
+                                                                          12, 0}
+                                                                    else {y_419,
+                                                                          m_418,
+                                                                          d_420,
+                                                                          bop_424,
+                                                                          tmp_lit_426} in
+                        let m_432 = m_428 + nbmonths_313 in
+                        let val_433 = m_432 - 1 in
+                        let bop_434 = val_433 / 12 in
+                        let bop_435 = bop_434 * 12 in
+                        let tmp_bop_436 = val_433 - bop_435 in
+                        let bop_437 = tmp_bop_436 + 1 in
+                        let bop_438 = bop_437 <= 0 in
+                        let bop_439 = bop_437 + 12 in
+                        let bop_440 = y_427 + bop_434 in
+                        let bop_441 = bop_440 - 1 in
+                        let {y_442, m_443} = if bop_438
+                                             then {bop_441, bop_439}
+                                             else {bop_440, bop_437} in
+                        let bop_444 = y_442 / 4 in
+                        let bop_445 = bop_444 * 4 in
+                        let bop_446 = y_442 / 100 in
+                        let bop_447 = bop_446 * 100 in
+                        let bop_448 = y_442 / 400 in
+                        let bop_449 = bop_448 * 400 in
+                        let bop_450 = m_443 = 2 in
+                        let bop_451 = m_443 = 4 in
+                        let bop_452 = m_443 = 6 in
+                        let bop_453 = m_443 = 9 in
+                        let bop_454 = m_443 = 11 in
+                        let bop_455 = m_443 = 1 in
+                        let norm_456 = bop_455 || bop_450 in
+                        let bop_457 = y_442 + 4800 in
+                        let bop_458 = bop_457 - 1 in
+                        let bop_459 = 1461 * bop_458 in
+                        let bop_460 = bop_459 / 4 in
+                        let bop_461 = 1461 * bop_457 in
+                        let bop_462 = bop_461 / 4 in
+                        let bop_463 = m_443 + 10 in
+                        let bop_464 = 367 * bop_463 in
+                        let bop_465 = bop_464 / 12 in
+                        let bop_466 = bop_460 + bop_465 in
+                        let bop_467 = y_442 + 4900 in
+                        let bop_468 = bop_467 - 1 in
+                        let bop_469 = bop_468 / 100 in
+                        let bop_470 = 3 * bop_469 in
+                        let bop_471 = bop_470 / 4 in
+                        let bop_472 = bop_466 - bop_471 in
+                        let bop_473 = bop_467 / 100 in
+                        let bop_474 = 3 * bop_473 in
+                        let bop_475 = bop_474 / 4 in
+                        let bop_476 = m_443 - 2 in
+                        let bop_477 = 367 * bop_476 in
+                        let bop_478 = bop_477 / 12 in
+                        let bop_479 = bop_462 + bop_478 in
+                        let bop_480 = bop_479 - bop_475 in
+                        let ym_481 = if norm_456
+                                     then bop_472
+                                     else bop_480 in
+                        let tmp_bop_482 = y_442 - bop_445 in
+                        let bop_483 = tmp_bop_482 = 0 in
+                        let tmp_bop_484 = y_442 - bop_447 in
+                        let bop_485 = tmp_bop_484 = 0 in
+                        let not_486 = not bop_485 in
+                        let tmp_bop_487 = y_442 - bop_449 in
+                        let bop_488 = tmp_bop_487 = 0 in
+                        let norm_489 = not_486 || bop_488 in
+                        let tmp_and_490 = bop_483 && norm_489 in
+                        let norm_491 = bop_450 && tmp_and_490 in
+                        let val_495 = if norm_491
+                                      then 29
+                                      else if bop_450
+                                           then 28
+                                           else let norm_492 = bop_451 || bop_452 in
+                                                let norm_493 = norm_492 || bop_453 in
+                                                let norm_494 = norm_493 || bop_454 in
+                                                if norm_494
+                                                then 30
+                                                else 31 in
+                        let bop_496 = d_429 < val_495 in
+                        let tmp_lit_497 = if bop_496
+                                          then d_429
+                                          else val_495 in
+                        let bop_498 = ym_481 + tmp_lit_497 in
+                        let bop_499 = bop_498 - 32075 in
+                        let tmp_500 = bop_499 - 2444238 in
+                        let bop_501 = tmp_500 * 1440 in
+                        let resmin_502 = bop_501 + 720 in
+                        let tmp_call_503 = toReal(resmin_502) in
+                        {tmp_call_390, tmp_call_503},
+                      iota(tmp_call_17)) in
+               let {tmp_red2_547, tmp_red2_548, tmp_red2_549} =
+                 redomapT(fn {real, real, real} (real arg_506, real arg_507,
+                                                 real arg_508, real arg_509,
+                                                 real arg_510, real arg_511) =>
+                            let bop_512 = arg_511 - 16834320.0 in
+                            let tmp_bop_513 = bop_512 / 1440.0 in
+                            let tmp_bop_514 = tmp_bop_513 / 365.0 in
+                            let bop_515 = 0.03 * tmp_bop_514 in
+                            let val_516 = -bop_515 in
+                            let tmp_call_517 = exp(val_516) in
+                            let bop_518 = arg_511 - arg_510 in
+                            let tmp_bop_519 = bop_518 / 1440.0 in
+                            let tmp_bop_520 = tmp_bop_519 / 365.0 in
+                            let bop_521 = tmp_call_517 * tmp_bop_520 in
+                            let bop_522 = arg_506 + bop_521 in
+                            let bop_523 = arg_507 < arg_510 in
+                            let tmp_lit_524 = if bop_523
+                                              then arg_507
+                                              else arg_510 in
+                            let bop_525 = arg_508 < arg_511 in
+                            let tmp_lit_526 = if bop_525
+                                              then arg_511
+                                              else arg_508 in
+                            {bop_522, tmp_lit_524, tmp_lit_526},
+                          fn {real, real, real} (real arg_527, real arg_528,
+                                                 real arg_529, real arg_530,
+                                                 real arg_531) =>
+                            let bop_532 = arg_530 - 16834320.0 in
+                            let tmp_bop_533 = bop_532 / 1440.0 in
+                            let tmp_bop_534 = tmp_bop_533 / 365.0 in
+                            let bop_535 = 0.03 * tmp_bop_534 in
+                            let val_536 = -bop_535 in
+                            let tmp_call_537 = exp(val_536) in
+                            let bop_538 = arg_530 - arg_531 in
+                            let tmp_bop_539 = bop_538 / 1440.0 in
+                            let tmp_bop_540 = tmp_bop_539 / 365.0 in
+                            let bop_541 = tmp_call_537 * tmp_bop_540 in
+                            let bop_542 = arg_527 + bop_541 in
+                            let bop_543 = arg_528 < arg_531 in
+                            let tmp_lit_544 = if bop_543
+                                              then arg_528
+                                              else arg_531 in
+                            let bop_545 = arg_529 < arg_530 in
+                            let tmp_lit_546 = if bop_545
+                                              then arg_530
+                                              else arg_529 in
+                            {bop_542, tmp_lit_544, tmp_lit_546},
+                          {0.0, 168307199.0, 3600.0}, soac_v_505, soac_v_504) in
+               let bop_550 = tmp_red2_548 - 16834320.0 in
+               let tmp_bop_551 = bop_550 / 1440.0 in
+               let tmp_bop_552 = tmp_bop_551 / 365.0 in
+               let bop_553 = 0.03 * tmp_bop_552 in
+               let val_554 = -bop_553 in
+               let tmp_call_555 = exp(val_554) in
+               let bop_556 = tmp_red2_549 - 16834320.0 in
+               let tmp_bop_557 = bop_556 / 1440.0 in
+               let tmp_bop_558 = tmp_bop_557 / 365.0 in
+               let bop_559 = 0.03 * tmp_bop_558 in
+               let val_560 = -bop_559 in
+               let tmp_call_561 = exp(val_560) in
+               let bop_562 = tmp_call_555 - tmp_call_561 in
+               let strike_563 = bop_562 / tmp_red2_547 in
+               let {soac_v_669, soac_v_670, soac_v_671, soac_v_672, soac_v_673,
+                    soac_v_674} =
+                 mapT(fn {real, real, real, real, real, real} (real arg_564,
+                                                               int i_565) =>
+                        let bop_566 = soac_v_505[i_565] - soac_v_504[i_565] in
+                        let tmp_bop_567 = bop_566 / 1440.0 in
+                        let tau_568 = tmp_bop_567 / 365.0 in
+                        let bop_569 = tau_568 * strike_563 in
+                        let bop_570 = 1.0 + bop_569 in
+                        let bop_571 = arg_564 - 16834320.0 in
+                        let tmp_bop_572 = bop_571 / 1440.0 in
+                        let val_573 = tmp_bop_572 / 365.0 in
+                        let bop_574 = 0.02453 * val_573 in
+                        let val_575 = -bop_574 in
+                        let tmp_call_576 = exp(val_575) in
+                        let bop_577 = 1.0 - tmp_call_576 in
+                        let ba_578 = bop_577 / 0.02453 in
+                        let bop_579 = 81.53281695882593 * tmp_call_576 in
+                        let exp2xtau_580 = tmp_call_576 * tmp_call_576 in
+                        let bop_581 = 20.383204239706483 * exp2xtau_580 in
+                        let bop_582 = 0.98376 * val_573 in
+                        let val_583 = -bop_582 in
+                        let tmp_call_584 = exp(val_583) in
+                        let bop_585 = 1.0 - tmp_call_584 in
+                        let bb_586 = bop_585 / 0.98376 in
+                        let bop_587 = 2.033016182808815 * tmp_call_584 in
+                        let exp2xtau_588 = tmp_call_584 * tmp_call_584 in
+                        let bop_589 = 0.5082540457022038 * exp2xtau_588 in
+                        let bop_590 = 1.00829 * val_573 in
+                        let val_591 = -bop_590 in
+                        let tmp_call_592 = exp(val_591) in
+                        let bop_593 = 1.0 - tmp_call_592 in
+                        let tmp_bop_594 = bop_593 / 1.00829 in
+                        let bop_595 = 0.03 * val_573 in
+                        let val_596 = -bop_595 in
+                        let tmp_call_597 = exp(val_596) in
+                        let bop_598 = tmp_call_597 / tmp_call_141 in
+                        let bop_599 = val_573 - ba_578 in
+                        let bop_600 = bop_599 - bb_586 in
+                        let bop_601 = bop_600 + tmp_bop_594 in
+                        let t3_602 = -0.19373336527812574 * bop_601 in
+                        let bop_603 = val_573 + bop_579 in
+                        let bop_604 = bop_603 - bop_581 in
+                        let bop_605 = bop_604 - 61.149612719119446 in
+                        let t1_606 = 0.9556596754408898 * bop_605 in
+                        let bop_607 = val_573 + bop_587 in
+                        let bop_608 = bop_607 - bop_589 in
+                        let bop_609 = bop_608 - 1.5247621371066113 in
+                        let t2_610 = 0.014460761693212401 * bop_609 in
+                        let bop_611 = t1_606 + t2_610 in
+                        let bop_612 = bop_611 + t3_602 in
+                        let bop_613 = arg_564 - tmp_call_94 in
+                        let tmp_bop_614 = bop_613 / 1440.0 in
+                        let val_615 = tmp_bop_614 / 365.0 in
+                        let bop_616 = 0.02453 * val_615 in
+                        let val_617 = -bop_616 in
+                        let tmp_call_618 = exp(val_617) in
+                        let bop_619 = 1.0 - tmp_call_618 in
+                        let ba_620 = bop_619 / 0.02453 in
+                        let bop_621 = 81.53281695882593 * tmp_call_618 in
+                        let exp2xtau_622 = tmp_call_618 * tmp_call_618 in
+                        let bop_623 = 20.383204239706483 * exp2xtau_622 in
+                        let bop_624 = 0.98376 * val_615 in
+                        let val_625 = -bop_624 in
+                        let tmp_call_626 = exp(val_625) in
+                        let bop_627 = 1.0 - tmp_call_626 in
+                        let bb_628 = bop_627 / 0.98376 in
+                        let bop_629 = bop_172 * bb_628 in
+                        let t3_630 = muy_253 - bop_629 in
+                        let bop_631 = bop_240 - t3_630 in
+                        let bop_632 = bb_628 * t4_170 in
+                        let bop_633 = ba_620 + bop_632 in
+                        let scale_634 = -bop_633 in
+                        let cst_635 = bb_628 * bop_631 in
+                        let tmp_call_636 = exp(cst_635) in
+                        let bop_637 = 2.033016182808815 * tmp_call_626 in
+                        let exp2xtau_638 = tmp_call_626 * tmp_call_626 in
+                        let bop_639 = 0.5082540457022038 * exp2xtau_638 in
+                        let bop_640 = 1.00829 * val_615 in
+                        let val_641 = -bop_640 in
+                        let tmp_call_642 = exp(val_641) in
+                        let bop_643 = 1.0 - tmp_call_642 in
+                        let tmp_bop_644 = bop_643 / 1.00829 in
+                        let bop_645 = val_615 - ba_620 in
+                        let bop_646 = bop_645 - bb_628 in
+                        let bop_647 = bop_646 + tmp_bop_644 in
+                        let t3_648 = -0.19373336527812574 * bop_647 in
+                        let bop_649 = val_615 + bop_621 in
+                        let bop_650 = bop_649 - bop_623 in
+                        let bop_651 = bop_650 - 61.149612719119446 in
+                        let t1_652 = 0.9556596754408898 * bop_651 in
+                        let bop_653 = val_615 + bop_637 in
+                        let bop_654 = bop_653 - bop_639 in
+                        let bop_655 = bop_654 - 1.5247621371066113 in
+                        let t2_656 = 0.014460761693212401 * bop_655 in
+                        let bop_657 = t1_652 + t2_656 in
+                        let bop_658 = bop_657 + t3_648 in
+                        let bop_659 = bop_658 - bop_612 in
+                        let bop_660 = bop_659 + bop_138 in
+                        let val_661 = 0.5 * bop_660 in
+                        let tmp_call_662 = exp(val_661) in
+                        let aa_663 = bop_598 * tmp_call_662 in
+                        let bop_664 = i_565 = bop_18 in
+                        let val_665 = if bop_664
+                                      then bop_570
+                                      else bop_569 in
+                        let aici_666 = val_665 * aa_663 in
+                        let log_aici_667 = log(aici_666) in
+                        let t1_cst_668 = aici_666 * tmp_call_636 in
+                        {ba_620, bb_628, aici_666, log_aici_667, t1_cst_668,
+                         scale_634},
+                      soac_v_505, iota(tmp_call_17)) in
+               let {soac_v_685, soac_v_686} =
+                 mapT(fn {real, real} (real arg_675, real arg_676, real arg_677,
+                                       real arg_678) =>
+                        let baix_679 = arg_675 * mux_239 in
+                        let val_680 = -baix_679 in
+                        let tmp_call_681 = exp(val_680) in
+                        let bop_682 = arg_677 * tmp_call_681 in
+                        let bop_683 = arg_678 - baix_679 in
+                        let bop_684 = bop_683 / arg_676 in
+                        {bop_682, bop_684},
+                      soac_v_669, soac_v_670, soac_v_671, soac_v_672) in
+               let {untuple_690} =
+                 reduceT(fn {real} (real x_687, real y_688) =>
+                           let val_689 = x_687 + y_688 in
+                           {val_689},
+                         {0.0}, soac_v_685) in
+               let {untuple_695} =
+                 reduceT(fn {real} (real param_0_691, real param_1_692) =>
+                           let bop_693 = param_0_691 < param_1_692 in
+                           let val_694 = if bop_693
+                                         then param_1_692
+                                         else param_0_691 in
+                           {val_694},
+                         {-10000000000000000000000000000000000000000000000000.0},
+                         soac_v_686) in
+               let yl_696 = untuple_695 - 0.00001 in
+               let {soac_v_707, soac_v_708} =
+                 mapT(fn {real, real} (real arg_697, real arg_698, real arg_699,
+                                       real arg_700) =>
+                        let baix_701 = arg_697 * val_243 in
+                        let val_702 = -baix_701 in
+                        let tmp_call_703 = exp(val_702) in
+                        let bop_704 = arg_699 * tmp_call_703 in
+                        let bop_705 = arg_700 - baix_701 in
+                        let bop_706 = bop_705 / arg_698 in
+                        {bop_704, bop_706},
+                      soac_v_669, soac_v_670, soac_v_671, soac_v_672) in
+               let {untuple_712} =
+                 reduceT(fn {real} (real x_709, real y_710) =>
+                           let val_711 = x_709 + y_710 in
+                           {val_711},
+                         {0.0}, soac_v_707) in
+               let {untuple_717} =
+                 reduceT(fn {real} (real param_0_713, real param_1_714) =>
+                           let bop_715 = param_0_713 < param_1_714 in
+                           let val_716 = if bop_715
+                                         then param_1_714
+                                         else param_0_713 in
+                           {val_716},
+                         {-10000000000000000000000000000000000000000000000000.0},
+                         soac_v_708) in
+               let yl_718 = untuple_717 - 0.00001 in
+               let {soac_v_729, soac_v_730} =
+                 mapT(fn {real, real} (real arg_719, real arg_720, real arg_721,
+                                       real arg_722) =>
+                        let baix_723 = arg_719 * val_246 in
+                        let val_724 = -baix_723 in
+                        let tmp_call_725 = exp(val_724) in
+                        let bop_726 = arg_721 * tmp_call_725 in
+                        let bop_727 = arg_722 - baix_723 in
+                        let bop_728 = bop_727 / arg_720 in
+                        {bop_726, bop_728},
+                      soac_v_669, soac_v_670, soac_v_671, soac_v_672) in
+               let {untuple_734} =
+                 reduceT(fn {real} (real x_731, real y_732) =>
+                           let val_733 = x_731 + y_732 in
+                           {val_733},
+                         {0.0}, soac_v_729) in
+               let {untuple_739} =
+                 reduceT(fn {real} (real param_0_735, real param_1_736) =>
+                           let bop_737 = param_0_735 < param_1_736 in
+                           let val_738 = if bop_737
+                                         then param_1_736
+                                         else param_0_735 in
+                           {val_738},
+                         {-10000000000000000000000000000000000000000000000000.0},
+                         soac_v_730) in
+               let yl_743 = untuple_739 - 0.00001 in
+               let f_929 = if bop_19
+                           then untuple_695
+                           else let bop_744 = bop_242 / sigmax_148 in
+                                let bop_745 = bop_744 + bop_167 in
+                                let bop_746 = sigmay_157 * bop_745 in
+                                let bop_747 = bop_746 - bop_164 in
+                                let y0_748 = bop_747 + muy_253 in
+                                let bop_749 = y0_748 - 1.0 in
+                                let bop_750 = yl_696 < y0_748 in
+                                let bop_751 = bop_744 - bop_167 in
+                                let bop_752 = sigmay_157 * bop_751 in
+                                let y1_753 = bop_752 + muy_253 in
+                                let bop_754 = y1_753 <= yl_696 in
+                                let bop_755 = y1_753 + 1.0 in
+                                let log_s_756 = log(untuple_690) in
+                                let tmp_757 = log_s_756 / soac_v_670[bop_18] in
+                                let bop_758 = tmp_757 <= 0.0 in
+                                let up_761 = if bop_758
+                                             then tmp_757
+                                             else let tmp_759 = log_s_756 / soac_v_670[0] in
+                                                  let bop_760 = 0.0 <= tmp_759 in
+                                                  if bop_760
+                                                  then tmp_759
+                                                  else -10000000000000000000000000000000000000000000000000.0 in
+                                let yu_762 = up_761 + 0.00001 in
+                                let bop_763 = yu_762 <= y0_748 in
+                                let bop_764 = yu_762 < y1_753 in
+                                if bop_754
+                                then bop_755
+                                else if bop_763
+                                     then bop_749
+                                     else let {untuple_771} =
+                                            mapT(fn {real} (real arg_765,
+                                                            real arg_766) =>
+                                                   let bop_767 = arg_765 * mux_239 in
+                                                   let val_768 = -bop_767 in
+                                                   let tmp_call_769 = exp(val_768) in
+                                                   let val_770 = arg_766 * tmp_call_769 in
+                                                   {val_770},
+                                                 soac_v_669, soac_v_671) in
+                                          let root_lb_772 = if bop_750
+                                                            then y0_748
+                                                            else yl_696 in
+                                          let bop_773 = 0.0 <= root_lb_772 in
+                                          let {untuple_785} =
+                                            redomapT(fn {real} (real x_774,
+                                                                real y_775) =>
+                                                       let val_776 = x_774 + y_775 in
+                                                       {val_776},
+                                                     fn {real} (real x_777,
+                                                                real arg_778,
+                                                                real arg_779) =>
+                                                       let bop_780 = arg_778 * root_lb_772 in
+                                                       let val_781 = -bop_780 in
+                                                       let tmp_call_782 = exp(val_781) in
+                                                       let val_783 = arg_779 * tmp_call_782 in
+                                                       let val_784 = x_777 + val_783 in
+                                                       {val_784},
+                                                     {0.0}, soac_v_670,
+                                                     untuple_771) in
+                                          let tmp_lit_786 = untuple_785 - 1.0 in
+                                          let bop_787 = tmp_lit_786 < 0.0 in
+                                          let negate_788 = -tmp_lit_786 in
+                                          let root_ub_789 = if bop_764
+                                                            then yu_762
+                                                            else y1_753 in
+                                          let {untuple_801} =
+                                            redomapT(fn {real} (real x_790,
+                                                                real y_791) =>
+                                                       let val_792 = x_790 + y_791 in
+                                                       {val_792},
+                                                     fn {real} (real x_793,
+                                                                real arg_794,
+                                                                real arg_795) =>
+                                                       let bop_796 = arg_795 * root_ub_789 in
+                                                       let val_797 = -bop_796 in
+                                                       let tmp_call_798 = exp(val_797) in
+                                                       let val_799 = arg_794 * tmp_call_798 in
+                                                       let val_800 = x_793 + val_799 in
+                                                       {val_800},
+                                                     {0.0}, untuple_771,
+                                                     soac_v_670) in
+                                          let tmp_lit_802 = untuple_801 - 1.0 in
+                                          let bop_803 = tmp_lit_802 < 0.0 in
+                                          let negate_804 = -tmp_lit_802 in
+                                          let bop_805 = tmp_lit_786 * tmp_lit_802 in
+                                          let bop_806 = 0.0 <= bop_805 in
+                                          let {root_924, iteration_925,
+                                               error_926} = if bop_806
+                                                            then if bop_773
+                                                                 then {0.0, 0,
+                                                                       10000000000000000000000000000000000000000000000000.0}
+                                                                 else {0.0, 0,
+                                                                       -10000000000000000000000000000000000000000000000000.0}
+                                                            else let tmp_bop_807 = if bop_787
+                                                                                   then negate_788
+                                                                                   else tmp_lit_786 in
+                                                                 let tmp_bop_808 = if bop_803
+                                                                                   then negate_804
+                                                                                   else tmp_lit_802 in
+                                                                 let bop_809 = tmp_bop_807 < tmp_bop_808 in
+                                                                 let {fa_810,
+                                                                      fb_811} = if bop_809
+                                                                                then {tmp_lit_802,
+                                                                                      tmp_lit_786}
+                                                                                else {tmp_lit_786,
+                                                                                      tmp_lit_802} in
+                                                                 loop ({a_812,
+                                                                        b_813,
+                                                                        c_814,
+                                                                        d_815,
+                                                                        fa_816,
+                                                                        fb_817,
+                                                                        fc_818,
+                                                                        mflag_819,
+                                                                        it_820} = {root_lb_772,
+                                                                                   root_ub_789,
+                                                                                   root_lb_772,
+                                                                                   0.0,
+                                                                                   fa_810,
+                                                                                   fb_811,
+                                                                                   fa_810,
+                                                                                   True,
+                                                                                   0}) = for i_821 < 1000 do
+                                                                   let bop_822 = fb_817 = 0.0 in
+                                                                   let bop_823 = fa_816 = fc_818 in
+                                                                   let bop_824 = fb_817 = fc_818 in
+                                                                   let bop_825 = a_812 * fb_817 in
+                                                                   let bop_826 = bop_825 * fc_818 in
+                                                                   let bop_827 = fa_816 - fb_817 in
+                                                                   let bop_828 = fa_816 - fc_818 in
+                                                                   let bop_829 = bop_827 * bop_828 in
+                                                                   let bop_830 = b_813 * fa_816 in
+                                                                   let bop_831 = bop_830 * fc_818 in
+                                                                   let bop_832 = fb_817 - fa_816 in
+                                                                   let bop_833 = fb_817 - fc_818 in
+                                                                   let bop_834 = bop_832 * bop_833 in
+                                                                   let bop_835 = c_814 * fa_816 in
+                                                                   let bop_836 = bop_835 * fb_817 in
+                                                                   let bop_837 = fc_818 - fa_816 in
+                                                                   let bop_838 = fc_818 - fb_817 in
+                                                                   let bop_839 = bop_837 * bop_838 in
+                                                                   let bop_840 = 3.0 * a_812 in
+                                                                   let bop_841 = bop_840 + b_813 in
+                                                                   let bop_842 = bop_841 / 4.0 in
+                                                                   let not_843 = not mflag_819 in
+                                                                   let bop_844 = a_812 + b_813 in
+                                                                   let bop_845 = bop_844 / 2.0 in
+                                                                   let val_846 = b_813 - a_812 in
+                                                                   let bop_847 = fb_817 * val_846 in
+                                                                   let negate_848 = -val_846 in
+                                                                   let bop_849 = val_846 < 0.0 in
+                                                                   let tmp_bop_850 = if bop_849
+                                                                                     then negate_848
+                                                                                     else val_846 in
+                                                                   let bop_851 = tmp_bop_850 < 0.0001 in
+                                                                   let norm_852 = bop_822 || bop_851 in
+                                                                   let val_853 = b_813 - c_814 in
+                                                                   let negate_854 = -val_853 in
+                                                                   let bop_855 = val_853 < 0.0 in
+                                                                   let val_856 = c_814 - d_815 in
+                                                                   let negate_857 = -val_856 in
+                                                                   let bop_858 = val_856 < 0.0 in
+                                                                   if norm_852
+                                                                   then {a_812,
+                                                                         b_813,
+                                                                         c_814,
+                                                                         d_815,
+                                                                         fa_816,
+                                                                         fb_817,
+                                                                         fc_818,
+                                                                         mflag_819,
+                                                                         it_820}
+                                                                   else let tmp_bop_859 = if bop_855
+                                                                                          then negate_854
+                                                                                          else val_853 in
+                                                                        let bop_860 = tmp_bop_859 <= 0.0001 in
+                                                                        let norm_861 = mflag_819 && bop_860 in
+                                                                        let bop_862 = tmp_bop_859 / 2.0 in
+                                                                        let tmp_bop_863 = if bop_858
+                                                                                          then negate_857
+                                                                                          else val_856 in
+                                                                        let bop_864 = tmp_bop_863 <= 0.0001 in
+                                                                        let norm_865 = not_843 && bop_864 in
+                                                                        let bop_866 = tmp_bop_863 / 2.0 in
+                                                                        let norm_867 = bop_823 || bop_824 in
+                                                                        let s_875 = if norm_867
+                                                                                    then let bop_868 = bop_847 / bop_832 in
+                                                                                         let bop_869 = b_813 - bop_868 in
+                                                                                         bop_869
+                                                                                    else let s1_870 = bop_826 / bop_829 in
+                                                                                         let s2_871 = bop_831 / bop_834 in
+                                                                                         let bop_872 = s1_870 + s2_871 in
+                                                                                         let s3_873 = bop_836 / bop_839 in
+                                                                                         let bop_874 = bop_872 + s3_873 in
+                                                                                         bop_874 in
+                                                                        let bop_876 = bop_842 <= s_875 in
+                                                                        let bop_877 = s_875 <= b_813 in
+                                                                        let norm_878 = bop_876 && bop_877 in
+                                                                        let not_879 = not norm_878 in
+                                                                        let val_880 = s_875 - b_813 in
+                                                                        let bop_881 = val_880 < 0.0 in
+                                                                        let negate_882 = -val_880 in
+                                                                        let tmp_bop_883 = if bop_881
+                                                                                          then negate_882
+                                                                                          else val_880 in
+                                                                        let bop_884 = bop_866 <= tmp_bop_883 in
+                                                                        let norm_885 = not_843 && bop_884 in
+                                                                        let bop_886 = bop_862 <= tmp_bop_883 in
+                                                                        let norm_887 = mflag_819 && bop_886 in
+                                                                        let norm_888 = not_879 || norm_887 in
+                                                                        let norm_889 = norm_888 || norm_885 in
+                                                                        let norm_890 = norm_889 || norm_861 in
+                                                                        let norm_891 = norm_890 || norm_865 in
+                                                                        let {mflag_892,
+                                                                             s_893} = if norm_891
+                                                                                      then {True,
+                                                                                            bop_845}
+                                                                                      else {False,
+                                                                                            s_875} in
+                                                                        let {untuple_905} =
+                                                                          redomapT(fn {real} (real x_894,
+                                                                                              real y_895) =>
+                                                                                     let val_896 = x_894 + y_895 in
+                                                                                     {val_896},
+                                                                                   fn {real} (real x_897,
+                                                                                              real arg_898,
+                                                                                              real arg_899) =>
+                                                                                     let bop_900 = arg_898 * s_893 in
+                                                                                     let val_901 = -bop_900 in
+                                                                                     let tmp_call_902 = exp(val_901) in
+                                                                                     let val_903 = arg_899 * tmp_call_902 in
+                                                                                     let val_904 = x_897 + val_903 in
+                                                                                     {val_904},
+                                                                                   {0.0},
+                                                                                   soac_v_670,
+                                                                                   untuple_771) in
+                                                                        let fs_906 = untuple_905 - 1.0 in
+                                                                        let bop_907 = fa_816 * fs_906 in
+                                                                        let bop_908 = bop_907 < 0.0 in
+                                                                        let {a_909,
+                                                                             b_910,
+                                                                             fa_911,
+                                                                             fb_912} = if bop_908
+                                                                                       then {a_812,
+                                                                                             s_893,
+                                                                                             fa_816,
+                                                                                             fs_906}
+                                                                                       else {s_893,
+                                                                                             b_813,
+                                                                                             fs_906,
+                                                                                             fb_817} in
+                                                                        let bop_913 = fa_911 < 0.0 in
+                                                                        let negate_914 = -fa_911 in
+                                                                        let bop_915 = fb_912 < 0.0 in
+                                                                        let negate_916 = -fb_912 in
+                                                                        let tmp_bop_917 = if bop_915
+                                                                                          then negate_916
+                                                                                          else fb_912 in
+                                                                        let tmp_bop_918 = if bop_913
+                                                                                          then negate_914
+                                                                                          else fa_911 in
+                                                                        let bop_919 = tmp_bop_918 < tmp_bop_917 in
+                                                                        let {a_920,
+                                                                             b_921,
+                                                                             fa_922,
+                                                                             fb_923} = if bop_919
+                                                                                       then {b_910,
+                                                                                             a_909,
+                                                                                             fb_912,
+                                                                                             fa_911}
+                                                                                       else {a_909,
+                                                                                             b_910,
+                                                                                             fa_911,
+                                                                                             fb_912} in
+                                                                        {a_920,
+                                                                         b_921,
+                                                                         b_813,
+                                                                         c_814,
+                                                                         fa_922,
+                                                                         fb_923,
+                                                                         fb_817,
+                                                                         mflag_892,
+                                                                         i_821} in
+                                                                 {b_813, it_820,
+                                                                  fb_817} in
+                                          let bop_927 = error_926 = -10000000000000000000000000000000000000000000000000.0 in
+                                          let bop_928 = error_926 = 10000000000000000000000000000000000000000000000000.0 in
+                                          if bop_927
+                                          then bop_749
+                                          else if bop_928
+                                               then bop_755
+                                               else root_924 in
+               let g_1117 = if bop_19
+                            then untuple_717
+                            else let bop_930 = bop_245 / sigmax_148 in
+                                 let bop_931 = bop_930 + bop_167 in
+                                 let bop_932 = sigmay_157 * bop_931 in
+                                 let bop_933 = bop_932 - bop_164 in
+                                 let y0_934 = bop_933 + muy_253 in
+                                 let bop_935 = y0_934 - 1.0 in
+                                 let bop_936 = yl_718 < y0_934 in
+                                 let bop_937 = bop_930 - bop_167 in
+                                 let bop_938 = sigmay_157 * bop_937 in
+                                 let y1_939 = bop_938 + muy_253 in
+                                 let bop_940 = y1_939 <= yl_718 in
+                                 let bop_941 = y1_939 + 1.0 in
+                                 let log_s_942 = log(untuple_712) in
+                                 let tmp_943 = log_s_942 / soac_v_670[bop_18] in
+                                 let bop_944 = tmp_943 <= 0.0 in
+                                 let up_947 = if bop_944
+                                              then tmp_943
+                                              else let tmp_945 = log_s_942 / soac_v_670[0] in
+                                                   let bop_946 = 0.0 <= tmp_945 in
+                                                   if bop_946
+                                                   then tmp_945
+                                                   else -10000000000000000000000000000000000000000000000000.0 in
+                                 let yu_948 = up_947 + 0.00001 in
+                                 let bop_949 = yu_948 <= y0_934 in
+                                 let bop_950 = yu_948 < y1_939 in
+                                 if bop_940
+                                 then bop_941
+                                 else if bop_949
+                                      then bop_935
+                                      else let {untuple_957} =
+                                             mapT(fn {real} (real arg_951,
+                                                             real arg_952) =>
+                                                    let bop_953 = arg_951 * val_243 in
+                                                    let val_954 = -bop_953 in
+                                                    let tmp_call_955 = exp(val_954) in
+                                                    let val_956 = arg_952 * tmp_call_955 in
+                                                    {val_956},
+                                                  soac_v_669, soac_v_671) in
+                                           let root_lb_958 = if bop_936
+                                                             then y0_934
+                                                             else yl_718 in
+                                           let bop_959 = 0.0 <= root_lb_958 in
+                                           let {untuple_971} =
+                                             redomapT(fn {real} (real x_960,
+                                                                 real y_961) =>
+                                                        let val_962 = x_960 + y_961 in
+                                                        {val_962},
+                                                      fn {real} (real x_963,
+                                                                 real arg_964,
+                                                                 real arg_965) =>
+                                                        let bop_966 = arg_964 * root_lb_958 in
+                                                        let val_967 = -bop_966 in
+                                                        let tmp_call_968 = exp(val_967) in
+                                                        let val_969 = arg_965 * tmp_call_968 in
+                                                        let val_970 = x_963 + val_969 in
+                                                        {val_970},
+                                                      {0.0}, soac_v_670,
+                                                      untuple_957) in
+                                           let tmp_lit_972 = untuple_971 - 1.0 in
+                                           let bop_973 = tmp_lit_972 < 0.0 in
+                                           let negate_974 = -tmp_lit_972 in
+                                           let root_ub_975 = if bop_950
+                                                             then yu_948
+                                                             else y1_939 in
+                                           let {untuple_987} =
+                                             redomapT(fn {real} (real x_976,
+                                                                 real y_977) =>
+                                                        let val_978 = x_976 + y_977 in
+                                                        {val_978},
+                                                      fn {real} (real x_979,
+                                                                 real arg_980,
+                                                                 real arg_981) =>
+                                                        let bop_982 = arg_981 * root_ub_975 in
+                                                        let val_983 = -bop_982 in
+                                                        let tmp_call_984 = exp(val_983) in
+                                                        let val_985 = arg_980 * tmp_call_984 in
+                                                        let val_986 = x_979 + val_985 in
+                                                        {val_986},
+                                                      {0.0}, untuple_957,
+                                                      soac_v_670) in
+                                           let tmp_lit_988 = untuple_987 - 1.0 in
+                                           let bop_989 = tmp_lit_988 < 0.0 in
+                                           let negate_990 = -tmp_lit_988 in
+                                           let bop_991 = tmp_lit_972 * tmp_lit_988 in
+                                           let bop_992 = 0.0 <= bop_991 in
+                                           let {root_1112, iteration_1113,
+                                                error_1114} = if bop_992
+                                                              then if bop_959
+                                                                   then {0.0, 0,
+                                                                         10000000000000000000000000000000000000000000000000.0}
+                                                                   else {0.0, 0,
+                                                                         -10000000000000000000000000000000000000000000000000.0}
+                                                              else let tmp_bop_993 = if bop_973
+                                                                                     then negate_974
+                                                                                     else tmp_lit_972 in
+                                                                   let tmp_bop_994 = if bop_989
+                                                                                     then negate_990
+                                                                                     else tmp_lit_988 in
+                                                                   let bop_995 = tmp_bop_993 < tmp_bop_994 in
+                                                                   let {fa_996,
+                                                                        fb_997} = if bop_995
+                                                                                  then {tmp_lit_988,
+                                                                                        tmp_lit_972}
+                                                                                  else {tmp_lit_972,
+                                                                                        tmp_lit_988} in
+                                                                   loop ({a_998,
+                                                                          b_999,
+                                                                          c_1000,
+                                                                          d_1001,
+                                                                          fa_1002,
+                                                                          fb_1003,
+                                                                          fc_1004,
+                                                                          mflag_1005,
+                                                                          it_1006} = {root_lb_958,
+                                                                                      root_ub_975,
+                                                                                      root_lb_958,
+                                                                                      0.0,
+                                                                                      fa_996,
+                                                                                      fb_997,
+                                                                                      fa_996,
+                                                                                      True,
+                                                                                      0}) = for i_1007 < 1000 do
+                                                                     let bop_1008 = fb_1003 = 0.0 in
+                                                                     let bop_1009 = fa_1002 = fc_1004 in
+                                                                     let bop_1010 = fb_1003 = fc_1004 in
+                                                                     let bop_1011 = a_998 * fb_1003 in
+                                                                     let bop_1012 = bop_1011 * fc_1004 in
+                                                                     let bop_1013 = fa_1002 - fb_1003 in
+                                                                     let bop_1014 = fa_1002 - fc_1004 in
+                                                                     let bop_1015 = bop_1013 * bop_1014 in
+                                                                     let bop_1016 = b_999 * fa_1002 in
+                                                                     let bop_1017 = bop_1016 * fc_1004 in
+                                                                     let bop_1018 = fb_1003 - fa_1002 in
+                                                                     let bop_1019 = fb_1003 - fc_1004 in
+                                                                     let bop_1020 = bop_1018 * bop_1019 in
+                                                                     let bop_1021 = c_1000 * fa_1002 in
+                                                                     let bop_1022 = bop_1021 * fb_1003 in
+                                                                     let bop_1023 = fc_1004 - fa_1002 in
+                                                                     let bop_1024 = fc_1004 - fb_1003 in
+                                                                     let bop_1025 = bop_1023 * bop_1024 in
+                                                                     let bop_1026 = 3.0 * a_998 in
+                                                                     let bop_1027 = bop_1026 + b_999 in
+                                                                     let bop_1028 = bop_1027 / 4.0 in
+                                                                     let not_1029 = not mflag_1005 in
+                                                                     let bop_1030 = a_998 + b_999 in
+                                                                     let bop_1031 = bop_1030 / 2.0 in
+                                                                     let val_1032 = b_999 - a_998 in
+                                                                     let bop_1033 = fb_1003 * val_1032 in
+                                                                     let negate_1034 = -val_1032 in
+                                                                     let bop_1035 = val_1032 < 0.0 in
+                                                                     let tmp_bop_1036 = if bop_1035
+                                                                                        then negate_1034
+                                                                                        else val_1032 in
+                                                                     let bop_1037 = tmp_bop_1036 < 0.0001 in
+                                                                     let norm_1038 = bop_1008 || bop_1037 in
+                                                                     let val_1039 = b_999 - c_1000 in
+                                                                     let negate_1040 = -val_1039 in
+                                                                     let bop_1041 = val_1039 < 0.0 in
+                                                                     let val_1042 = c_1000 - d_1001 in
+                                                                     let negate_1043 = -val_1042 in
+                                                                     let bop_1044 = val_1042 < 0.0 in
+                                                                     if norm_1038
+                                                                     then {a_998,
+                                                                           b_999,
+                                                                           c_1000,
+                                                                           d_1001,
+                                                                           fa_1002,
+                                                                           fb_1003,
+                                                                           fc_1004,
+                                                                           mflag_1005,
+                                                                           it_1006}
+                                                                     else let tmp_bop_1045 = if bop_1041
+                                                                                             then negate_1040
+                                                                                             else val_1039 in
+                                                                          let bop_1046 = tmp_bop_1045 <= 0.0001 in
+                                                                          let norm_1047 = mflag_1005 && bop_1046 in
+                                                                          let bop_1048 = tmp_bop_1045 / 2.0 in
+                                                                          let tmp_bop_1049 = if bop_1044
+                                                                                             then negate_1043
+                                                                                             else val_1042 in
+                                                                          let bop_1050 = tmp_bop_1049 <= 0.0001 in
+                                                                          let norm_1051 = not_1029 && bop_1050 in
+                                                                          let bop_1052 = tmp_bop_1049 / 2.0 in
+                                                                          let norm_1053 = bop_1009 || bop_1010 in
+                                                                          let s_1061 = if norm_1053
+                                                                                       then let bop_1054 = bop_1033 / bop_1018 in
+                                                                                            let bop_1055 = b_999 - bop_1054 in
+                                                                                            bop_1055
+                                                                                       else let s1_1056 = bop_1012 / bop_1015 in
+                                                                                            let s2_1057 = bop_1017 / bop_1020 in
+                                                                                            let bop_1058 = s1_1056 + s2_1057 in
+                                                                                            let s3_1059 = bop_1022 / bop_1025 in
+                                                                                            let bop_1060 = bop_1058 + s3_1059 in
+                                                                                            bop_1060 in
+                                                                          let bop_1062 = bop_1028 <= s_1061 in
+                                                                          let bop_1063 = s_1061 <= b_999 in
+                                                                          let norm_1064 = bop_1062 && bop_1063 in
+                                                                          let not_1065 = not norm_1064 in
+                                                                          let val_1066 = s_1061 - b_999 in
+                                                                          let bop_1067 = val_1066 < 0.0 in
+                                                                          let negate_1068 = -val_1066 in
+                                                                          let tmp_bop_1069 = if bop_1067
+                                                                                             then negate_1068
+                                                                                             else val_1066 in
+                                                                          let bop_1070 = bop_1052 <= tmp_bop_1069 in
+                                                                          let norm_1071 = not_1029 && bop_1070 in
+                                                                          let bop_1072 = bop_1048 <= tmp_bop_1069 in
+                                                                          let norm_1073 = mflag_1005 && bop_1072 in
+                                                                          let norm_1074 = not_1065 || norm_1073 in
+                                                                          let norm_1075 = norm_1074 || norm_1071 in
+                                                                          let norm_1076 = norm_1075 || norm_1047 in
+                                                                          let norm_1077 = norm_1076 || norm_1051 in
+                                                                          let {mflag_1078,
+                                                                               s_1079} = if norm_1077
+                                                                                         then {True,
+                                                                                               bop_1031}
+                                                                                         else {False,
+                                                                                               s_1061} in
+                                                                          let {untuple_1093} =
+                                                                            redomapT(fn {real} (real x_1080,
+                                                                                                real y_1081) =>
+                                                                                       let val_1082 = x_1080 + y_1081 in
+                                                                                       {val_1082},
+                                                                                     fn {real} (real x_1083,
+                                                                                                real arg_1084,
+                                                                                                real arg_1085) =>
+                                                                                       let bop_1086 = arg_1085 * s_1079 in
+                                                                                       let val_1087 = -bop_1086 in
+                                                                                       let tmp_call_1090 = exp(val_1087) in
+                                                                                       let val_1091 = arg_1084 * tmp_call_1090 in
+                                                                                       let val_1092 = x_1083 + val_1091 in
+                                                                                       {val_1092},
+                                                                                     {0.0},
+                                                                                     untuple_957,
+                                                                                     soac_v_670) in
+                                                                          let fs_1094 = untuple_1093 - 1.0 in
+                                                                          let bop_1095 = fa_1002 * fs_1094 in
+                                                                          let bop_1096 = bop_1095 < 0.0 in
+                                                                          let {a_1097,
+                                                                               b_1098,
+                                                                               fa_1099,
+                                                                               fb_1100} = if bop_1096
+                                                                                          then {a_998,
+                                                                                                s_1079,
+                                                                                                fa_1002,
+                                                                                                fs_1094}
+                                                                                          else {s_1079,
+                                                                                                b_999,
+                                                                                                fs_1094,
+                                                                                                fb_1003} in
+                                                                          let bop_1101 = fa_1099 < 0.0 in
+                                                                          let negate_1102 = -fa_1099 in
+                                                                          let bop_1103 = fb_1100 < 0.0 in
+                                                                          let negate_1104 = -fb_1100 in
+                                                                          let tmp_bop_1105 = if bop_1103
+                                                                                             then negate_1104
+                                                                                             else fb_1100 in
+                                                                          let tmp_bop_1106 = if bop_1101
+                                                                                             then negate_1102
+                                                                                             else fa_1099 in
+                                                                          let bop_1107 = tmp_bop_1106 < tmp_bop_1105 in
+                                                                          let {a_1108,
+                                                                               b_1109,
+                                                                               fa_1110,
+                                                                               fb_1111} = if bop_1107
+                                                                                          then {b_1098,
+                                                                                                a_1097,
+                                                                                                fb_1100,
+                                                                                                fa_1099}
+                                                                                          else {a_1097,
+                                                                                                b_1098,
+                                                                                                fa_1099,
+                                                                                                fb_1100} in
+                                                                          {a_1108,
+                                                                           b_1109,
+                                                                           b_999,
+                                                                           c_1000,
+                                                                           fa_1110,
+                                                                           fb_1111,
+                                                                           fb_1003,
+                                                                           mflag_1078,
+                                                                           i_1007} in
+                                                                   {b_999,
+                                                                    it_1006,
+                                                                    fb_1003} in
+                                           let bop_1115 = error_1114 = -10000000000000000000000000000000000000000000000000.0 in
+                                           let bop_1116 = error_1114 = 10000000000000000000000000000000000000000000000000.0 in
+                                           if bop_1115
+                                           then bop_935
+                                           else if bop_1116
+                                                then bop_941
+                                                else root_1112 in
+               let h_1307 = if bop_19
+                            then untuple_739
+                            else let bop_1118 = bop_248 / sigmax_148 in
+                                 let bop_1119 = bop_1118 + bop_167 in
+                                 let bop_1120 = sigmay_157 * bop_1119 in
+                                 let bop_1121 = bop_1120 - bop_164 in
+                                 let y0_1122 = bop_1121 + muy_253 in
+                                 let bop_1123 = y0_1122 - 1.0 in
+                                 let bop_1124 = yl_743 < y0_1122 in
+                                 let bop_1125 = bop_1118 - bop_167 in
+                                 let bop_1126 = sigmay_157 * bop_1125 in
+                                 let y1_1127 = bop_1126 + muy_253 in
+                                 let bop_1128 = y1_1127 <= yl_743 in
+                                 let bop_1129 = y1_1127 + 1.0 in
+                                 let log_s_1130 = log(untuple_734) in
+                                 let tmp_1131 = log_s_1130 / soac_v_670[bop_18] in
+                                 let bop_1132 = tmp_1131 <= 0.0 in
+                                 let up_1135 = if bop_1132
+                                               then tmp_1131
+                                               else let tmp_1133 = log_s_1130 / soac_v_670[0] in
+                                                    let bop_1134 = 0.0 <= tmp_1133 in
+                                                    if bop_1134
+                                                    then tmp_1133
+                                                    else -10000000000000000000000000000000000000000000000000.0 in
+                                 let yu_1136 = up_1135 + 0.00001 in
+                                 let bop_1137 = yu_1136 <= y0_1122 in
+                                 let bop_1138 = yu_1136 < y1_1127 in
+                                 if bop_1128
+                                 then bop_1129
+                                 else if bop_1137
+                                      then bop_1123
+                                      else let {untuple_1147} =
+                                             mapT(fn {real} (real arg_1139,
+                                                             real arg_1141) =>
+                                                    let bop_1142 = arg_1139 * val_246 in
+                                                    let val_1144 = -bop_1142 in
+                                                    let tmp_call_1145 = exp(val_1144) in
+                                                    let val_1146 = arg_1141 * tmp_call_1145 in
+                                                    {val_1146},
+                                                  soac_v_669, soac_v_671) in
+                                           let root_lb_1148 = if bop_1124
+                                                              then y0_1122
+                                                              else yl_743 in
+                                           let bop_1149 = 0.0 <= root_lb_1148 in
+                                           let {untuple_1161} =
+                                             redomapT(fn {real} (real x_1150,
+                                                                 real y_1151) =>
+                                                        let val_1152 = x_1150 + y_1151 in
+                                                        {val_1152},
+                                                      fn {real} (real x_1153,
+                                                                 real arg_1154,
+                                                                 real arg_1155) =>
+                                                        let bop_1156 = arg_1154 * root_lb_1148 in
+                                                        let val_1157 = -bop_1156 in
+                                                        let tmp_call_1158 = exp(val_1157) in
+                                                        let val_1159 = arg_1155 * tmp_call_1158 in
+                                                        let val_1160 = x_1153 + val_1159 in
+                                                        {val_1160},
+                                                      {0.0}, soac_v_670,
+                                                      untuple_1147) in
+                                           let tmp_lit_1162 = untuple_1161 - 1.0 in
+                                           let bop_1163 = tmp_lit_1162 < 0.0 in
+                                           let negate_1164 = -tmp_lit_1162 in
+                                           let root_ub_1165 = if bop_1138
+                                                              then yu_1136
+                                                              else y1_1127 in
+                                           let {untuple_1177} =
+                                             redomapT(fn {real} (real x_1166,
+                                                                 real y_1167) =>
+                                                        let val_1168 = x_1166 + y_1167 in
+                                                        {val_1168},
+                                                      fn {real} (real x_1169,
+                                                                 real arg_1170,
+                                                                 real arg_1171) =>
+                                                        let bop_1172 = arg_1171 * root_ub_1165 in
+                                                        let val_1173 = -bop_1172 in
+                                                        let tmp_call_1174 = exp(val_1173) in
+                                                        let val_1175 = arg_1170 * tmp_call_1174 in
+                                                        let val_1176 = x_1169 + val_1175 in
+                                                        {val_1176},
+                                                      {0.0}, untuple_1147,
+                                                      soac_v_670) in
+                                           let tmp_lit_1178 = untuple_1177 - 1.0 in
+                                           let bop_1179 = tmp_lit_1178 < 0.0 in
+                                           let negate_1180 = -tmp_lit_1178 in
+                                           let bop_1181 = tmp_lit_1162 * tmp_lit_1178 in
+                                           let bop_1182 = 0.0 <= bop_1181 in
+                                           let {root_1302, iteration_1303,
+                                                error_1304} = if bop_1182
+                                                              then if bop_1149
+                                                                   then {0.0, 0,
+                                                                         10000000000000000000000000000000000000000000000000.0}
+                                                                   else {0.0, 0,
+                                                                         -10000000000000000000000000000000000000000000000000.0}
+                                                              else let tmp_bop_1183 = if bop_1163
+                                                                                      then negate_1164
+                                                                                      else tmp_lit_1162 in
+                                                                   let tmp_bop_1184 = if bop_1179
+                                                                                      then negate_1180
+                                                                                      else tmp_lit_1178 in
+                                                                   let bop_1185 = tmp_bop_1183 < tmp_bop_1184 in
+                                                                   let {fa_1186,
+                                                                        fb_1187} = if bop_1185
+                                                                                   then {tmp_lit_1178,
+                                                                                         tmp_lit_1162}
+                                                                                   else {tmp_lit_1162,
+                                                                                         tmp_lit_1178} in
+                                                                   loop ({a_1188,
+                                                                          b_1189,
+                                                                          c_1190,
+                                                                          d_1191,
+                                                                          fa_1192,
+                                                                          fb_1193,
+                                                                          fc_1194,
+                                                                          mflag_1195,
+                                                                          it_1196} = {root_lb_1148,
+                                                                                      root_ub_1165,
+                                                                                      root_lb_1148,
+                                                                                      0.0,
+                                                                                      fa_1186,
+                                                                                      fb_1187,
+                                                                                      fa_1186,
+                                                                                      True,
+                                                                                      0}) = for i_1197 < 1000 do
+                                                                     let bop_1198 = fb_1193 = 0.0 in
+                                                                     let bop_1199 = fa_1192 = fc_1194 in
+                                                                     let bop_1200 = fb_1193 = fc_1194 in
+                                                                     let bop_1201 = a_1188 * fb_1193 in
+                                                                     let bop_1202 = bop_1201 * fc_1194 in
+                                                                     let bop_1203 = fa_1192 - fb_1193 in
+                                                                     let bop_1204 = fa_1192 - fc_1194 in
+                                                                     let bop_1205 = bop_1203 * bop_1204 in
+                                                                     let bop_1206 = b_1189 * fa_1192 in
+                                                                     let bop_1207 = bop_1206 * fc_1194 in
+                                                                     let bop_1208 = fb_1193 - fa_1192 in
+                                                                     let bop_1209 = fb_1193 - fc_1194 in
+                                                                     let bop_1210 = bop_1208 * bop_1209 in
+                                                                     let bop_1211 = c_1190 * fa_1192 in
+                                                                     let bop_1212 = bop_1211 * fb_1193 in
+                                                                     let bop_1213 = fc_1194 - fa_1192 in
+                                                                     let bop_1214 = fc_1194 - fb_1193 in
+                                                                     let bop_1215 = bop_1213 * bop_1214 in
+                                                                     let bop_1216 = 3.0 * a_1188 in
+                                                                     let bop_1217 = bop_1216 + b_1189 in
+                                                                     let bop_1218 = bop_1217 / 4.0 in
+                                                                     let not_1219 = not mflag_1195 in
+                                                                     let bop_1220 = a_1188 + b_1189 in
+                                                                     let bop_1221 = bop_1220 / 2.0 in
+                                                                     let val_1222 = b_1189 - a_1188 in
+                                                                     let bop_1223 = fb_1193 * val_1222 in
+                                                                     let negate_1224 = -val_1222 in
+                                                                     let bop_1225 = val_1222 < 0.0 in
+                                                                     let tmp_bop_1226 = if bop_1225
+                                                                                        then negate_1224
+                                                                                        else val_1222 in
+                                                                     let bop_1227 = tmp_bop_1226 < 0.0001 in
+                                                                     let norm_1228 = bop_1198 || bop_1227 in
+                                                                     let val_1229 = b_1189 - c_1190 in
+                                                                     let negate_1230 = -val_1229 in
+                                                                     let bop_1231 = val_1229 < 0.0 in
+                                                                     let val_1232 = c_1190 - d_1191 in
+                                                                     let negate_1233 = -val_1232 in
+                                                                     let bop_1234 = val_1232 < 0.0 in
+                                                                     if norm_1228
+                                                                     then {a_1188,
+                                                                           b_1189,
+                                                                           c_1190,
+                                                                           d_1191,
+                                                                           fa_1192,
+                                                                           fb_1193,
+                                                                           fc_1194,
+                                                                           mflag_1195,
+                                                                           it_1196}
+                                                                     else let tmp_bop_1235 = if bop_1231
+                                                                                             then negate_1230
+                                                                                             else val_1229 in
+                                                                          let bop_1236 = tmp_bop_1235 <= 0.0001 in
+                                                                          let norm_1237 = mflag_1195 && bop_1236 in
+                                                                          let bop_1238 = tmp_bop_1235 / 2.0 in
+                                                                          let tmp_bop_1239 = if bop_1234
+                                                                                             then negate_1233
+                                                                                             else val_1232 in
+                                                                          let bop_1240 = tmp_bop_1239 <= 0.0001 in
+                                                                          let norm_1241 = not_1219 && bop_1240 in
+                                                                          let bop_1242 = tmp_bop_1239 / 2.0 in
+                                                                          let norm_1243 = bop_1199 || bop_1200 in
+                                                                          let s_1253 = if norm_1243
+                                                                                       then let bop_1244 = bop_1223 / bop_1208 in
+                                                                                            let bop_1245 = b_1189 - bop_1244 in
+                                                                                            bop_1245
+                                                                                       else let s1_1246 = bop_1202 / bop_1205 in
+                                                                                            let s2_1248 = bop_1207 / bop_1210 in
+                                                                                            let bop_1249 = s1_1246 + s2_1248 in
+                                                                                            let s3_1250 = bop_1212 / bop_1215 in
+                                                                                            let bop_1251 = bop_1249 + s3_1250 in
+                                                                                            bop_1251 in
+                                                                          let bop_1254 = bop_1218 <= s_1253 in
+                                                                          let bop_1255 = s_1253 <= b_1189 in
+                                                                          let norm_1256 = bop_1254 && bop_1255 in
+                                                                          let not_1257 = not norm_1256 in
+                                                                          let val_1258 = s_1253 - b_1189 in
+                                                                          let bop_1259 = val_1258 < 0.0 in
+                                                                          let negate_1260 = -val_1258 in
+                                                                          let tmp_bop_1261 = if bop_1259
+                                                                                             then negate_1260
+                                                                                             else val_1258 in
+                                                                          let bop_1262 = bop_1242 <= tmp_bop_1261 in
+                                                                          let norm_1263 = not_1219 && bop_1262 in
+                                                                          let bop_1264 = bop_1238 <= tmp_bop_1261 in
+                                                                          let norm_1265 = mflag_1195 && bop_1264 in
+                                                                          let norm_1266 = not_1257 || norm_1265 in
+                                                                          let norm_1267 = norm_1266 || norm_1263 in
+                                                                          let norm_1268 = norm_1267 || norm_1237 in
+                                                                          let norm_1269 = norm_1268 || norm_1241 in
+                                                                          let {mflag_1270,
+                                                                               s_1271} = if norm_1269
+                                                                                         then {True,
+                                                                                               bop_1221}
+                                                                                         else {False,
+                                                                                               s_1253} in
+                                                                          let {untuple_1283} =
+                                                                            redomapT(fn {real} (real x_1272,
+                                                                                                real y_1273) =>
+                                                                                       let val_1274 = x_1272 + y_1273 in
+                                                                                       {val_1274},
+                                                                                     fn {real} (real x_1275,
+                                                                                                real arg_1276,
+                                                                                                real arg_1277) =>
+                                                                                       let bop_1278 = arg_1277 * s_1271 in
+                                                                                       let val_1279 = -bop_1278 in
+                                                                                       let tmp_call_1280 = exp(val_1279) in
+                                                                                       let val_1281 = arg_1276 * tmp_call_1280 in
+                                                                                       let val_1282 = x_1275 + val_1281 in
+                                                                                       {val_1282},
+                                                                                     {0.0},
+                                                                                     untuple_1147,
+                                                                                     soac_v_670) in
+                                                                          let fs_1284 = untuple_1283 - 1.0 in
+                                                                          let bop_1285 = fa_1192 * fs_1284 in
+                                                                          let bop_1286 = bop_1285 < 0.0 in
+                                                                          let {a_1287,
+                                                                               b_1288,
+                                                                               fa_1289,
+                                                                               fb_1290} = if bop_1286
+                                                                                          then {a_1188,
+                                                                                                s_1271,
+                                                                                                fa_1192,
+                                                                                                fs_1284}
+                                                                                          else {s_1271,
+                                                                                                b_1189,
+                                                                                                fs_1284,
+                                                                                                fb_1193} in
+                                                                          let bop_1291 = fa_1289 < 0.0 in
+                                                                          let negate_1292 = -fa_1289 in
+                                                                          let bop_1293 = fb_1290 < 0.0 in
+                                                                          let negate_1294 = -fb_1290 in
+                                                                          let tmp_bop_1295 = if bop_1293
+                                                                                             then negate_1294
+                                                                                             else fb_1290 in
+                                                                          let tmp_bop_1296 = if bop_1291
+                                                                                             then negate_1292
+                                                                                             else fa_1289 in
+                                                                          let bop_1297 = tmp_bop_1296 < tmp_bop_1295 in
+                                                                          let {a_1298,
+                                                                               b_1299,
+                                                                               fa_1300,
+                                                                               fb_1301} = if bop_1297
+                                                                                          then {b_1288,
+                                                                                                a_1287,
+                                                                                                fb_1290,
+                                                                                                fa_1289}
+                                                                                          else {a_1287,
+                                                                                                b_1288,
+                                                                                                fa_1289,
+                                                                                                fb_1290} in
+                                                                          {a_1298,
+                                                                           b_1299,
+                                                                           b_1189,
+                                                                           c_1190,
+                                                                           fa_1300,
+                                                                           fb_1301,
+                                                                           fb_1193,
+                                                                           mflag_1270,
+                                                                           i_1197} in
+                                                                   {b_1189,
+                                                                    it_1196,
+                                                                    fb_1193} in
+                                           let bop_1305 = error_1304 = -10000000000000000000000000000000000000000000000000.0 in
+                                           let bop_1306 = error_1304 = 10000000000000000000000000000000000000000000000000.0 in
+                                           if bop_1305
+                                           then bop_1123
+                                           else if bop_1306
+                                                then bop_1129
+                                                else root_1302 in
+               let bop_1308 = g_1117 - h_1307 in
+               let bop_1309 = 0.5 * bop_1308 in
+               let df_1310 = bop_1309 / eps_149 in
+               let {untuple_1452} =
+                 redomapT(fn {real} (real x_1311, real y_1312) =>
+                            let val_1313 = x_1311 + y_1312 in
+                            {val_1313},
+                          fn {real} (real x_1314, real arg_1315,
+                                     real arg_1316) =>
+                            let bop_1317 = sqrt2sigmax_150 * arg_1315 in
+                            let x_1318 = bop_1317 + mux_239 in
+                            let bop_1319 = x_1318 - mux_239 in
+                            let bop_1320 = df_1310 * bop_1319 in
+                            let yhat_x_1321 = f_929 + bop_1320 in
+                            let bop_1322 = yhat_x_1321 - muy_253 in
+                            let bop_1323 = bop_1322 / sigmay_rhoxycs_173 in
+                            let bop_1324 = t2_168 * bop_1319 in
+                            let h1_1325 = bop_1323 - bop_1324 in
+                            let val_1326 = -h1_1325 in
+                            let u_1327 = val_1326 / 1.4142135623730951 in
+                            let bop_1328 = u_1327 < 0.0 in
+                            let bop_1329 = 0.3275911 * u_1327 in
+                            let bop_1330 = 1.0 + bop_1329 in
+                            let bop_1331 = u_1327 * u_1327 in
+                            let val_1332 = -bop_1331 in
+                            let val_1333 = -u_1327 in
+                            let bop_1334 = 0.3275911 * val_1333 in
+                            let bop_1335 = 1.0 + bop_1334 in
+                            let bop_1336 = val_1333 * val_1333 in
+                            let val_1337 = -bop_1336 in
+                            let e_1375 = if bop_1328
+                                         then let tmp_call_1338 = exp(val_1337) in
+                                              let t_1339 = 1.0 / bop_1335 in
+                                              let bop_1340 = 0.254829592 * t_1339 in
+                                              let t2_1341 = t_1339 * t_1339 in
+                                              let bop_1342 = -0.284496736 * t2_1341 in
+                                              let bop_1343 = bop_1340 + bop_1342 in
+                                              let t4_1344 = t2_1341 * t2_1341 in
+                                              let bop_1345 = -1.453152027 * t4_1344 in
+                                              let t3_1346 = t_1339 * t2_1341 in
+                                              let bop_1347 = 1.421413741 * t3_1346 in
+                                              let bop_1348 = bop_1343 + bop_1347 in
+                                              let bop_1349 = bop_1348 + bop_1345 in
+                                              let t5_1350 = t2_1341 * t3_1346 in
+                                              let bop_1351 = 1.061405429 * t5_1350 in
+                                              let bop_1353 = bop_1349 + bop_1351 in
+                                              let bop_1354 = bop_1353 * tmp_call_1338 in
+                                              let tmp_neg_1356 = 1.0 - bop_1354 in
+                                              let negate_1357 = -tmp_neg_1356 in
+                                              negate_1357
+                                         else let tmp_call_1358 = exp(val_1332) in
+                                              let t_1359 = 1.0 / bop_1330 in
+                                              let bop_1360 = 0.254829592 * t_1359 in
+                                              let t2_1361 = t_1359 * t_1359 in
+                                              let bop_1362 = -0.284496736 * t2_1361 in
+                                              let bop_1363 = bop_1360 + bop_1362 in
+                                              let t4_1364 = t2_1361 * t2_1361 in
+                                              let bop_1365 = -1.453152027 * t4_1364 in
+                                              let t3_1366 = t_1359 * t2_1361 in
+                                              let bop_1367 = 1.421413741 * t3_1366 in
+                                              let bop_1368 = bop_1363 + bop_1367 in
+                                              let bop_1369 = bop_1368 + bop_1365 in
+                                              let t5_1370 = t2_1361 * t3_1366 in
+                                              let bop_1371 = 1.061405429 * t5_1370 in
+                                              let bop_1372 = bop_1369 + bop_1371 in
+                                              let bop_1373 = bop_1372 * tmp_call_1358 in
+                                              let bop_1374 = 1.0 - bop_1373 in
+                                              bop_1374 in
+                            let bop_1376 = 1.0 + e_1375 in
+                            let tmp_bop_1377 = 0.5 * bop_1376 in
+                            let tmp_1378 = bop_1319 / sigmax_148 in
+                            let bop_1379 = 0.5 * tmp_1378 in
+                            let bop_1380 = bop_1379 * tmp_1378 in
+                            let val_1381 = -bop_1380 in
+                            let tmp_call_1382 = exp(val_1381) in
+                            let {untuple_1447} =
+                              redomapT(fn {real} (real x_1383, real y_1384) =>
+                                         let val_1385 = x_1383 + y_1384 in
+                                         {val_1385},
+                                       fn {real} (real x_1386, real arg_1387,
+                                                  real arg_1388,
+                                                  real arg_1389) =>
+                                         let bop_1390 = arg_1387 * sigmay_rhoxycs_173 in
+                                         let h2_1391 = h1_1325 + bop_1390 in
+                                         let val_1392 = -h2_1391 in
+                                         let u_1393 = val_1392 / 1.4142135623730951 in
+                                         let bop_1394 = u_1393 < 0.0 in
+                                         let bop_1395 = 0.3275911 * u_1393 in
+                                         let bop_1396 = 1.0 + bop_1395 in
+                                         let bop_1397 = u_1393 * u_1393 in
+                                         let val_1398 = -bop_1397 in
+                                         let val_1399 = -u_1393 in
+                                         let bop_1400 = 0.3275911 * val_1399 in
+                                         let bop_1401 = 1.0 + bop_1400 in
+                                         let bop_1402 = val_1399 * val_1399 in
+                                         let val_1403 = -bop_1402 in
+                                         let e_1439 = if bop_1394
+                                                      then let tmp_call_1404 = exp(val_1403) in
+                                                           let t_1405 = 1.0 / bop_1401 in
+                                                           let bop_1406 = 0.254829592 * t_1405 in
+                                                           let t2_1407 = t_1405 * t_1405 in
+                                                           let bop_1408 = -0.284496736 * t2_1407 in
+                                                           let bop_1409 = bop_1406 + bop_1408 in
+                                                           let t4_1410 = t2_1407 * t2_1407 in
+                                                           let bop_1411 = -1.453152027 * t4_1410 in
+                                                           let t3_1412 = t_1405 * t2_1407 in
+                                                           let bop_1413 = 1.421413741 * t3_1412 in
+                                                           let bop_1414 = bop_1409 + bop_1413 in
+                                                           let bop_1415 = bop_1414 + bop_1411 in
+                                                           let t5_1416 = t2_1407 * t3_1412 in
+                                                           let bop_1417 = 1.061405429 * t5_1416 in
+                                                           let bop_1418 = bop_1415 + bop_1417 in
+                                                           let bop_1419 = bop_1418 * tmp_call_1404 in
+                                                           let tmp_neg_1420 = 1.0 - bop_1419 in
+                                                           let negate_1421 = -tmp_neg_1420 in
+                                                           negate_1421
+                                                      else let tmp_call_1422 = exp(val_1398) in
+                                                           let t_1423 = 1.0 / bop_1396 in
+                                                           let bop_1424 = 0.254829592 * t_1423 in
+                                                           let t2_1425 = t_1423 * t_1423 in
+                                                           let bop_1426 = -0.284496736 * t2_1425 in
+                                                           let bop_1427 = bop_1424 + bop_1426 in
+                                                           let t4_1428 = t2_1425 * t2_1425 in
+                                                           let bop_1429 = -1.453152027 * t4_1428 in
+                                                           let t3_1430 = t_1423 * t2_1425 in
+                                                           let bop_1431 = 1.421413741 * t3_1430 in
+                                                           let bop_1432 = bop_1427 + bop_1431 in
+                                                           let bop_1433 = bop_1432 + bop_1429 in
+                                                           let t5_1434 = t2_1425 * t3_1430 in
+                                                           let bop_1435 = 1.061405429 * t5_1434 in
+                                                           let bop_1436 = bop_1433 + bop_1435 in
+                                                           let bop_1437 = bop_1436 * tmp_call_1422 in
+                                                           let bop_1438 = 1.0 - bop_1437 in
+                                                           bop_1438 in
+                                         let bop_1440 = 1.0 + e_1439 in
+                                         let tmp_bop_1441 = 0.5 * bop_1440 in
+                                         let val_1442 = arg_1389 * x_1318 in
+                                         let tmp_call_1443 = exp(val_1442) in
+                                         let bop_1444 = arg_1388 * tmp_call_1443 in
+                                         let val_1445 = bop_1444 * tmp_bop_1441 in
+                                         let val_1446 = x_1386 + val_1445 in
+                                         {val_1446},
+                                       {0.0}, soac_v_670, soac_v_673,
+                                       soac_v_674) in
+                            let bop_1448 = tmp_bop_1377 - untuple_1447 in
+                            let integrand_res_1449 = tmp_call_1382 * bop_1448 in
+                            let val_1450 = arg_1316 * integrand_res_1449 in
+                            let val_1451 = x_1314 + val_1450 in
+                            {val_1451},
+                          {0.0}, tmp_lit_5, norm_6) in
+               let bop_1453 = untuple_1452 / 1.7724538509055159 in
+               let g2pp_price_1454 = tmp_call_141 * bop_1453 in
+               let {soac_v_1695, soac_v_1697} =
+                 mapT(fn {real, real} (int i_1455) =>
+                        let tmp_call_1456 = toReal(i_1455) in
+                        let val_1457 = tmp_call_1456 * arg_13 in
+                        let nbmonths_1458 = trunc(val_1457) in
+                        let m_1460 = m_307 + nbmonths_1458 in
+                        let val_1461 = m_1460 - 1 in
+                        let bop_1462 = val_1461 / 12 in
+                        let bop_1463 = bop_1462 * 12 in
+                        let bop_1465 = y_306 + bop_1462 in
+                        let bop_1466 = bop_1465 - 1 in
+                        let tmp_bop_1467 = val_1461 - bop_1463 in
+                        let bop_1468 = tmp_bop_1467 + 1 in
+                        let bop_1469 = bop_1468 <= 0 in
+                        let bop_1470 = bop_1468 + 12 in
+                        let {y_1471, m_1472} = if bop_1469
+                                               then {bop_1466, bop_1470}
+                                               else {bop_1465, bop_1468} in
+                        let bop_1473 = y_1471 / 4 in
+                        let bop_1474 = bop_1473 * 4 in
+                        let bop_1475 = y_1471 / 100 in
+                        let bop_1476 = bop_1475 * 100 in
+                        let bop_1477 = y_1471 / 400 in
+                        let bop_1478 = bop_1477 * 400 in
+                        let bop_1479 = m_1472 = 2 in
+                        let bop_1480 = m_1472 = 4 in
+                        let bop_1481 = m_1472 = 6 in
+                        let bop_1482 = m_1472 = 9 in
+                        let bop_1483 = m_1472 = 11 in
+                        let bop_1484 = m_1472 = 1 in
+                        let norm_1485 = bop_1484 || bop_1479 in
+                        let bop_1486 = y_1471 + 4800 in
+                        let bop_1487 = bop_1486 - 1 in
+                        let bop_1488 = 1461 * bop_1487 in
+                        let bop_1489 = bop_1488 / 4 in
+                        let bop_1490 = 1461 * bop_1486 in
+                        let bop_1491 = bop_1490 / 4 in
+                        let bop_1492 = m_1472 + 10 in
+                        let bop_1493 = 367 * bop_1492 in
+                        let bop_1494 = bop_1493 / 12 in
+                        let bop_1495 = bop_1489 + bop_1494 in
+                        let bop_1496 = y_1471 + 4900 in
+                        let bop_1497 = bop_1496 - 1 in
+                        let bop_1498 = bop_1497 / 100 in
+                        let bop_1499 = 3 * bop_1498 in
+                        let bop_1500 = bop_1499 / 4 in
+                        let bop_1501 = bop_1495 - bop_1500 in
+                        let bop_1502 = bop_1496 / 100 in
+                        let bop_1503 = 3 * bop_1502 in
+                        let bop_1504 = bop_1503 / 4 in
+                        let bop_1505 = m_1472 - 2 in
+                        let bop_1506 = 367 * bop_1505 in
+                        let bop_1507 = bop_1506 / 12 in
+                        let bop_1508 = bop_1491 + bop_1507 in
+                        let bop_1509 = bop_1508 - bop_1504 in
+                        let ym_1510 = if norm_1485
+                                      then bop_1501
+                                      else bop_1509 in
+                        let tmp_bop_1511 = y_1471 - bop_1478 in
+                        let bop_1512 = tmp_bop_1511 = 0 in
+                        let tmp_bop_1513 = y_1471 - bop_1476 in
+                        let bop_1514 = tmp_bop_1513 = 0 in
+                        let not_1515 = not bop_1514 in
+                        let norm_1516 = not_1515 || bop_1512 in
+                        let tmp_bop_1517 = y_1471 - bop_1474 in
+                        let bop_1518 = tmp_bop_1517 = 0 in
+                        let tmp_and_1519 = bop_1518 && norm_1516 in
+                        let norm_1520 = bop_1479 && tmp_and_1519 in
+                        let val_1524 = if norm_1520
+                                       then 29
+                                       else if bop_1479
+                                            then 28
+                                            else let norm_1521 = bop_1480 || bop_1481 in
+                                                 let norm_1522 = norm_1521 || bop_1482 in
+                                                 let norm_1523 = norm_1522 || bop_1483 in
+                                                 if norm_1523
+                                                 then 30
+                                                 else 31 in
+                        let bop_1525 = d_308 < val_1524 in
+                        let tmp_lit_1526 = if bop_1525
+                                           then d_308
+                                           else val_1524 in
+                        let bop_1527 = ym_1510 + tmp_lit_1526 in
+                        let bop_1528 = bop_1527 - 32075 in
+                        let tmp_1529 = bop_1528 - 2444238 in
+                        let bop_1530 = tmp_1529 * 1440 in
+                        let resmin_1531 = bop_1530 + 720 in
+                        let tmp_call_1532 = toReal(resmin_1531) in
+                        let val_1533 = trunc(tmp_call_1532) in
+                        let jul_1534 = val_1533 / 1440 in
+                        let bop_1535 = jul_1534 + 68569 in
+                        let l_1536 = bop_1535 + 2444238 in
+                        let bop_1537 = 4 * l_1536 in
+                        let n_1538 = bop_1537 / 146097 in
+                        let bop_1539 = 146097 * n_1538 in
+                        let bop_1540 = bop_1539 + 3 in
+                        let bop_1541 = bop_1540 / 4 in
+                        let bop_1542 = n_1538 - 49 in
+                        let bop_1543 = 100 * bop_1542 in
+                        let l_1544 = l_1536 - bop_1541 in
+                        let bop_1545 = l_1544 + 1 in
+                        let bop_1546 = 4000 * bop_1545 in
+                        let i_1547 = bop_1546 / 1461001 in
+                        let bop_1548 = 1461 * i_1547 in
+                        let bop_1549 = bop_1548 / 4 in
+                        let bop_1550 = bop_1543 + i_1547 in
+                        let bop_1551 = l_1544 - bop_1549 in
+                        let l_1552 = bop_1551 + 31 in
+                        let bop_1553 = 80 * l_1552 in
+                        let j_1554 = bop_1553 / 2447 in
+                        let bop_1555 = 2447 * j_1554 in
+                        let bop_1556 = bop_1555 / 80 in
+                        let bop_1557 = j_1554 + 2 in
+                        let l_1558 = j_1554 / 11 in
+                        let bop_1559 = 12 * l_1558 in
+                        let m_1560 = bop_1557 - bop_1559 in
+                        let y_1561 = bop_1550 + l_1558 in
+                        let d_1562 = l_1552 - bop_1556 in
+                        let bop_1563 = jul_1534 * 1440 in
+                        let daytime_1565 = val_1533 - bop_1563 in
+                        let bop_1566 = daytime_1565 = 720 in
+                        let bop_1568 = daytime_1565 / 60 in
+                        let bop_1569 = bop_1568 * 60 in
+                        let tmp_lit_1570 = daytime_1565 - bop_1569 in
+                        let {y_1571, m_1572, d_1573, h_1574,
+                             min_1575} = if bop_1566
+                                         then {y_1561, m_1560, d_1562, 12, 0}
+                                         else {y_1561, m_1560, d_1562, bop_1568,
+                                               tmp_lit_1570} in
+                        let m_1576 = m_1572 + nbmonths_313 in
+                        let val_1577 = m_1576 - 1 in
+                        let bop_1578 = val_1577 / 12 in
+                        let bop_1579 = bop_1578 * 12 in
+                        let tmp_bop_1580 = val_1577 - bop_1579 in
+                        let bop_1581 = tmp_bop_1580 + 1 in
+                        let bop_1582 = bop_1581 <= 0 in
+                        let bop_1583 = bop_1581 + 12 in
+                        let bop_1584 = y_1571 + bop_1578 in
+                        let bop_1585 = bop_1584 - 1 in
+                        let {y_1586, m_1587} = if bop_1582
+                                               then {bop_1585, bop_1583}
+                                               else {bop_1584, bop_1581} in
+                        let bop_1588 = y_1586 / 4 in
+                        let bop_1589 = bop_1588 * 4 in
+                        let bop_1590 = y_1586 / 100 in
+                        let bop_1591 = bop_1590 * 100 in
+                        let bop_1592 = y_1586 / 400 in
+                        let bop_1593 = bop_1592 * 400 in
+                        let bop_1594 = m_1587 = 2 in
+                        let bop_1595 = m_1587 = 4 in
+                        let bop_1596 = m_1587 = 6 in
+                        let bop_1597 = m_1587 = 9 in
+                        let bop_1600 = m_1587 = 11 in
+                        let bop_1601 = m_1587 = 1 in
+                        let norm_1602 = bop_1601 || bop_1594 in
+                        let bop_1603 = y_1586 + 4800 in
+                        let bop_1604 = bop_1603 - 1 in
+                        let bop_1605 = 1461 * bop_1604 in
+                        let bop_1606 = bop_1605 / 4 in
+                        let bop_1611 = 1461 * bop_1603 in
+                        let bop_1616 = bop_1611 / 4 in
+                        let bop_1620 = m_1587 + 10 in
+                        let bop_1621 = 367 * bop_1620 in
+                        let bop_1626 = bop_1621 / 12 in
+                        let bop_1627 = bop_1606 + bop_1626 in
+                        let bop_1628 = y_1586 + 4900 in
+                        let bop_1629 = bop_1628 - 1 in
+                        let bop_1630 = bop_1629 / 100 in
+                        let bop_1631 = 3 * bop_1630 in
+                        let bop_1632 = bop_1631 / 4 in
+                        let bop_1633 = bop_1627 - bop_1632 in
+                        let bop_1634 = bop_1628 / 100 in
+                        let bop_1635 = 3 * bop_1634 in
+                        let bop_1636 = bop_1635 / 4 in
+                        let bop_1637 = m_1587 - 2 in
+                        let bop_1638 = 367 * bop_1637 in
+                        let bop_1639 = bop_1638 / 12 in
+                        let bop_1643 = bop_1616 + bop_1639 in
+                        let bop_1644 = bop_1643 - bop_1636 in
+                        let ym_1645 = if norm_1602
+                                      then bop_1633
+                                      else bop_1644 in
+                        let tmp_bop_1646 = y_1586 - bop_1593 in
+                        let bop_1647 = tmp_bop_1646 = 0 in
+                        let tmp_bop_1648 = y_1586 - bop_1591 in
+                        let bop_1649 = tmp_bop_1648 = 0 in
+                        let not_1650 = not bop_1649 in
+                        let norm_1651 = not_1650 || bop_1647 in
+                        let tmp_bop_1656 = y_1586 - bop_1589 in
+                        let bop_1657 = tmp_bop_1656 = 0 in
+                        let tmp_and_1658 = bop_1657 && norm_1651 in
+                        let norm_1659 = bop_1594 && tmp_and_1658 in
+                        let val_1664 = if norm_1659
+                                       then 29
+                                       else if bop_1594
+                                            then 28
+                                            else let norm_1660 = bop_1595 || bop_1596 in
+                                                 let norm_1661 = norm_1660 || bop_1597 in
+                                                 let norm_1663 = norm_1661 || bop_1600 in
+                                                 if norm_1663
+                                                 then 30
+                                                 else 31 in
+                        let bop_1666 = d_1573 < val_1664 in
+                        let tmp_lit_1671 = if bop_1666
+                                           then d_1573
+                                           else val_1664 in
+                        let bop_1679 = ym_1645 + tmp_lit_1671 in
+                        let bop_1680 = bop_1679 - 32075 in
+                        let tmp_1686 = bop_1680 - 2444238 in
+                        let bop_1687 = tmp_1686 * 1440 in
+                        let resmin_1690 = bop_1687 + 720 in
+                        let tmp_call_1691 = toReal(resmin_1690) in
+                        {tmp_call_1532, tmp_call_1691},
+                      iota(tmp_call_17)) in
+               let {tmp_red2_1785, tmp_red2_1786, tmp_red2_1789} =
+                 redomapT(fn {real, real, real} (real arg_1698, real arg_1702,
+                                                 real arg_1704, real arg_1705,
+                                                 real arg_1709,
+                                                 real arg_1710) =>
+                            let bop_1711 = arg_1710 - 16834320.0 in
+                            let tmp_bop_1712 = bop_1711 / 1440.0 in
+                            let tmp_bop_1713 = tmp_bop_1712 / 365.0 in
+                            let bop_1716 = 0.03 * tmp_bop_1713 in
+                            let val_1723 = -bop_1716 in
+                            let tmp_call_1724 = exp(val_1723) in
+                            let bop_1738 = arg_1710 - arg_1709 in
+                            let tmp_bop_1739 = bop_1738 / 1440.0 in
+                            let tmp_bop_1742 = tmp_bop_1739 / 365.0 in
+                            let bop_1743 = tmp_call_1724 * tmp_bop_1742 in
+                            let bop_1747 = arg_1698 + bop_1743 in
+                            let bop_1749 = arg_1702 < arg_1709 in
+                            let tmp_lit_1750 = if bop_1749
+                                               then arg_1702
+                                               else arg_1709 in
+                            let bop_1754 = arg_1704 < arg_1710 in
+                            let tmp_lit_1756 = if bop_1754
+                                               then arg_1710
+                                               else arg_1704 in
+                            {bop_1747, tmp_lit_1750, tmp_lit_1756},
+                          fn {real, real, real} (real arg_1761, real arg_1762,
+                                                 real arg_1763, real arg_1764,
+                                                 real arg_1768) =>
+                            let bop_1769 = arg_1768 - 16834320.0 in
+                            let tmp_bop_1770 = bop_1769 / 1440.0 in
+                            let tmp_bop_1771 = tmp_bop_1770 / 365.0 in
+                            let bop_1772 = 0.03 * tmp_bop_1771 in
+                            let val_1773 = -bop_1772 in
+                            let tmp_call_1774 = exp(val_1773) in
+                            let bop_1775 = arg_1768 - arg_1764 in
+                            let tmp_bop_1776 = bop_1775 / 1440.0 in
+                            let tmp_bop_1778 = tmp_bop_1776 / 365.0 in
+                            let bop_1779 = tmp_call_1774 * tmp_bop_1778 in
+                            let bop_1780 = arg_1761 + bop_1779 in
+                            let bop_1781 = arg_1762 < arg_1764 in
+                            let tmp_lit_1782 = if bop_1781
+                                               then arg_1762
+                                               else arg_1764 in
+                            let bop_1783 = arg_1763 < arg_1768 in
+                            let tmp_lit_1784 = if bop_1783
+                                               then arg_1768
+                                               else arg_1763 in
+                            {bop_1780, tmp_lit_1782, tmp_lit_1784},
+                          {0.0, 168307199.0, 3600.0}, soac_v_1695,
+                          soac_v_1697) in
+               let bop_1790 = tmp_red2_1786 - 16834320.0 in
+               let tmp_bop_1791 = bop_1790 / 1440.0 in
+               let tmp_bop_1792 = tmp_bop_1791 / 365.0 in
+               let bop_1793 = 0.03 * tmp_bop_1792 in
+               let val_1794 = -bop_1793 in
+               let tmp_call_1795 = exp(val_1794) in
+               let bop_1796 = tmp_red2_1789 - 16834320.0 in
+               let tmp_bop_1797 = bop_1796 / 1440.0 in
+               let tmp_bop_1798 = tmp_bop_1797 / 365.0 in
+               let bop_1799 = 0.03 * tmp_bop_1798 in
+               let val_1800 = -bop_1799 in
+               let tmp_call_1801 = exp(val_1800) in
+               let bop_1803 = tmp_call_1795 - tmp_call_1801 in
+               let strike_1807 = bop_1803 / tmp_red2_1785 in
+               let {tmp_red2_1927, tmp_red2_1928, tmp_red2_1929} =
+                 redomapT(fn {real, real, real} (real arg_1808, real arg_1809,
+                                                 real arg_1810, real arg_1811,
+                                                 real arg_1812,
+                                                 real arg_1814) =>
+                            let bop_1816 = arg_1814 - 16834320.0 in
+                            let tmp_bop_1817 = bop_1816 / 1440.0 in
+                            let tmp_bop_1820 = tmp_bop_1817 / 365.0 in
+                            let bop_1821 = 0.03 * tmp_bop_1820 in
+                            let val_1823 = -bop_1821 in
+                            let tmp_call_1824 = exp(val_1823) in
+                            let bop_1825 = arg_1814 - arg_1812 in
+                            let tmp_bop_1826 = bop_1825 / 1440.0 in
+                            let tmp_bop_1828 = tmp_bop_1826 / 365.0 in
+                            let bop_1833 = tmp_call_1824 * tmp_bop_1828 in
+                            let bop_1835 = arg_1808 + bop_1833 in
+                            let bop_1836 = arg_1809 < arg_1812 in
+                            let tmp_lit_1839 = if bop_1836
+                                               then arg_1809
+                                               else arg_1812 in
+                            let bop_1842 = arg_1810 < arg_1814 in
+                            let tmp_lit_1854 = if bop_1842
+                                               then arg_1814
+                                               else arg_1810 in
+                            {bop_1835, tmp_lit_1839, tmp_lit_1854},
+                          fn {real, real, real} (real arg_1856, real arg_1859,
+                                                 real arg_1861, real arg_1863,
+                                                 real arg_1864) =>
+                            let bop_1865 = arg_1864 - 16834320.0 in
+                            let tmp_bop_1866 = bop_1865 / 1440.0 in
+                            let tmp_bop_1867 = tmp_bop_1866 / 365.0 in
+                            let bop_1873 = 0.03 * tmp_bop_1867 in
+                            let val_1874 = -bop_1873 in
+                            let tmp_call_1875 = exp(val_1874) in
+                            let bop_1895 = arg_1864 - arg_1863 in
+                            let tmp_bop_1903 = bop_1895 / 1440.0 in
+                            let tmp_bop_1904 = tmp_bop_1903 / 365.0 in
+                            let bop_1908 = tmp_call_1875 * tmp_bop_1904 in
+                            let bop_1909 = arg_1856 + bop_1908 in
+                            let bop_1910 = arg_1859 < arg_1863 in
+                            let tmp_lit_1911 = if bop_1910
+                                               then arg_1859
+                                               else arg_1863 in
+                            let bop_1912 = arg_1861 < arg_1864 in
+                            let tmp_lit_1923 = if bop_1912
+                                               then arg_1864
+                                               else arg_1861 in
+                            {bop_1909, tmp_lit_1911, tmp_lit_1923},
+                          {0.0, 168307199.0, 3600.0}, soac_v_1695,
+                          soac_v_1697) in
+               let bop_1930 = tmp_red2_1928 - 16834320.0 in
+               let tmp_bop_1931 = bop_1930 / 1440.0 in
+               let tmp_bop_1932 = tmp_bop_1931 / 365.0 in
+               let bop_1933 = 0.03 * tmp_bop_1932 in
+               let val_1934 = -bop_1933 in
+               let tmp_call_1935 = exp(val_1934) in
+               let bop_1954 = tmp_red2_1929 - 16834320.0 in
+               let tmp_bop_1955 = bop_1954 / 1440.0 in
+               let tmp_bop_1956 = tmp_bop_1955 / 365.0 in
+               let bop_1957 = 0.03 * tmp_bop_1956 in
+               let val_1966 = -bop_1957 in
+               let tmp_call_1967 = exp(val_1966) in
+               let bop_1968 = tmp_call_1935 - tmp_call_1967 in
+               let s0_1969 = bop_1968 / tmp_red2_1927 in
+               let val_1970 = s0_1969 / strike_1807 in
+               let tmp_call_1971 = log(val_1970) in
+               let bop_1976 = tmp_call_1971 / bop_269 in
+               let d1_1982 = bop_1976 + bop_312 in
+               let d2_1993 = d1_1982 - bop_269 in
+               let u_1994 = d2_1993 / 1.4142135623730951 in
+               let bop_1995 = u_1994 < 0.0 in
+               let bop_1998 = 0.3275911 * u_1994 in
+               let bop_2001 = 1.0 + bop_1998 in
+               let bop_2002 = u_1994 * u_1994 in
+               let val_2003 = -bop_2002 in
+               let val_2005 = -u_1994 in
+               let bop_2006 = 0.3275911 * val_2005 in
+               let bop_2008 = 1.0 + bop_2006 in
+               let bop_2010 = val_2005 * val_2005 in
+               let val_2011 = -bop_2010 in
+               let e_2143 = if bop_1995
+                            then let tmp_call_2023 = exp(val_2011) in
+                                 let t_2025 = 1.0 / bop_2008 in
+                                 let bop_2026 = 0.254829592 * t_2025 in
+                                 let t2_2027 = t_2025 * t_2025 in
+                                 let bop_2028 = -0.284496736 * t2_2027 in
+                                 let bop_2029 = bop_2026 + bop_2028 in
+                                 let t4_2030 = t2_2027 * t2_2027 in
+                                 let bop_2031 = -1.453152027 * t4_2030 in
+                                 let t3_2039 = t_2025 * t2_2027 in
+                                 let bop_2040 = 1.421413741 * t3_2039 in
+                                 let bop_2043 = bop_2029 + bop_2040 in
+                                 let bop_2051 = bop_2043 + bop_2031 in
+                                 let t5_2052 = t2_2027 * t3_2039 in
+                                 let bop_2057 = 1.061405429 * t5_2052 in
+                                 let bop_2058 = bop_2051 + bop_2057 in
+                                 let bop_2059 = bop_2058 * tmp_call_2023 in
+                                 let tmp_neg_2061 = 1.0 - bop_2059 in
+                                 let negate_2066 = -tmp_neg_2061 in
+                                 negate_2066
+                            else let tmp_call_2068 = exp(val_2003) in
+                                 let t_2069 = 1.0 / bop_2001 in
+                                 let bop_2073 = 0.254829592 * t_2069 in
+                                 let t2_2097 = t_2069 * t_2069 in
+                                 let bop_2108 = -0.284496736 * t2_2097 in
+                                 let bop_2109 = bop_2073 + bop_2108 in
+                                 let t4_2114 = t2_2097 * t2_2097 in
+                                 let bop_2115 = -1.453152027 * t4_2114 in
+                                 let t3_2116 = t_2069 * t2_2097 in
+                                 let bop_2120 = 1.421413741 * t3_2116 in
+                                 let bop_2121 = bop_2109 + bop_2120 in
+                                 let bop_2122 = bop_2121 + bop_2115 in
+                                 let t5_2124 = t2_2097 * t3_2116 in
+                                 let bop_2136 = 1.061405429 * t5_2124 in
+                                 let bop_2137 = bop_2122 + bop_2136 in
+                                 let bop_2139 = bop_2137 * tmp_call_2068 in
+                                 let bop_2142 = 1.0 - bop_2139 in
+                                 bop_2142 in
+               let bop_2144 = 1.0 + e_2143 in
+               let tmp_bop_2148 = 0.5 * bop_2144 in
+               let bop_2149 = strike_1807 * tmp_bop_2148 in
+               let u_2150 = d1_1982 / 1.4142135623730951 in
+               let bop_2151 = u_2150 < 0.0 in
+               let bop_2152 = 0.3275911 * u_2150 in
+               let bop_2157 = 1.0 + bop_2152 in
+               let bop_2158 = u_2150 * u_2150 in
+               let val_2164 = -bop_2158 in
+               let val_2165 = -u_2150 in
+               let bop_2166 = 0.3275911 * val_2165 in
+               let bop_2167 = 1.0 + bop_2166 in
+               let bop_2168 = val_2165 * val_2165 in
+               let val_2169 = -bop_2168 in
+               let e_2230 = if bop_2151
+                            then let tmp_call_2170 = exp(val_2169) in
+                                 let t_2171 = 1.0 / bop_2167 in
+                                 let bop_2172 = 0.254829592 * t_2171 in
+                                 let t2_2173 = t_2171 * t_2171 in
+                                 let bop_2174 = -0.284496736 * t2_2173 in
+                                 let bop_2176 = bop_2172 + bop_2174 in
+                                 let t4_2177 = t2_2173 * t2_2173 in
+                                 let bop_2178 = -1.453152027 * t4_2177 in
+                                 let t3_2179 = t_2171 * t2_2173 in
+                                 let bop_2180 = 1.421413741 * t3_2179 in
+                                 let bop_2181 = bop_2176 + bop_2180 in
+                                 let bop_2182 = bop_2181 + bop_2178 in
+                                 let t5_2184 = t2_2173 * t3_2179 in
+                                 let bop_2185 = 1.061405429 * t5_2184 in
+                                 let bop_2186 = bop_2182 + bop_2185 in
+                                 let bop_2188 = bop_2186 * tmp_call_2170 in
+                                 let tmp_neg_2190 = 1.0 - bop_2188 in
+                                 let negate_2191 = -tmp_neg_2190 in
+                                 negate_2191
+                            else let tmp_call_2192 = exp(val_2164) in
+                                 let t_2194 = 1.0 / bop_2157 in
+                                 let bop_2195 = 0.254829592 * t_2194 in
+                                 let t2_2207 = t_2194 * t_2194 in
+                                 let bop_2208 = -0.284496736 * t2_2207 in
+                                 let bop_2209 = bop_2195 + bop_2208 in
+                                 let t4_2210 = t2_2207 * t2_2207 in
+                                 let bop_2213 = -1.453152027 * t4_2210 in
+                                 let t3_2214 = t_2194 * t2_2207 in
+                                 let bop_2215 = 1.421413741 * t3_2214 in
+                                 let bop_2219 = bop_2209 + bop_2215 in
+                                 let bop_2220 = bop_2219 + bop_2213 in
+                                 let t5_2221 = t2_2207 * t3_2214 in
+                                 let bop_2223 = 1.061405429 * t5_2221 in
+                                 let bop_2224 = bop_2220 + bop_2223 in
+                                 let bop_2228 = bop_2224 * tmp_call_2192 in
+                                 let bop_2229 = 1.0 - bop_2228 in
+                                 bop_2229 in
+               let bop_2231 = 1.0 + e_2230 in
+               let tmp_bop_2234 = 0.5 * bop_2231 in
+               let bop_2235 = s0_1969 * tmp_bop_2234 in
+               let bop_2236 = bop_2235 - bop_2149 in
+               let market_price_2237 = tmp_red2_1927 * bop_2236 in
+               let bop_2241 = g2pp_price_1454 - market_price_2237 in
+               let res_2242 = bop_2241 / market_price_2237 in
+               let val_2243 = res_2242 * res_2242 in
+               let val_2244 = x_10 + val_2243 in
+               {val_2244},
+             {0.0}, tup_arr_elem_1, tup_arr_elem_4, tup_arr_elem_2,
+             tup_arr_elem_3) in
+  let val_2258 = untuple_2251 / 196.0 in
+  let tmp_call_2274 = sqrt(val_2258) in
+  let rms_2289 = 100.0 * tmp_call_2274 in
+  rms_2289
