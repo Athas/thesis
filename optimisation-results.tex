@@ -32,7 +32,7 @@ Nevertheless, I will make an attempt at evaluating the impact of the
 fusion optimisation.  This will primarily be in the form of manual
 inspection of program structure befor and after optimisation, with
 comments on the quality of the result.  The reader can be assured that
-said inspection of thousands of lines of machine-generated code was
+said inspection of hundreds of lines of machine-generated code was
 enormously tedious.
 
 Six programs will be used for evaluation: three relatively simple,
@@ -43,31 +43,34 @@ have been manually translated from C++ to what we consider
   designers.}.  I present runtimes for these programs in
 \cref{sec:runtime-results}.
 
-The artificial benchmarks are the following:
+The code for the artificial benchmarks can be found in
+\cref{app:artificial-benchmark-programs}, as well as the programs
+resulting from optimisation, but are summarised here:
 
 \begin{description}
 % data/benchmarks/BlackScholes.l0
 \item[P0] Black-Scholes\cite{black1973pricing} pricing computation.
+  34 SLOC (Source Lines Of Code - ignoring comments and blank lines).
 
 % data/tests/MatMultFun.l0
 \item[P1] Matrix multiplication written in a functional style (i.e, no
-  use of \texttt{loop} and \texttt{let-with}).
+  use of \texttt{loop} and \texttt{let-with}).  13 SLOC.
 
 % data/benchmarks/BabyBear.l0
-\item[P2] BabyBear - a tiny ursine.
+\item[P2] BabyBear - a tiny ursine.  27 SLOC.
 \end{description}
 
 And the real world benchmarks:
 
 \begin{description}
 % data/benchmarks/CalibLexiFi.l0
-\item[R0] Parameter calibration program.
+\item[R0] Parameter calibration program.  798 SLOC.
 
 % data/benchmarks/PricingLexiFi.l0
-\item[R1] Pricing program.
+\item[R1] Pricing program.  344 SLOC.
 
 % data/benchmarks/HiperfitEgCos.l0
-\item[R2] Some C++ mess we got from Nordea.
+\item[R2] Some C++ mess we got from Nordea.  172 SLOC.
 \end{description}
 
 \begin{figure}
@@ -86,6 +89,37 @@ Before & After & Before & After & Before & After \\
 \label{fig:artificial-dataflows}
 \end{figure}
 
+The structure of the artificial benchmarks are shown on
+\cref{fig:artificial-dataflows}.  P0, being a straightforward sequence
+of four \texttt{map}s, fuses well.  P1 also fuses well - the main loop
+becomes a two-dimensional \texttt{tmap}, with the dot product at each
+location being computed in a \texttt{redomap}.  Although not visible
+in the data flow diagram, it is worth remarking that hoisting has
+moved all \texttt{assert} expressions (originating in the use of
+\texttt{zip}) out of the main loop, which can thus be evaluated with
+no bounds checking - or indeed, any branching at all.
+
+There is clearly a missed opportunity for fusion, though, the reason
+for which becomes clear when we inspect the code around the unfused
+\texttt{map}:
+\begin{colorcode}
+..
+let {untuple_13} =
+  mapT(fn \{[[int]]\} ([int] param_0_8) =>
+         // tmp_repl_11 aliases param_0_8
+         let tmp_repl_11 = replicate(N_2, param_0_8) in
+         \{tmp_repl_11\},
+       x_0) in
+let tmp_size_14 = size(2, untuple_13) in
+... // untuple_13 is eventually input to main loop.
+\end{colorcode}
+My size analysis is not smart enough to rewrite the \texttt{size}
+expression, and \texttt{untuple\_13} is thus used several times,
+blocking fusion.  The most reasonable solution is to improve the size
+analyser, for which I will outline a potential approach in
+\cref{sec:future-work}.  P2 suffers from the same problem, although
+again the main loop is nicely fused.
+
 \begin{figure}
 \begin{center}
 \includegraphics[width=3.2cm]{img/PricingLexiFi-unfused.pdf}
@@ -96,6 +130,20 @@ Before & After & Before & After & Before & After \\
 \label{fig:r1-dataflow}
 \end{figure}
 
+When illustrating the dataflow for the real-world benchmarks, I
+performed some minor simplications.  Specifically, I removed prologue
+and epilogue code, in order to emphasise the main loop.
+
+Of the real-world benchmarks, R1, whose dataflow is
+illustrated on \cref{fig:r1-dataflow}, benefits the most from
+optimisations.  The program is turned into a big \texttt{redomapT}
+that runs over an array of a thousand elements.  The body of the
+\texttt{redomapT} runs three loops in sequence.  The two first could
+in principle be fused, but are again foiled by limitations of size
+analysis.  In this case, the use of an explitit \texttt{loop} prevents
+the size analyser from determining the column size of the
+two-dimensional array returned by the \texttt{mapT}.
+
 \begin{figure}
 \begin{center}
 \includegraphics[width=3.2cm]{img/HiperfitEgCos-unfused.pdf}
@@ -105,6 +153,55 @@ Before & After & Before & After & Before & After \\
 \caption{R2 benchmark dataflow, before and after optimisation}
 \label{fig:r2-dataflow}
 \end{figure}
+
+For R2, the gains are more muted.  The overall structure is a
+sequential, iterative main loop, which of course limits what we can
+do, but the body of this loop can in principle be parallelised.  The
+unoptimised and optimised loop bodies can be seen on
+\cref{fig:r2-dataflow}.  At first sight, two possible avenues for
+further fusion are possible:
+
+\begin{enumerate}
+\item The first \texttt{mapT} could be fused into its two consumers.
+  While this would surely duplicate computation, perhaps it is
+  worthwhile in this case.  Inspecting the code, which is shown in
+  \cref{fig:r2-unfused-map}, we find that the computation that would
+  be duplicated for each element is approximately four primitive
+  arithmetic operations, and two calls to exponent and logarithm
+  functions.  Such duplication would likely be acceptable if it
+  increases the degree of parallelism.
+
+\item The reason for why the two \texttt{loop}-containing
+  \texttt{mapT}s are not fused is more tricky.  Although not expressed
+  in the diagram, the input to the consumer is \textit{transposed},
+  and we have no fusion rule capable of handling a transposition in
+  this case, as neither consumer nor producer is a map nest.
+
+  It is not immediately clear how this could be solved.
+\end{enumerate}
+
+\begin{figure}
+\begin{bcolorcode}
+mapT(fn {*[real], *[real], *[real], *[real]} (real xi_481) =>
+       let tmp_call_488 = log(xi_481) in
+       let bop_493 = 0.5 * tmp_call_488 in
+       let {soac_v_506, soac_v_507, soac_v_508, soac_v_509} =
+         mapT(fn {real, real, real, real} (real yj_495) =>
+                let bop_496 = bop_493 + yj_495 in
+                let bop_498 = bop_496 - bop_477 in
+                let val_504 = 2.0 * bop_498 in
+                let tmp_call_505 = exp(val_504) in
+                {0.0, tmp_call_505, 0.0, 0.36},
+              untuple_247) in
+       {soac_v_506, soac_v_507, soac_v_508, soac_v_509},
+     untuple_130)
+\end{bcolorcode}
+\caption{Unfused map in R2}
+\label{fig:r2-unfused-map}
+\end{figure}
+
+R0 is next, and that's where things get really ugly.  I'm not saying
+anymore about this for now. \fixme{Say more about this.}
 
 \begin{figure}
 \begin{center}

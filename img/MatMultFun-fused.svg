@@ -61,7 +61,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
      inkscape:cx="16.520053"
-     inkscape:cy="864.81733"
+     inkscape:cy="959.65468"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -78,7 +78,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -120,7 +120,7 @@
        style="fill:#cdffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.75345159;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect2985-9-7-8-7"
        width="117.3287"
-       height="138.75717"
+       height="98.042885"
        x="21.335649"
        y="92.983536" />
     <text
@@ -139,7 +139,7 @@
        style="fill:#cdffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect2985-9-7-8-6"
        width="118.15818"
-       height="96.729622"
+       height="61.015335"
        x="30.920902"
        y="123.28308" />
     <text
@@ -154,28 +154,9 @@
          x="86.857422"
          y="142.78606"
          style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono">mapT</tspan></text>
-    <rect
-       style="fill:#cdffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
-       id="rect2985-9-7-8-6-2"
-       width="118.52206"
-       height="62.093494"
-       x="40.738968"
-       y="150.9583" />
-    <text
-       xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:'Times New Roman,'"
-       x="96.857422"
-       y="170.64319"
-       id="text5209-9-7-7-0-6"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5211-4-5-4-2-7"
-         x="96.857422"
-         y="170.64319"
-         style="font-size:22px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;text-anchor:middle;font-family:Bitstream Vera Sans Mono;-inkscape-font-specification:Bitstream Vera Sans Mono">mapT</tspan></text>
     <g
        id="g5312-8"
-       transform="translate(50,-845.71426)">
+       transform="translate(40,-872.14283)">
       <rect
          y="1022.8681"
          x="0.50589997"
