@@ -88,22 +88,22 @@ fun real main() =
        654926368, 691353392, 773877944, 930190180, 554263078, 842348331]]} in
   let tmp_size_59 = size(0, reshape((5, 3, 30), dir_vs_58)) in
   let tmp_e_60 = tmp_size_59 = 5 in
-  let zip_assert_61 = assert(tmp_e_60) in
+  let zip_assert_62 = assert(tmp_e_60) in
   let val_65 = [-0.0283491736871803, 0.0178771081725381, 0.0043096808044729] in
   let val_66 = [-0.0183841413744211, -0.0044530897672834, 0.0024263805987983] in
   let val_67 = [-0.0172686581005089, 0.0125638544546015, 0.0094452810918001] in
-  let val_68 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
+  let val_69 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
   let val_70 = [-0.0121497422218761, 0.0182904634062437, 0.0151125070556484] in
-  // tmp_lit_71 aliases val_68, val_65, val_66, val_70, val_67
+  // tmp_lit_71 aliases val_69, val_65, val_66, val_70, val_67
   let tmp_lit_71 = [val_65,
                     val_66,
                     val_67,
-                    val_68,
+                    val_69,
                     val_70] in
   let tmp_size_72 = size(0, tmp_lit_71) in
   let tmp_e_76 = 5 = tmp_size_72 in
   let zip_assert_77 = assert(tmp_e_76) in
-  let comb_cert_78 = conjoin(zip_assert_61, zip_assert_77) in
+  let comb_cert_78 = conjoin(zip_assert_62, zip_assert_77) in
   let tmp_size_79 = <comb_cert_78>size(1, tmp_lit_71) in
   let tmp_e_80 = tmp_size_79 = 3 in
   let zip_assert_90 = assert(tmp_e_80) in
@@ -309,10 +309,9 @@ fun real main() =
                         {bbrow_344},
                       transpose(reshape((5, 3, 30), dir_vs_58))) in
                // tmp_repl_387 aliases dir_vs_58, untuple_386
-               let tmp_repl_387 = replicate(3,
-                                            transpose(transpose(untuple_386))) in
+               let tmp_repl_387 = replicate(3, transpose(untuple_386)) in
                let tmp_repl_388 = replicate(5, iota(3)) in
-               // untuple_trns_420 aliases norm_4, val_68, val_65, dir_vs_58, untuple_386, val_66, norm_6, val_70, tmp_lit_71, tmp_repl_387, val_67
+               // untuple_trns_420 aliases norm_4, val_69, val_65, dir_vs_58, untuple_386, val_66, norm_6, val_70, tmp_lit_71, tmp_repl_387, val_67
                let {untuple_trns_420} =
                  <comb_cert_78, zip_assert_90>
                  mapT(fn {[real]} ([real] arg_389, [real] arg_390, real x_391,
@@ -352,7 +351,7 @@ fun real main() =
                         {untuple_419},
                       <zip_assert_103>transpose(norm_4),
                       <zip_assert_103>transpose(tmp_lit_71), norm_6,
-                      <zip_assert_103>transpose(transpose(0, 2, tmp_repl_387)),
+                      <zip_assert_103>transpose(transpose(tmp_repl_387)),
                       <zip_assert_103>transpose(tmp_repl_388)) in
                let {untuple_454} =
                  mapT(fn {real} ([real] xs_421) =>
@@ -399,6 +398,6 @@ fun real main() =
                                                       else bop_467 in
                let val_474 = x_114 + val_473 in
                {val_474},
-             {0.0}, iota(1000)) in
+             {0.0}, iota(10000)) in
   let bop_482 = untuple_475 / 1000.0 in
   bop_482

@@ -117,7 +117,7 @@ fun real main() =
     mapT(fn {int} (int x_31) =>
            let val_32 = x_31 + 1 in
            {val_32},
-         iota(1000)) in
+         iota(10000)) in
   // untuple_83 aliases untuple_33
   let {untuple_83} =
     mapT(fn {[real]} (int param_0_34) =>
