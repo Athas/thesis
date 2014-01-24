@@ -223,11 +223,26 @@ anymore about this for now. \fixme{Say more about this.}
 \section{Runtime results}
 \label{sec:runtime-results}
 
+The resulting programs were compiled with GCC 4.8.2 using maximum
+optimisation (\texttt{-O3}) on an Intel Core i7-2630QM CPU running at
+2.00GHz.  Each program was executed one thousand times and the
+run-times averaged.  The results are shown on \cref{fig:speedups}
+
+\begin{figure}
+\begin{center}
 \begin{tabular}{l|c|c|c}
 & \textbf{R0} & \textbf{R1} & \textbf{R2} \\
-Unoptimised & & \\
-Optimised   & & & \\
+\textbf{Unoptimised} & 0.43018s & 0.09767s & 0.06179s \\
+\textbf{Optimised}   & 0.29283s & 0.05681s & 0.04704s \\\hline
+\textbf{Speedup}     & 46\%     & 71\%     & 31\%
 \end{tabular}
+\end{center}
+
+\caption{Benchmark runtimes}
+
+\label{fig:speedups}
+\end{figure}
+
 
 %%% Local Variables: 
 %%% mode: latex
