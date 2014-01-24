@@ -121,6 +121,10 @@ analyser, for which I will outline a potential approach in
 \cref{sec:future-work}.  P2 suffers from the same problem, although
 again the main loop is nicely fused.
 
+When illustrating the dataflow for the real-world benchmarks, I
+performed some minor simplications.  Specifically, I removed prologue
+and epilogue code, in order to emphasise the main loop.
+
 \begin{figure}
 \begin{center}
 \includegraphics[width=3.2cm]{img/PricingLexiFi-unfused.pdf}
@@ -130,10 +134,6 @@ again the main loop is nicely fused.
 \caption{R0 benchmark dataflow, before and after optimisation}
 \label{fig:r0-dataflow}
 \end{figure}
-
-When illustrating the dataflow for the real-world benchmarks, I
-performed some minor simplications.  Specifically, I removed prologue
-and epilogue code, in order to emphasise the main loop.
 
 Of the real-world benchmarks, R0, whose dataflow is illustrated on
 \cref{fig:r0-dataflow}, benefits the most from optimisations.  The
@@ -182,6 +182,7 @@ further fusion are possible:
 \end{enumerate}
 
 \begin{figure}
+\begin{center}
 \begin{bcolorcode}
 mapT(fn \{*[real], *[real], *[real], *[real]\} (real xi_481) =>
        let tmp_call_488 = log(xi_481) in
@@ -197,31 +198,74 @@ mapT(fn \{*[real], *[real], *[real], *[real]\} (real xi_481) =>
        \{soac_v_506, soac_v_507, soac_v_508, soac_v_509\},
      untuple_130)
 \end{bcolorcode}
+\end{center}
 \caption{Unfused map in R1}
 \label{fig:r1-unfused-map}
 \end{figure}
 
-R2 is next, and that's where things get really ugly.  I'm not saying
-anymore about this for now. \fixme{Say more about this.}
+\begin{figure}
+\begin{center}
+\includegraphics[width=5.8cm,valign=t]{img/CalibLexiFi-unfused.pdf}
+\hspace{0.2cm}
+\includegraphics[width=5.8cm,valign=t]{img/CalibLexiFi-fused.pdf}
+\end{center}
+\caption{R0 benchmark dataflow, before and after optimisation}
+\label{fig:r2-dataflow}
+\end{figure}
+
+R2 is easily the most complex benchmark, and also the one for which
+fusion has the smallest impact on the data flow graph.  As shown on
+\cref{fig:r2-dataflow}, the body of the main loop contains three
+independent (but near-identical) loops whose results are combined
+using a non-fusable series of reductions (summarised as a single
+node).  The optimised structure is virtually identical: the only
+optimisation is a few instances of \texttt{map}-\texttt{map} and
+\texttt{map}-\texttt{reduce} fusion.  However, it is worth noting that
+there are instances where we take advantage of our fusion algorithms
+ability to fuse just part of the input to a SOAC.
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=9.6cm]{img/CalibLexiFi-unfused.pdf}
+\begin{bcolorcode}
+...
+let \{soac_v_685, soac_v_686\} =
+  mapT(fn \{real, real\} (real arg_675, real arg_676, real arg_677, real arg_678) =>
+         let baix_679 = arg_675 * mux_239 in
+         \{arg_677 * exp(-baix_679), (arg_678 - baix_679) / arg_676\},
+       soac_v_669, soac_v_670, soac_v_671, soac_v_672) in
+let \{untuple_690\} =
+  reduceT(fn \{real\} (real x_687, real y_688) =>
+            \{x_687 + y_688\},
+          \{0.0\}, soac_v_685) in
+let \{untuple_695\} =
+  reduceT(fn \{real\} (real param_0_691, real param_1_692) =>
+            if param_0_691 < param_1_692
+            then \{param_1_692\}
+            else \{param_0_691\},
+          \{-10000000000000000000000000000000000000000000000000.0\},
+          soac_v_686) in
+...
+\end{bcolorcode}
 \end{center}
-\caption{R0 benchmark dataflow, before optimisation}
-\label{fig:r2-dataflow-unfused}
+\caption{Unfused loops in R2}
+\label{fig:r2-unfused-loops}
 \end{figure}
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=9.6cm]{img/CalibLexiFi-fused.pdf}
-\end{center}
-\caption{R0 benchmark dataflow, after optimisation}
-\label{fig:r2-dataflow-fused}
-\end{figure}
+As in R1, each of the three inner loops have a case where multiple
+uses of the output of a \texttt{mapT} SOAC prevents us from fusing it
+into a \texttt{reduceT}.  Again, it is worth inspecting the code to
+see whether our reluctance to duplicate computation is again too
+conservative.  The code in question (slightly simplified for
+readability) is shown on \cref{fig:r2-unfused-loops}.
+
+
 
 \section{Runtime results}
 \label{sec:runtime-results}
+
+The real-world benchmarks were repeatedly passed through \LO{}
+optimisations until no further transformation was achieved, then
+compiled with a code generator generating sequential C code.
 
 The resulting programs were compiled with GCC 4.8.2 using maximum
 optimisation (\texttt{-O3}) on an Intel Core i7-2630QM CPU running at
@@ -243,6 +287,11 @@ run-times averaged.  The results are shown on \cref{fig:speedups}
 \label{fig:speedups}
 \end{figure}
 
+It is hard to determine how much of the speedup is due to fusion in
+isolation and how much is due to other optimisations, as they all
+interact to enable each other.  However, given that the C programs
+were compiled with full optimisation, it is likely that the C compiler
+performed much hoisting and most of our simpler optimisations itself.
 
 %%% Local Variables: 
 %%% mode: latex
