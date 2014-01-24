@@ -183,18 +183,18 @@ further fusion are possible:
 
 \begin{figure}
 \begin{bcolorcode}
-mapT(fn {*[real], *[real], *[real], *[real]} (real xi_481) =>
+mapT(fn \{*[real], *[real], *[real], *[real]\} (real xi_481) =>
        let tmp_call_488 = log(xi_481) in
        let bop_493 = 0.5 * tmp_call_488 in
-       let {soac_v_506, soac_v_507, soac_v_508, soac_v_509} =
-         mapT(fn {real, real, real, real} (real yj_495) =>
+       let \{soac_v_506, soac_v_507, soac_v_508, soac_v_509\} =
+         mapT(fn \{real, real, real, real\} (real yj_495) =>
                 let bop_496 = bop_493 + yj_495 in
                 let bop_498 = bop_496 - bop_477 in
                 let val_504 = 2.0 * bop_498 in
                 let tmp_call_505 = exp(val_504) in
-                {0.0, tmp_call_505, 0.0, 0.36},
+                \{0.0, tmp_call_505, 0.0, 0.36\},
               untuple_247) in
-       {soac_v_506, soac_v_507, soac_v_508, soac_v_509},
+       \{soac_v_506, soac_v_507, soac_v_508, soac_v_509\},
      untuple_130)
 \end{bcolorcode}
 \caption{Unfused map in R1}
