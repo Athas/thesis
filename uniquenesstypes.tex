@@ -109,7 +109,7 @@ constraints will be discovered at compile-time (in fact, during
 type-checking), thus leaving the code generator and runtime system at
 liberty to exploit them for low-level optimisation.
 
-\subsection{Sharing analysis}
+\section{Sharing analysis}
 \label{sec:l0-sharing}
 
 Whenever the memory regions for two values overlap, we say that they
@@ -238,7 +238,31 @@ fun *[int] f2([int] a) = ...
 \label{fig:unique-arguments}
 \end{figure}
 
-\subsection{Tracking uniqueness}
+Although the current aliasing rules for function calls have proven
+sufficient for now, there are cases where it is too conservative.
+Consider the following function.
+
+\begin{colorcode}
+fun [int] contrived([[int]] src, [int] indexes, int i) =
+  src[indexes[i]]
+\end{colorcode}
+
+In a call \texttt{contrived(src,indexes,i)}, by the above rules, we
+would consider the return value to be aliased to \textit{both}
+\texttt{src} and \texttt{indexes}, as both are non-consumed
+parameters.  Yet, it is clear by inspecting the actual function
+definition that the return value will only index the \texttt{src}
+parameter.
+
+This problem is not solvable merely through refinement of the aliasing
+rules - the user must either annotate each function with information
+about which of the parameters may be aliased by the return value, or
+the compiler can possibly deduce it using some sharing inference
+algorithm.  As the latter would add a great deal of complexity, and
+the former require a language change, I have postponed tackling this
+problem until it becomes a problem in practice.
+
+\section{Tracking uniqueness}
 \label{subsec:l0-tracking-uniqueness}
 
 If the type of an array parameter is preceded by a single asterisk, it
