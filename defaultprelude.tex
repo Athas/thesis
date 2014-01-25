@@ -19,7 +19,6 @@
 \usepackage{pdfpages}
 \usepackage{color}
 \usepackage{fancyvrb}
-\usepackage{svg}
 
 \usepackage{enumitem} % Allows \begin{description}[style=nextline]
 
@@ -100,14 +99,14 @@ defernumbers=true
 %\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
 
 % Figures
-\newsubfloat{figure}
+% \newsubfloat{figure}
 
 \usepackage{sidecap}
 \usepackage{caption}
 \captionsetup{margin=0pt, font=small, labelfont=bf, format=hang}
-\setlength{\abovecaptionskip}{0pt}
+% \setlength{\abovecaptionskip}{0pt}
 \setlength{\belowcaptionskip}{0pt}
-
+\usepackage{subcaption}
 
 % Default commands
 \newcommand{\subimgwidth}{.48\textwidth}

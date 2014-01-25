@@ -31,12 +31,14 @@ tuples in memory.
 
 An array-of-tuples type is converted to a tuple containing arrays of
 the original tuple components, for which the process is then repeated
-recursively.  All other types are left unchanged.  A few examples:
+recursively.  Futhermore, tuples are flattened.  All other types are
+left unchanged.  A few examples:
 
 \begin{align*}
 \texttt{[int]} &\Rightarrow \texttt{[int]} \\
 \texttt{[\{int,real\}]} &\Rightarrow \texttt{\{[int],[real]\}} \\
 \texttt{[\{[int], real\}]} &\Rightarrow \texttt{\{[[int]], [real]\}} \\
+\texttt{\{\{int, bool\}, real\}} &\Rightarrow \texttt{\{int, bool, real\}} & \text{(Flattening)} \\
 \end{align*}
 
 \texttt{zip} and \texttt{unzip} are not allowed in internal \LO{}.
@@ -49,6 +51,18 @@ Most expressions operating on arrays-of-tuples have to be modified to
 operate on the components of the replacement tuples-of-arrays instead,
 but the transformation is relatively trivial and not very interesting,
 so I will not describe it in detail.
+
+Internal \LO{} also does not permit tuple-typed variables.  Hence,
+every pattern that binds a variable to a tuple must be converted to
+explicitly name the elements of the tuple, e.g:
+
+\begin{colorcode}
+let x = \{f(a), g(b)\} in
+...
+  \(\emp{\Downarrow}\)
+let \{x1,x2\} = \{f(a), g(b)\} in
+...
+\end{colorcode}
 
 \subsection{Tupleless SOACs}
 

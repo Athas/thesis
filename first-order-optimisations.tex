@@ -1,9 +1,182 @@
 \chapter{First Order Optimisations}
 \label{chap:first-order-optimisations}
 
-This chapter covers optimisations of non-SOAC language constructs,
-including copy propagation, constant folding, hoisting, inlining, and
-common-subexpression elimination.
+As a data-parallel programming language, most of the interesting
+optimisations for \LO{} naturally revolve around SOACs.  Yet,
+classical optimisations such as copy propagation, constant folding,
+hoisting and common-subexpression elimination remain important.  This
+chapter will cover their implementation for \LO{}.
+
+\section{Inlining}
+
+One property currently holds for all optimisations performed by the
+\LO{} compiler: they are all strictly intraprocedural.  Thus, we rely
+on aggressive inlining as the first step of optimisation, wherein we
+inline every non-recursive function call.  Inlining a large function
+at multiple call sites can of course result in a tremendous amount of
+code bloat, but as function calls are in any case usually always
+inlined on current GPU hardware, due to no stack being available, this
+is perhaps excusable.
+
+After inlining, most functions will be dead, and are summarily
+removed.
+
+\section{Let- and tuple-normalisation}
+\label{sec:let-normalisation}
+
+At its core, program optimisation is about recognising code patterns,
+and rewriting them to a more efficient form that retains the meaning
+of the original code.  To make this process simpler, we pre-process
+the program to give it a more regular structure.  The use of internal
+\LO{} as presented in \cref{chap:internal} is an important step in
+this process, but it is not sufficient by itself.  To this end, we use
+a transformation pass that rewrites needlessly complex program
+structure into a simpler form.  The mechanics behind the
+transformation are tedious and unimportant (basically a recursive
+traversal through the syntax tree), and it is best understood by the
+invariants guaranteed of the resulting program:
+
+\begin{itemize}
+\item Tuple expressions can appear only as the final result of a
+  function, SOAC, or \texttt{if} expression, and similarly for the
+  tuple pattern of a let binding, e.g., a formal argument cannot be a
+  tuple,
+\item Consecutive \texttt{let}, \texttt{let-with} and \texttt{loop}
+  expressions are at the same nesting level, e.g., $e_1$ cannot be a
+  \texttt{let} expression when used in
+  \texttt{let~$p$~=~$e_1$~in~$e_2$},
+\item Each \texttt{if} is bound to a corresponding \texttt{let}
+  expression, and an \texttt{if}'s condition cannot be in itself an
+  \texttt{if} expression, e.g.,
+\begin{center}
+\begin{colorcode}
+a + if (if c\cindx{1} then \(e\myindx{1}\) else \(e\myindx{2}\))
+    then \(e\myindx{3}\)
+    else \(e\myindx{4}\)
+  \(\Downarrow\)
+let c\(\myindx{2}\) = if c\(\myindx{1}\)then \(e\myindx{1}\) else \(e\myindx{2}\) in
+let b = if c\(\myindx{2}\) then \(e\myindx{3}\) else \(e\myindx{4}\) in a+b
+\end{colorcode}
+\end{center}
+\item Function calls, including SOACs, have their own \texttt{let}
+  binding, e.g., \texttt{g(reduceT(f,a))} $\Rightarrow$
+  \texttt{let~y~=~reduceT(f,e,a)~in~g(y)},
+\item All actual arguments in a function call are vars, e.g.,
+  \texttt{f(a+b)}$\Rightarrow$\texttt{let~x=a+b~in~f(x)}.
+\end{itemize}
+
+\section{Copy/constant propagation and constant folding}
+
+Copy propagation is the mechanism by which we eliminate bindings that
+are merely copies of existing variables.  Constant propagation is the
+inlining of constant bindings where the bindings are
+used. Constant-folding is the process of evaluating a constant
+expression at compile time, for example an addition where both
+operands are statically known.
+\Cref{fig:copy/constant-propagation/folding} illustrates the
+difference between the three processes.
+
+\begin{figure}
+\begin{subfigure}[t]{.33\textwidth}
+\centering
+\begin{colorcode}
+let x = 2 in
+let y = 3 in
+let z = x in
+z + y
+  \(\Downarrow\)
+let x = 2
+let y = 3 in
+x + y
+\end{colorcode}
+\subcaption{Copy propagation}
+\end{subfigure}%
+\begin{subfigure}[t]{.33\textwidth}
+\centering
+\begin{colorcode}
+let x = 2 in
+let y = 3 in
+x + y
+  \(\Downarrow\)
+2 + 3
+\end{colorcode}
+\vspace{2.9\baselineskip}
+\subcaption{Constant propagation}
+\end{subfigure}%
+\begin{subfigure}[t]{.33\textwidth}
+\centering
+\begin{colorcode}
+2 + 3
+  \(\Downarrow\)
+5
+\end{colorcode}
+\vspace{4.7\baselineskip}
+\subcaption{Constant folding}
+\end{subfigure}
+\caption{Examples of copy/constant propagation and constant folding}
+\label{fig:copy/constant-propagation/folding}
+\end{figure}
+
+In classical compilers, these optimisations are usually performed on a
+program after it has been converted to basic blocks.  However, after
+undergoing the let/tuple-normalisation described in the previous
+section, it is easy to perform all three optimisations in tandem
+directly on the syntax tree of the program.
+
+The following expressions are inlinable: \texttt{reshape},
+\texttt{iota}, and \texttt{transpose}.  Furthermore, tuple literals
+are inlineable if all its components expressions are inlineable,
+variables or non-array literals.
+
+\begin{description}
+\item[\textit{var}]\hfill\\
+  If \textit{var} is bound to non-array literal value, another
+  variable, or an inlineable expression, substitute the variable with
+  the binding.
+
+  \item[\texttt{\textit{x} \textbf{arithop} \textit{y}}] \hfill\\
+    Constant-fold.
+
+  \item[\texttt{\textit{x} \textbf{bitop} \textit{y}}] \hfill\\
+    Constant-fold.
+
+  \item[\texttt{\textit{x} \&\& \textit{y}}]\hfill\\
+    Constant-fold.
+
+  \item[\texttt{\textit{x} || \textit{y}}]\hfill\\
+    Constant-fold.
+
+  \item[\texttt{not \textit{x}}]\hfill\\
+    Constant-fold.
+
+  \item[\texttt{-\textit{x}}]\hfill\\
+    Constant-fold.
+
+  \item[\texttt{a[i]}]\hfill\\
+    Lots of rules.
+
+  \item[\texttt{size($k$, \textit{a})}]\hfill\\
+    Works.
+
+  \item[\texttt{let \textit{pat} = \textit{e} in \textit{body}}]\hfill\\
+    If, after transforming \textit{body}, none of the names in
+    \textit{pat} are used, remove the binding.
+
+  \item[\texttt{if \textit{c} then \textit{a} else \textit{b}}]\hfill\\
+    If \textit{c} can be constant-folded to either \texttt{True} or
+    \texttt{False}, replace with the corresponding branch.
+
+  \item[\texttt{\textit{f}(...)}]\hfill\\
+    If all parameters to a function call are literal values, we use
+    the interpreter to evaluate the function and insert its return
+    value.  At the moment, we assume that the function will terminate,
+    although this assumption is not justified in the long run.
+    Instead, we should probably only inline non-recursive functions.
+\end{description}
+
+\section{Hoisting}
+
+\section{Common Subexpression Elimination}
 
 %%% Local Variables: 
 %%% mode: latex
