@@ -65,6 +65,10 @@ let b = if c\(\myindx{2}\) then \(e\myindx{3}\) else \(e\myindx{4}\) in a+b
   \texttt{f(a+b)}$\Rightarrow$\texttt{let~x=a+b~in~f(x)}.
 \end{itemize}
 
+Note that we consider ``function-like'' constructs such as
+\texttt{transpose}, \texttt{reshape} and \texttt{replicate} to be
+functions as far as the above invariants are considerned.
+
 \section{Copy/constant propagation and constant folding}
 
 Copy propagation is the mechanism by which we eliminate bindings that
@@ -117,23 +121,95 @@ x + y
 \label{fig:copy/constant-propagation/folding}
 \end{figure}
 
-In classical compilers, these optimisations are usually performed on a
-program after it has been converted to basic blocks.  However, after
-undergoing the let/tuple-normalisation described in the previous
-section, it is easy to perform all three optimisations in tandem
-directly on the syntax tree of the program.
+In imperative compilers, these optimisations are usually performed on
+a program after it has been converted to a basic block graph.
+However, after undergoing the let/tuple-normalisation described in the
+previous section, it is easy to perform all three optimisations in
+tandem directly on the syntax tree of an \LO{} program.
 
-The following expressions are inlinable: \texttt{reshape},
-\texttt{iota}, and \texttt{transpose}.  Furthermore, tuple literals
-are inlineable if all its components expressions are inlineable,
-variables or non-array literals.
+The central idea is that we consider some expressions to be
+\textit{inlineable}.  Whenever the expression in the bindee position
+of a \texttt{let}-expression is inlineable, we substitute any
+occurences of the name bound by the binding within the body of the
+\texttt{let}-expression by the bindee expression (we ignore bindings
+where the pattern is a tuple-pattern for now).  For example, consider
+this expression:
+\begin{colorcode}
+let a = 2 in
+\(e\)
+\end{colorcode}
+We consider the expression \texttt{2} (a constant number) to be
+inlinable, hence we substitute \texttt{2} for \texttt{a} within $e$
+and remove the binding of \texttt{a} entirely.
+
+A big question is which expressions to inline.  As inlining may
+duplicate the inlined expression, we should only inline where such
+duplication will not result in additional computation at run-time.  As
+a start, we can certainly inline variables and non-array constants.
+Incidentally, this by itself provides copy- and constant-propagation.
+
+As for other expressions, we note that \texttt{reshape} and
+\texttt{transpose} operations are entirely index-space
+transformations, and can thus be handled at compile-time whereever the
+result of the operation is used.  Although uninplemented in the
+current \LO{} compiler, it is envisioned that a transformation similar
+to the one on \cref{fig:removing-reshape-transpose} will be used by
+the code generator.  Therefore, we freely inline \texttt{reshape} and
+\texttt{transpose}.  As \texttt{iota} and \texttt{replicate} can be
+removed in a similar manner, they are therefore also considered
+inlineable.
+
+Bindings with tuple-patterns can be inlined under some circumstances,
+specifically if the bindee is itself a tuple literal, where every
+component is itself inlineable.
+
+\begin{figure}
+\centering
+\begin{subfigure}[t]{.4\textwidth}
+\centering
+\begin{colorcode}
+let b = transpose(a) in
+b[i,j]
+  \(\Downarrow\)
+a[j,i]
+\end{colorcode}
+\end{subfigure}%
+\begin{subfigure}[t]{.5\textwidth}
+\centering
+\begin{colorcode}
+let b = reshape((n,m), a) in
+b[i,j]
+  \(\Downarrow\)
+a[i*m+j] // Assuming 'a' has rank 1.
+\end{colorcode}
+\end{subfigure}%
+\caption{Removing \texttt{reshape} and \texttt{transpose}}
+\label{fig:removing-reshape-transpose}
+\end{figure}
+
+However, even if an expression is in principle inlineable, there are
+still two cases that prevent inlining:
+
+\begin{itemize}
+\item If an array-typed variable is indexed, we need to keep it in the
+  program, unless the replacement expression is itself a variable
+  (that is, copy propagation).  This is because \LO{} only permits
+  indexing of variables, not arbitrary array-typed expressions.
+
+\item If an array-typed variable is used as the source in a
+  \texttt{let-with}, we again need to keep its binding in the program.
+
+\item If a variable cannot be substituted with an expression for some
+  other reason (notably, because it would violate the
+  \texttt{let}-normalisation properties from
+  \cref{sec:let-normalisation}), we also cannot remove its binding.
+\end{itemize}
+
+Apart from substituting variables, we also look at other expressions
+to determine whether constant-folding is possible.  The following
+reductions are done:
 
 \begin{description}
-\item[\textit{var}]\hfill\\
-  If \textit{var} is bound to non-array literal value, another
-  variable, or an inlineable expression, substitute the variable with
-  the binding.
-
   \item[\texttt{\textit{x} \textbf{arithop} \textit{y}}] \hfill\\
     Constant-fold.
 
