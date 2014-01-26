@@ -1,0 +1,1582 @@
+fun real pi() =
+  3.141592653589793
+
+fun real r() =
+  0.03
+
+fun real infinity() =
+  10000000000000000000000000000000000000000000000000.0
+
+fun real epsilon() =
+  0.00001
+
+fun int itMax() =
+  10000
+
+fun real MIN(real a_0, real b_1) =
+  if a_0 < b_1
+  then a_0
+  else b_1
+
+fun real MAX(real a_2, real b_3) =
+  if a_2 < b_3
+  then b_3
+  else a_2
+
+fun int MINI(int a_4, int b_5) =
+  if a_4 < b_5
+  then a_4
+  else b_5
+
+fun int MAXI(int a_6, int b_7) =
+  if a_6 < b_7
+  then b_7
+  else a_6
+
+fun real abs(real a_8) =
+  if a_8 < 0.0
+  then -a_8
+  else a_8
+
+fun real uGaussian_P(real x_9) =
+  let u_10 = x_9 / (let val_531 = 2.0 in
+                    sqrt(val_531)) in
+  let e_11 =
+    if u_10 < 0.0
+    then -(let val_532 = -u_10 in
+           erf(val_532))
+    else erf(u_10) in
+  0.5 * (1.0 + e_11)
+
+fun real erf(real x_12) =
+  let p_13 = 0.3275911 in
+  let {a1_14, a2_15, a3_16, a4_17, a5_18} = {0.254829592, -0.284496736,
+                                             1.421413741, -1.453152027,
+                                             1.061405429} in
+  let t_19 = 1.0 / (1.0 + p_13 * x_12) in
+  let t2_20 = t_19 * t_19 in
+  let t3_21 = t_19 * t2_20 in
+  let t4_22 = t2_20 * t2_20 in
+  let t5_23 = t2_20 * t3_21 in
+  1.0 - ((a1_14 * t_19 + a2_15 * t2_20 + a3_16 * t3_21 + a4_17 * t4_22 + a5_18
+          * t5_23) * (let val_533 = -(x_12 * x_12) in
+                      exp(val_533)))
+
+fun real to_solve(int fid_24, cert zip_cert_scalesbbi_536, [real] scalesbbi_534,
+                  [real] scalesbbi_535, real yhat_26) =
+  if fid_24 = 33
+  then (yhat_26 + 3.0) * (yhat_26 - 1.0) * (yhat_26 - 1.0)
+  else // tmps_30 aliases untuple_546
+       let tmps_30 =
+         // tup_arr_elem_538 aliases scalesbbi_534
+         // tup_arr_elem_539 aliases scalesbbi_535
+         let {tup_arr_cert_537, tup_arr_elem_538,
+              tup_arr_elem_539} = {zip_cert_scalesbbi_536, scalesbbi_534,
+                                   scalesbbi_535} in
+         let {untuple_546} =
+           <tup_arr_cert_537>
+           mapT(fn {real} (real arg_542, real arg_543) =>
+                  let {scalesbbi_540, scalesbbi_541} = {arg_542, arg_543} in
+                  let val_545 =
+                    let {scales_28, bbi_29} = {scalesbbi_540, scalesbbi_541} in
+                    scales_28 * (let val_544 = -(bbi_29 * yhat_26) in
+                                 exp(val_544)) in
+                  {val_545},
+                tup_arr_elem_538, tup_arr_elem_539) in
+         untuple_546 in
+       (let val_547 = 0.0 in
+        let {untuple_549} =
+          reduceT(fn {real} (real x_31, real y_32) =>
+                    let val_548 = x_31 + y_32 in
+                    {val_548},
+                  {val_547}, tmps_30) in
+        untuple_549) - 1.0
+
+fun {real, int, real} rootFinding_Brent(int fid_33, cert zip_cert_scalesbbi_552,
+                                        [real] scalesbbi_550,
+                                        [real] scalesbbi_551, real lb_35,
+                                        real ub_36, real tol_37,
+                                        int iter_max_38) =
+  let tol_39 =
+    if tol_37 <= 0.0
+    then 0.000000001
+    else tol_37 in
+  let iter_max_40 =
+    if iter_max_38 <= 0
+    then 10000
+    else iter_max_38 in
+  let {a_41, b_42} = {lb_35, ub_36} in
+  let {fa_43, fb_44} = {// tup_arr_elem_554 aliases scalesbbi_550
+                        // tup_arr_elem_555 aliases scalesbbi_551
+                        let {tup_arr_cert_553, tup_arr_elem_554,
+                             tup_arr_elem_555} = {zip_cert_scalesbbi_552,
+                                                  scalesbbi_550,
+                                                  scalesbbi_551} in
+                        to_solve(fid_33, tup_arr_cert_553, tup_arr_elem_554,
+                                 tup_arr_elem_555, a_41),
+                        // tup_arr_elem_557 aliases scalesbbi_550
+                        // tup_arr_elem_558 aliases scalesbbi_551
+                        let {tup_arr_cert_556, tup_arr_elem_557,
+                             tup_arr_elem_558} = {zip_cert_scalesbbi_552,
+                                                  scalesbbi_550,
+                                                  scalesbbi_551} in
+                        to_solve(fid_33, tup_arr_cert_556, tup_arr_elem_557,
+                                 tup_arr_elem_558, b_42)} in
+  if 0.0 <= fa_43 * fb_44
+  then if 0.0 <= a_41
+       then {0.0, 0, infinity()}
+       else {0.0, 0, -infinity()}
+  else let {fa_45, fb_46} =
+         if abs(fa_43) < abs(fb_44)
+         then {fb_44, fa_43}
+         else {fa_43, fb_44} in
+       let {c_47, fc_48} = {a_41, fa_45} in
+       let mflag_49 = True in
+       let it_50 = 0 in
+       let d_51 = 0.0 in
+       loop ({a_52, b_53, c_54, d_55, fa_56, fb_57, fc_58, mflag_59,
+              it_60} = {a_41, b_42, c_47, d_51, fa_45, fb_46, fc_48, mflag_49,
+                        it_50}) = for i_61 < iter_max_40 do
+         if fb_57 = 0.0 || (let val_559 = b_53 - a_52 in
+                            abs(val_559)) < tol_39
+         then {a_52, b_53, c_54, d_55, fa_56, fb_57, fc_58, mflag_59, it_60}
+         else let s_65 =
+                if fa_56 = fc_58 || fb_57 = fc_58
+                then b_53 - (fb_57 * (b_53 - a_52) / (fb_57 - fa_56))
+                else let s1_62 = a_52 * fb_57 * fc_58 / ((fa_56 - fb_57)
+                                                         * (fa_56 - fc_58)) in
+                     let s2_63 = b_53 * fa_56 * fc_58 / ((fb_57 - fa_56)
+                                                         * (fb_57 - fc_58)) in
+                     let s3_64 = c_54 * fa_56 * fb_57 / ((fc_58 - fa_56)
+                                                         * (fc_58 - fb_57)) in
+                     s1_62 + s2_63 + s3_64 in
+              let {mflag_66, s_67} =
+                if not ((3.0 * a_52 + b_53) / 4.0 <= s_65 && s_65 <= b_53)
+                || mflag_59 && (let val_560 = b_53 - c_54 in
+                                abs(val_560)) / 2.0 <= (let val_561 = s_65
+                                                                      - b_53 in
+                                                        abs(val_561))
+                || not mflag_59 && (let val_562 = c_54 - d_55 in
+                                    abs(val_562)) / 2.0 <= (let val_563 = s_65
+                                                                          - b_53 in
+                                                            abs(val_563))
+                || mflag_59 && (let val_564 = b_53 - c_54 in
+                                abs(val_564)) <= abs(tol_39) || not mflag_59
+                && (let val_565 = c_54 - d_55 in
+                    abs(val_565)) <= abs(tol_39)
+                then {True, (a_52 + b_53) / 2.0}
+                else {False, s_65} in
+              let fs_68 =
+                // tup_arr_elem_567 aliases scalesbbi_550
+                // tup_arr_elem_568 aliases scalesbbi_551
+                let {tup_arr_cert_566, tup_arr_elem_567,
+                     tup_arr_elem_568} = {zip_cert_scalesbbi_552, scalesbbi_550,
+                                          scalesbbi_551} in
+                to_solve(fid_33, tup_arr_cert_566, tup_arr_elem_567,
+                         tup_arr_elem_568, s_67) in
+              let d_69 = c_54 in
+              let {c_70, fc_71} = {b_53, fb_57} in
+              let {a_72, b_73, fa_74, fb_75} =
+                if fa_56 * fs_68 < 0.0
+                then {a_52, s_67, fa_56, fs_68}
+                else {s_67, b_53, fs_68, fb_57} in
+              let {a_76, b_77, fa_78, fb_79} =
+                if abs(fa_74) < abs(fb_75)
+                then {b_73, a_72, fb_75, fa_74}
+                else {a_72, b_73, fa_74, fb_75} in
+              let dummy_82 =
+                if i_61 = iter_max_40 - 1
+                then let w_80 = "# ERROR: Brent method not converged, error: " in
+                     let w_81 = fb_79 in
+                     0
+                else 0 in
+              {a_76, b_77, c_70, d_69, fa_78, fb_79, fc_71, mflag_66, i_61} in
+       {b_53, it_60, fb_57}
+
+fun {[real], [real]} gauss_hermite_coefficients() =
+  {let val_569 = 0.0 in
+   let val_570 = 0.6568095668820999 in
+   let val_571 = -0.6568095668820998 in
+   let val_572 = -1.3265570844949335 in
+   let val_573 = 1.326557084494933 in
+   let val_574 = 2.025948015825757 in
+   let val_575 = -2.025948015825756 in
+   let val_576 = -2.7832900997816497 in
+   let val_577 = 2.7832900997816474 in
+   let val_578 = 3.6684708465595857 in
+   let val_579 = -3.668470846559584 in
+   [val_569, val_570, val_571, val_572, val_573, val_574, val_575, val_576,
+    val_577, val_578, val_579],
+   [0.6547592869145917, 0.6609604194409607, 0.6609604194409606,
+    0.6812118810666693, 0.681211881066669, 0.7219536247283848,
+    0.7219536247283852, 0.8025168688510406, 0.8025168688510397,
+    1.0065267861723648, 1.0065267861723775]}
+
+fun bool equal(real x1_83, real x2_84) =
+  (let val_580 = x1_83 - x2_84 in
+   abs(val_580)) <= 0.00000001
+
+fun int main_test_math() =
+  let tmp_85 = "# Brent test: " in
+  let {root_86, it_87, error_88} =
+    let val_581 = 33 in
+    let {tup_arr_cert_582, tup_arr_elem_583, tup_arr_elem_584} =
+      {Checked,
+       [0.0],
+       [0.0]} in
+    let val_585 = -4.0 in
+    let val_586 = 4.0 / 3.0 in
+    let val_587 = 0.0 in
+    let val_588 = 0 in
+    rootFinding_Brent(val_581, tup_arr_cert_582, tup_arr_elem_583,
+                      tup_arr_elem_584, val_585, val_586, val_587, val_588) in
+  let tmp_89 =
+    if let val_589 = -3.0 in
+       equal(root_86, val_589)
+    then " success!"
+    else " fails!" in
+  let tmp_90 = "Erf test: " in
+  let tmp_91 =
+    if (let val_591 =
+          let val_590 = 0.0 in
+          erf(val_590) in
+        let val_592 = 0.0 in
+        equal(val_591, val_592)) && (let val_597 =
+                                       let val_596 =
+                                         let val_595 = 100.0
+                                                       * (let val_594 = 1.0
+                                                                        / (let val_593 = 2.0 in
+                                                                           sqrt(val_593)) in
+                                                          erf(val_594)) in
+                                         trunc(val_595) in
+                                       toReal(val_596) in
+                                     let val_598 = 68.0 in
+                                     equal(val_597, val_598))
+    then " success!"
+    else " fails!" in
+  let tmp_92 = "Gaussian test: " in
+  let tmp_93 =
+    if (let val_600 =
+          let val_599 = 0.0 in
+          uGaussian_P(val_599) in
+        let val_601 = 0.5 in
+        equal(val_600, val_601)) && (let val_604 = (let val_602 = -1.0 in
+                                                    uGaussian_P(val_602))
+                                                   + (let val_603 = 1.0 in
+                                                      uGaussian_P(val_603)) in
+                                     let val_605 = 1.0 in
+                                     equal(val_604, val_605))
+    then " success!"
+    else " fails!" in
+  33
+
+fun {cert, [real], [real], [real], [real]} getSwaptionQuotes() =
+  {Checked,
+   [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0,
+    1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0],
+   [6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0],
+   [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0,
+    2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0,
+    3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0,
+    4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 5.0, 5.0, 5.0, 5.0,
+    5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 6.0, 6.0,
+    6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0,
+    7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0,
+    8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,
+    9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0,
+    10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 15.0, 15.0, 15.0, 15.0, 15.0,
+    15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 15.0, 20.0, 20.0, 20.0,
+    20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 25.0,
+    25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0,
+    25.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0,
+    30.0, 30.0, 30.0],
+   [1.052, 0.81485, 0.6165, 0.46995, 0.38295, 0.3325, 0.3016, 0.2815, 0.26435,
+    0.2496, 0.2516, 0.28835, 0.27155, 0.23465, 0.61445, 0.54805, 0.46795,
+    0.3919, 0.3434, 0.3083, 0.28655, 0.2697, 0.25775, 0.2443, 0.26495, 0.28195,
+    0.26845, 0.20995, 0.5835, 0.49255, 0.42825, 0.3695, 0.329, 0.3022, 0.28165,
+    0.26615, 0.25485, 0.24375, 0.2718, 0.28135, 0.26865, 0.2131, 0.5415,
+    0.46235, 0.403, 0.3559, 0.3232, 0.29675, 0.27715, 0.26385, 0.254, 0.2454,
+    0.27845, 0.2821, 0.2678, 0.2131, 0.517, 0.446, 0.3903, 0.34755, 0.3166,
+    0.29305, 0.2745, 0.2639, 0.2534, 0.2499, 0.28315, 0.2825, 0.277, 0.21175,
+    0.478, 0.42105, 0.37715, 0.3378, 0.311, 0.2895, 0.2745, 0.264, 0.2573,
+    0.25475, 0.28815, 0.28195, 0.26015, 0.2097, 0.452, 0.4074, 0.368, 0.3307,
+    0.30645, 0.2877, 0.27475, 0.2664, 0.26155, 0.26035, 0.292, 0.2825, 0.25685,
+    0.2081, 0.43395, 0.39445, 0.35885, 0.3281, 0.30395, 0.28745, 0.2767,
+    0.27065, 0.26625, 0.26625, 0.2921, 0.2814, 0.25265, 0.2083, 0.42285, 0.3857,
+    0.3521, 0.3239, 0.30285, 0.2895, 0.2799, 0.27485, 0.2712, 0.27205, 0.29205,
+    0.27855, 0.24945, 0.219, 0.41765, 0.38095, 0.34795, 0.3217, 0.30365, 0.2916,
+    0.2842, 0.27985, 0.2769, 0.2775, 0.306, 0.2763, 0.2458, 0.22, 0.37905,
+    0.35465, 0.33505, 0.31725, 0.3008, 0.29075, 0.28365, 0.2787, 0.27385,
+    0.2709, 0.2689, 0.24225, 0.2096, 0.18285, 0.37975, 0.3605, 0.3407, 0.321,
+    0.3063, 0.29315, 0.28395, 0.2777, 0.27205, 0.26675, 0.24875, 0.21735,
+    0.1939, 0.17205, 0.38115, 0.3627, 0.34425, 0.3222, 0.3084, 0.2941, 0.28285,
+    0.2751, 0.2663, 0.26055, 0.2338, 0.20735, 0.1823, 0.1686, 0.38285, 0.3633,
+    0.34125, 0.3188, 0.30305, 0.2888, 0.2748, 0.26725, 0.25985, 0.25165, 0.2267,
+    0.1989, 0.18115, 0.16355]}
+
+fun real zc(real t_94) =
+  let val_607 = -(r() * (let val_606 = today() in
+                         date_act_365(t_94, val_606))) in
+  exp(val_607)
+
+fun {real, real, real} accumSched(real xx_608, real xx_609, real xx_610,
+                                  real yy_611, real yy_612, real yy_613) =
+  let {x_97, d1_98, d2_99} = {xx_608, xx_609, xx_610} in
+  let {y_100, tf_101, tp_102} = {yy_611, yy_612, yy_613} in
+  {x_97 + zc(tp_102) * date_act_365(tp_102, tf_101), MIN(d1_98, tf_101),
+   MAX(d2_99, tp_102)}
+
+fun {real, cert, [real], [real], real} extended_swaption_of_swaption
+(real swaption_614, real swaption_615, real swaption_616) =
+  let {sw_mat_104, freq_105, sw_ty_106} = {swaption_614, swaption_615,
+                                           swaption_616} in
+  let maturity_107 =
+    let val_617 = today() in
+    add_years(val_617, sw_mat_104) in
+  let nschedule_108 =
+    let val_618 = 12.0 * sw_ty_106 / freq_105 in
+    trunc(val_618) in
+  // swap_sched_625 aliases soac_v_623
+  // swap_sched_626 aliases soac_v_624
+  let {zip_cert_swap_sched_627, swap_sched_625, swap_sched_626} =
+    let val_619 = iota(nschedule_108) in
+    let {soac_v_623, soac_v_624} =
+      mapT(fn {real, real} (int i_109) =>
+             let {tup_elem_621, tup_elem_622} =
+               let a_110 =
+                 let val_620 = toReal(i_109) * freq_105 in
+                 add_months(maturity_107, val_620) in
+               {a_110, add_months(a_110, freq_105)} in
+             {tup_elem_621, tup_elem_622},
+           val_619) in
+    {conjoin(), soac_v_623, soac_v_624} in
+  // swap_sched1_112 aliases swap_sched_625, tup_arr_elem_629, soac_v_623
+  // swap_sched2_113 aliases soac_v_624, swap_sched_626, tup_arr_elem_630
+  let {swap_sched1_112, swap_sched2_113} =
+    // tup_arr_elem_629 aliases swap_sched_625, soac_v_623
+    // tup_arr_elem_630 aliases soac_v_624, swap_sched_626
+    let {tup_arr_cert_628, tup_arr_elem_629,
+         tup_arr_elem_630} = {zip_cert_swap_sched_627, swap_sched_625,
+                              swap_sched_626} in
+    {tup_arr_elem_629, tup_arr_elem_630} in
+  // swap_sched_new_635 aliases val_631
+  // swap_sched_new_636 aliases swap_sched1_112, swap_sched_625, tup_arr_elem_629, soac_v_623
+  // swap_sched_new_637 aliases soac_v_624, swap_sched2_113, swap_sched_626, tup_arr_elem_630
+  let {zip_cert_swap_sched_new_638, swap_sched_new_635, swap_sched_new_636,
+       swap_sched_new_637} =
+    let val_631 = replicate(nschedule_108, 0.0) in
+    let zip_assert_632 = assert(size(0, val_631) = size(0, swap_sched1_112)) in
+    let zip_assert_633 = assert(size(0, swap_sched1_112) = size(0,
+                                                                swap_sched2_113)) in
+    let comb_cert_634 = conjoin(zip_assert_632, zip_assert_633) in
+    {comb_cert_634, val_631, swap_sched1_112, swap_sched2_113} in
+  let {lvl_117, t0_118, tn_119} =
+    // tup_arr_elem_640 aliases val_631, swap_sched_new_635
+    // tup_arr_elem_641 aliases swap_sched_new_636, swap_sched1_112, swap_sched_625, tup_arr_elem_629, soac_v_623
+    // tup_arr_elem_642 aliases soac_v_624, swap_sched_new_637, swap_sched2_113, swap_sched_626, tup_arr_elem_630
+    let {tup_arr_cert_639, tup_arr_elem_640, tup_arr_elem_641,
+         tup_arr_elem_642} = {zip_cert_swap_sched_new_638, swap_sched_new_635,
+                              swap_sched_new_636, swap_sched_new_637} in
+    let {tup_elem_643, tup_elem_644, tup_elem_645} = {0.0, max_date(),
+                                                      min_date()} in
+    <tup_arr_cert_639>
+    reduceT(fn {real, real, real} (real arg_649, real arg_650, real arg_651,
+                                   real arg_655, real arg_656, real arg_657) =>
+              let {param_0_646, param_0_647, param_0_648} = {arg_649, arg_650,
+                                                             arg_651} in
+              let {param_1_652, param_1_653, param_1_654} = {arg_655, arg_656,
+                                                             arg_657} in
+              let {tup_elem_664, tup_elem_665, tup_elem_666} =
+                let {tup_elem_658, tup_elem_659, tup_elem_660} = {param_0_646,
+                                                                  param_0_647,
+                                                                  param_0_648} in
+                let {tup_elem_661, tup_elem_662, tup_elem_663} = {param_1_652,
+                                                                  param_1_653,
+                                                                  param_1_654} in
+                accumSched(tup_elem_658, tup_elem_659, tup_elem_660,
+                           tup_elem_661, tup_elem_662, tup_elem_663) in
+              {tup_elem_664, tup_elem_665, tup_elem_666},
+            {tup_elem_643, tup_elem_644, tup_elem_645}, tup_arr_elem_640,
+            tup_arr_elem_641, tup_arr_elem_642) in
+  let strike_120 = (zc(t0_118) - zc(tn_119)) / lvl_117 in
+  {maturity_107, zip_cert_swap_sched_627, swap_sched_625, swap_sched_626,
+   strike_120}
+
+fun real b_fun(real z_121, real tau_122) =
+  (1.0 - (let val_667 = -(z_121 * tau_122) in
+          exp(val_667))) / z_121
+
+fun real t_fun(real sigma_123, real x_124, real tau_125) =
+  let expxtau_126 =
+    let val_668 = -(x_124 * tau_125) in
+    exp(val_668) in
+  let exp2xtau_127 = expxtau_126 * expxtau_126 in
+  sigma_123 * sigma_123 / (x_124 * x_124) * (tau_125 + 2.0 / x_124 * expxtau_126
+                                             - (1.0 / (2.0 * x_124)
+                                                * exp2xtau_127) - (3.0 / (2.0
+                                                                          * x_124)))
+
+fun {real, real, real} bigv(real genome_669, real genome_670, real genome_671,
+                            real genome_672, real genome_673, real tau_129) =
+  let {g_a_130, g_b_131, g_rho_132, g_nu_133, g_sigma_134} = {genome_669,
+                                                              genome_670,
+                                                              genome_671,
+                                                              genome_672,
+                                                              genome_673} in
+  let g_sigma_135 =
+    if g_sigma_134 = 0.0
+    then 0.0000000001
+    else g_sigma_134 in
+  let ba_136 = b_fun(g_a_130, tau_129) in
+  let bb_137 = b_fun(g_b_131, tau_129) in
+  let t1_138 = t_fun(g_sigma_135, g_a_130, tau_129) in
+  let t2_139 = t_fun(g_nu_133, g_b_131, tau_129) in
+  let t3_140 = 2.0 * g_rho_132 * g_nu_133 * g_sigma_135 / (g_a_130 * g_b_131)
+               * (tau_129 - ba_136 - bb_137 + (let val_674 = g_a_130
+                                                             + g_b_131 in
+                                               b_fun(val_674, tau_129))) in
+  {t1_138 + t2_139 + t3_140, ba_136, bb_137}
+
+fun real bigmx(real genome_675, real genome_676, real genome_677,
+               real genome_678, real genome_679, real today_142, real tmat_143,
+               real s_144, real t_145) =
+  let {a_146, b_147, rho_148, nu_149, sigma_150} = {genome_675, genome_676,
+                                                    genome_677, genome_678,
+                                                    genome_679} in
+  let ts_151 = date_act_365(t_145, s_144) in
+  let tmatt_152 = date_act_365(tmat_143, t_145) in
+  let tmat0_153 = date_act_365(tmat_143, today_142) in
+  let tmats_154 = date_act_365(tmat_143, s_144) in
+  let t0_155 = date_act_365(t_145, today_142) in
+  let s0_156 = date_act_365(s_144, today_142) in
+  let tmp1_157 = sigma_150 * sigma_150 / (a_146 * a_146) + sigma_150 * rho_148
+                 * nu_149 / (a_146 * b_147) in
+  let tmp2_158 = 1.0 - (let val_680 = -(a_146 * ts_151) in
+                        exp(val_680)) in
+  let tmp3_159 = sigma_150 * sigma_150 / (2.0 * a_146 * a_146) in
+  let tmp4_160 = rho_148 * sigma_150 * nu_149 / (b_147 * (a_146 + b_147)) in
+  let tmp5_161 = (let val_681 = -(a_146 * tmatt_152) in
+                  exp(val_681)) - (let val_682 = -(a_146 * (tmats_154
+                                                            + ts_151)) in
+                                   exp(val_682)) in
+  let tmp6_162 = (let val_683 = -(b_147 * tmatt_152) in
+                  exp(val_683)) - (let val_684 = -(b_147 * tmat0_153) - (a_146
+                                                                         * t0_155)
+                                                 + (a_146 + b_147) * s0_156 in
+                                   exp(val_684)) in
+  tmp1_157 * tmp2_158 - (tmp3_159 * tmp5_161) - (tmp4_160 * tmp6_162)
+
+fun real bigmy(real genome_685, real genome_686, real genome_687,
+               real genome_688, real genome_689, real today_164, real tmat_165,
+               real s_166, real t_167) =
+  let {a_168, b_169, rho_170, nu_171, sigma_172} = {genome_685, genome_686,
+                                                    genome_687, genome_688,
+                                                    genome_689} in
+  let ts_173 = date_act_365(t_167, s_166) in
+  let tmatt_174 = date_act_365(tmat_165, t_167) in
+  let tmat0_175 = date_act_365(tmat_165, today_164) in
+  let tmats_176 = date_act_365(tmat_165, s_166) in
+  let t0_177 = date_act_365(t_167, today_164) in
+  let s0_178 = date_act_365(s_166, today_164) in
+  let tmp1_179 = nu_171 * nu_171 / (b_169 * b_169) + sigma_172 * rho_170
+                 * nu_171 / (a_168 * b_169) in
+  let tmp2_180 = 1.0 - (let val_690 = -(b_169 * ts_173) in
+                        exp(val_690)) in
+  let tmp3_181 = nu_171 * nu_171 / (2.0 * b_169 * b_169) in
+  let tmp4_182 = sigma_172 * rho_170 * nu_171 / (a_168 * (a_168 + b_169)) in
+  let tmp5_183 = (let val_691 = -(b_169 * tmatt_174) in
+                  exp(val_691)) - (let val_692 = -(b_169 * (tmats_176
+                                                            + ts_173)) in
+                                   exp(val_692)) in
+  let tmp6_184 = (let val_693 = -(a_168 * tmatt_174) in
+                  exp(val_693)) - (let val_694 = -(a_168 * tmat0_175) - (b_169
+                                                                         * t0_177)
+                                                 + (a_168 + b_169) * s0_178 in
+                                   exp(val_694)) in
+  tmp1_179 * tmp2_180 - (tmp3_181 * tmp5_183) - (tmp4_182 * tmp6_184)
+
+fun real black_price(real today_185, real swaption_695, real swaption_696,
+                     real swaption_697, real vol_187) =
+  let {maturity_188, zip_cert_swap_sched_703, swap_sched_701, swap_sched_702,
+       strike_190} =
+    let {tup_elem_698, tup_elem_699, tup_elem_700} = {swaption_695,
+                                                      swaption_696,
+                                                      swaption_697} in
+    extended_swaption_of_swaption(tup_elem_698, tup_elem_699, tup_elem_700) in
+  let sqrtt_191 = date_act_365(maturity_188, today_185) in
+  // swap_sched1_192 aliases swap_sched_701, tup_arr_elem_705
+  // swap_sched2_193 aliases tup_arr_elem_706, swap_sched_702
+  let {swap_sched1_192, swap_sched2_193} =
+    // tup_arr_elem_705 aliases swap_sched_701
+    // tup_arr_elem_706 aliases swap_sched_702
+    let {tup_arr_cert_704, tup_arr_elem_705,
+         tup_arr_elem_706} = {zip_cert_swap_sched_703, swap_sched_701,
+                              swap_sched_702} in
+    {tup_arr_elem_705, tup_arr_elem_706} in
+  let n_194 =
+    // tup_arr_elem_708 aliases swap_sched1_192, swap_sched_701
+    // tup_arr_elem_709 aliases swap_sched2_193, swap_sched_702
+    let {tup_arr_cert_707, tup_arr_elem_708,
+         tup_arr_elem_709} = {zip_cert_swap_sched_703, swap_sched_701,
+                              swap_sched_702} in
+    <tup_arr_cert_707>size(0, tup_arr_elem_708) in
+  // swap_sched_new_714 aliases val_710
+  // swap_sched_new_715 aliases swap_sched1_192, swap_sched_701, tup_arr_elem_705
+  // swap_sched_new_716 aliases swap_sched2_193, tup_arr_elem_706, swap_sched_702
+  let {zip_cert_swap_sched_new_717, swap_sched_new_714, swap_sched_new_715,
+       swap_sched_new_716} =
+    let val_710 = replicate(n_194, 0.0) in
+    let zip_assert_711 = assert(size(0, val_710) = size(0, swap_sched1_192)) in
+    let zip_assert_712 = assert(size(0, swap_sched1_192) = size(0,
+                                                                swap_sched2_193)) in
+    let comb_cert_713 = conjoin(zip_assert_711, zip_assert_712) in
+    {comb_cert_713, val_710, swap_sched1_192, swap_sched2_193} in
+  let {lvl_198, t0_199, tn_200} =
+    // tup_arr_elem_719 aliases swap_sched_new_714, val_710
+    // tup_arr_elem_720 aliases swap_sched1_192, swap_sched_701, tup_arr_elem_705, swap_sched_new_715
+    // tup_arr_elem_721 aliases swap_sched_new_716, swap_sched2_193, tup_arr_elem_706, swap_sched_702
+    let {tup_arr_cert_718, tup_arr_elem_719, tup_arr_elem_720,
+         tup_arr_elem_721} = {zip_cert_swap_sched_new_717, swap_sched_new_714,
+                              swap_sched_new_715, swap_sched_new_716} in
+    let {tup_elem_722, tup_elem_723, tup_elem_724} = {0.0, max_date(),
+                                                      min_date()} in
+    <tup_arr_cert_718>
+    reduceT(fn {real, real, real} (real arg_728, real arg_729, real arg_730,
+                                   real arg_734, real arg_735, real arg_736) =>
+              let {param_0_725, param_0_726, param_0_727} = {arg_728, arg_729,
+                                                             arg_730} in
+              let {param_1_731, param_1_732, param_1_733} = {arg_734, arg_735,
+                                                             arg_736} in
+              let {tup_elem_743, tup_elem_744, tup_elem_745} =
+                let {tup_elem_737, tup_elem_738, tup_elem_739} = {param_0_725,
+                                                                  param_0_726,
+                                                                  param_0_727} in
+                let {tup_elem_740, tup_elem_741, tup_elem_742} = {param_1_731,
+                                                                  param_1_732,
+                                                                  param_1_733} in
+                accumSched(tup_elem_737, tup_elem_738, tup_elem_739,
+                           tup_elem_740, tup_elem_741, tup_elem_742) in
+              {tup_elem_743, tup_elem_744, tup_elem_745},
+            {tup_elem_722, tup_elem_723, tup_elem_724}, tup_arr_elem_719,
+            tup_arr_elem_720, tup_arr_elem_721) in
+  let s0_201 = (zc(t0_199) - zc(tn_200)) / lvl_198 in
+  let d1_202 = (let val_746 = s0_201 / strike_190 in
+                log(val_746)) / (vol_187 * sqrtt_191) + 0.5 * vol_187
+               * sqrtt_191 in
+  let d2_203 = d1_202 - (vol_187 * sqrtt_191) in
+  lvl_198 * (s0_201 * uGaussian_P(d1_202) - (strike_190 * uGaussian_P(d2_203)))
+
+fun int main_g2pp_header() =
+  let today_204 = 9000.0 in
+  let tmat_205 = 18000.0 in
+  let s_206 = 400000.0 in
+  let t_207 = 9000000.0 in
+  let res_b_fun_208 =
+    let val_747 = 3.24 in
+    let val_748 = 1.362 in
+    b_fun(val_747, val_748) in
+  let {res_bigv_755, res_bigv_756, res_bigv_757} =
+    let {tup_elem_749, tup_elem_750, tup_elem_751, tup_elem_752,
+         tup_elem_753} = {0.02, 0.02, 0.0, 0.01, 0.04} in
+    let val_754 = 1.12 in
+    bigv(tup_elem_749, tup_elem_750, tup_elem_751, tup_elem_752, tup_elem_753,
+         val_754) in
+  let res_bigmx_210 =
+    let {tup_elem_758, tup_elem_759, tup_elem_760, tup_elem_761,
+         tup_elem_762} = {0.02, 0.02, 0.0, 0.01, 0.04} in
+    bigmx(tup_elem_758, tup_elem_759, tup_elem_760, tup_elem_761, tup_elem_762,
+          today_204, tmat_205, s_206, t_207) in
+  let res_bigmy_211 =
+    let {tup_elem_763, tup_elem_764, tup_elem_765, tup_elem_766,
+         tup_elem_767} = {0.02, 0.02, 0.0, 0.01, 0.04} in
+    bigmy(tup_elem_763, tup_elem_764, tup_elem_765, tup_elem_766, tup_elem_767,
+          today_204, tmat_205, s_206, t_207) in
+  let tmp_212 = "b_fun test: " in
+  let tmp_213 =
+    if let val_768 = 0.30490117 in
+       equal(res_b_fun_208, val_768)
+    then " SUCCESS! "
+    else " fails! " in
+  let tmp_214 = res_b_fun_208 in
+  let tmp_215 = "\n\n" in
+  let tmp_216 = "bigv test: " in
+  let {tmp1_217, tmp2_218, tmp3_219} = {res_bigv_755, res_bigv_756,
+                                        res_bigv_757} in
+  let tmp_220 =
+    if (let val_769 = 0.00078288965347 in
+        equal(tmp1_217, val_769)) && (let val_770 = 1.107549139 in
+                                      equal(tmp2_218, val_770))
+    && (let val_771 = 1.107549139 in
+        equal(tmp3_219, val_771))
+    then " SUCCESS! "
+    else " fails! " in
+  let {tmp_772, tmp_773, tmp_774} = {res_bigv_755, res_bigv_756,
+                                     res_bigv_757} in
+  let tmp_222 = "\n\n" in
+  let tmp_223 = "bigmx test: " in
+  let tmp_224 =
+    if let val_775 = -0.2356067470979 in
+       equal(res_bigmx_210, val_775)
+    then " SUCCESS! "
+    else " fails! " in
+  let tmp_225 = res_bigmx_210 in
+  let tmp_226 = "\n\n" in
+  let tmp_227 = "bigmy test: " in
+  let tmp_228 =
+    if let val_776 = -0.01472542169362 in
+       equal(res_bigmy_211, val_776)
+    then " SUCCESS! "
+    else " fails! " in
+  let tmp_229 = res_bigmy_211 in
+  let tmp_230 = "\n\n" in
+  let {swaption_777, swaption_778, swaption_779} = {10.0, 6.0, 4.0} in
+  let maturity_232 = 22094640.0 in
+  let strike_233 = 0.030226283149239714 in
+  let {zip_cert_swap_schedule_782, swap_schedule_780, swap_schedule_781} =
+    {Checked,
+     [22094640.0, 22355280.0, 22620240.0, 22880880.0, 23145840.0, 23407920.0,
+      23672880.0, 23933520.0],
+     [22355280.0, 22620240.0, 22880880.0, 23145840.0, 23407920.0, 23672880.0,
+      23933520.0, 24198480.0]} in
+  let {res_mat_235, zip_cert_res_swap_schd_788, res_swap_schd_786,
+       res_swap_schd_787, res_strike_237} =
+    let {tup_elem_783, tup_elem_784, tup_elem_785} = {swaption_777,
+                                                      swaption_778,
+                                                      swaption_779} in
+    extended_swaption_of_swaption(tup_elem_783, tup_elem_784, tup_elem_785) in
+  let mat_ok_238 = equal(maturity_232, res_mat_235) in
+  let strike_ok_239 = equal(strike_233, res_strike_237) in
+  let sched_ok_247 =
+    // val_814 aliases untuple_813
+    let val_814 =
+      // tup_arr_elem_800 aliases swap_schedule_780, tup_arr_elem_790
+      // tup_arr_elem_801 aliases swap_schedule_781, tup_arr_elem_791
+      // tup_arr_elem_802 aliases tup_arr_elem_793, res_swap_schd_786
+      // tup_arr_elem_803 aliases tup_arr_elem_794, res_swap_schd_787
+      let {tup_arr_cert_799, tup_arr_elem_800, tup_arr_elem_801,
+           tup_arr_elem_802, tup_arr_elem_803} =
+        // tup_arr_elem_790 aliases swap_schedule_780
+        // tup_arr_elem_791 aliases swap_schedule_781
+        let {tup_arr_cert_789, tup_arr_elem_790,
+             tup_arr_elem_791} = {zip_cert_swap_schedule_782, swap_schedule_780,
+                                  swap_schedule_781} in
+        // tup_arr_elem_793 aliases res_swap_schd_786
+        // tup_arr_elem_794 aliases res_swap_schd_787
+        let {tup_arr_cert_792, tup_arr_elem_793,
+             tup_arr_elem_794} = {zip_cert_res_swap_schd_788, res_swap_schd_786,
+                                  res_swap_schd_787} in
+        let zip_assert_795 = assert(size(0, tup_arr_elem_790) = size(0,
+                                                                     tup_arr_elem_791)) in
+        let zip_assert_796 = assert(size(0, tup_arr_elem_791) = size(0,
+                                                                     tup_arr_elem_793)) in
+        let zip_assert_797 = assert(size(0, tup_arr_elem_793) = size(0,
+                                                                     tup_arr_elem_794)) in
+        let comb_cert_798 = conjoin(tup_arr_cert_789, tup_arr_cert_792,
+                                    zip_assert_795, zip_assert_796,
+                                    zip_assert_797) in
+        {comb_cert_798, tup_arr_elem_790, tup_arr_elem_791, tup_arr_elem_793,
+         tup_arr_elem_794} in
+      let {untuple_813} =
+        <tup_arr_cert_799>
+        mapT(fn {bool} (real arg_808, real arg_809, real arg_810,
+                        real arg_811) =>
+               let {z_804, z_805, z_806, z_807} = {arg_808, arg_809, arg_810,
+                                                   arg_811} in
+               let val_812 =
+                 let {x1_243, x2_244, y1_245, y2_246} = {z_804, z_805, z_806,
+                                                         z_807} in
+                 equal(x1_243, y1_245) && equal(x2_244, y2_246) in
+               {val_812},
+             tup_arr_elem_800, tup_arr_elem_801, tup_arr_elem_802,
+             tup_arr_elem_803) in
+      untuple_813 in
+    let val_815 = True in
+    let {untuple_817} =
+      reduceT(fn {bool} (bool x_240, bool y_241) =>
+                let val_816 = x_240 && y_241 in
+                {val_816},
+              {val_815}, val_814) in
+    untuple_817 in
+  let tmp_248 = "Testing extended_swaption_of_swaption: " in
+  let tmp_249 =
+    if mat_ok_238 && strike_ok_239 && sched_ok_247
+    then "SUCCESS! "
+    else "FAILS! " in
+  let tmp_250 = "\n\tmaturity: " in
+  let tmp_251 = res_mat_235 in
+  let tmp_252 = "\n\tstrike: " in
+  let tmp_253 = res_strike_237 in
+  let tmp_254 = "\n\tswapsched: " in
+  // tmp_818 aliases res_swap_schd_786
+  // tmp_819 aliases res_swap_schd_787
+  let {zip_cert_tmp_820, tmp_818, tmp_819} = {zip_cert_res_swap_schd_788,
+                                              res_swap_schd_786,
+                                              res_swap_schd_787} in
+  let vol_256 = 0.2454 in
+  let {swaption_821, swaption_822, swaption_823} = {10.0, 6.0, 4.0} in
+  let black_price_res_258 = (let val_824 = today() in
+                             let {tup_elem_825, tup_elem_826,
+                                  tup_elem_827} = {swaption_821, swaption_822,
+                                                   swaption_823} in
+                             black_price(val_824, tup_elem_825, tup_elem_826,
+                                         tup_elem_827, vol_256)) * 10000.0 in
+  let tmp_259 = "\n\nTesting Black Price: " in
+  let tmp_260 =
+    if let val_828 = 654.1429648454 in
+       equal(black_price_res_258, val_828)
+    then " SUCCESS! "
+    else " FAILS! " in
+  let tmp_261 = black_price_res_258 in
+  let tmp_262 = "\n\n" in
+  33
+
+fun real pricer_of_swaption(real today_263, real swaption_829,
+                            real swaption_830, real swaption_831,
+                            real genome_832, real genome_833, real genome_834,
+                            real genome_835, real genome_836) =
+  let {swaption_840, swaption_841, swaption_842, swaption_843, swaption_844} =
+    let {tup_elem_837, tup_elem_838, tup_elem_839} = {swaption_829,
+                                                      swaption_830,
+                                                      swaption_831} in
+    extended_swaption_of_swaption(tup_elem_837, tup_elem_838, tup_elem_839) in
+  // schedulei_845 aliases swaption_842
+  // schedulei_846 aliases swaption_843
+  let {maturity_267, zip_cert_schedulei_847, schedulei_845, schedulei_846,
+       strike_269} = {swaption_840, swaption_841, swaption_842, swaption_843,
+                      swaption_844} in
+  let n_schedi_270 =
+    // tup_arr_elem_849 aliases schedulei_845, swaption_842
+    // tup_arr_elem_850 aliases schedulei_846, swaption_843
+    let {tup_arr_cert_848, tup_arr_elem_849,
+         tup_arr_elem_850} = {zip_cert_schedulei_847, schedulei_845,
+                              schedulei_846} in
+    <tup_arr_cert_848>size(0, tup_arr_elem_849) in
+  // ci_275 aliases untuple_853
+  let ci_275 =
+    let val_851 = iota(n_schedi_270) in
+    let {untuple_853} =
+      mapT(fn {real} (int i_271) =>
+             let val_852 =
+               let {d_beg_272,
+                    d_end_273} = {<zip_cert_schedulei_847>schedulei_845[i_271],
+                                  <zip_cert_schedulei_847>schedulei_846[i_271]} in
+               let tau_274 = date_act_365(d_end_273, d_beg_272) in
+               if i_271 = n_schedi_270 - 1
+               then 1.0 + tau_274 * strike_269
+               else tau_274 * strike_269 in
+             {val_852},
+           val_851) in
+    untuple_853 in
+  let tmat0_276 =
+    let val_854 = today() in
+    date_act_365(maturity_267, val_854) in
+  let {v0_mat_277, dummyA_278, dummyB_279} =
+    let {tup_elem_855, tup_elem_856, tup_elem_857, tup_elem_858,
+         tup_elem_859} = {genome_832, genome_833, genome_834, genome_835,
+                          genome_836} in
+    bigv(tup_elem_855, tup_elem_856, tup_elem_857, tup_elem_858, tup_elem_859,
+         tmat0_276) in
+  let zc_mat_280 = zc(maturity_267) in
+  let {a_281, b_282, rho_283, nu_284, sigma_285} = {genome_832, genome_833,
+                                                    genome_834, genome_835,
+                                                    genome_836} in
+  let sigmax_286 = sigma_285 * (let val_861 =
+                                  let val_860 = 2.0 * a_281 in
+                                  b_fun(val_860, tmat0_276) in
+                                sqrt(val_861)) in
+  let sigmay_287 = nu_284 * (let val_863 =
+                               let val_862 = 2.0 * b_282 in
+                               b_fun(val_862, tmat0_276) in
+                             sqrt(val_863)) in
+  let rhoxy_288 = rho_283 * sigma_285 * nu_284 / (sigmax_286 * sigmay_287)
+                  * (let val_864 = a_281 + b_282 in
+                     b_fun(val_864, tmat0_276)) in
+  let rhoxyc_289 = 1.0 - (rhoxy_288 * rhoxy_288) in
+  let rhoxycs_290 = sqrt(rhoxyc_289) in
+  let t2_291 = rhoxy_288 / (sigmax_286 * rhoxycs_290) in
+  let sigmay_rhoxycs_292 = sigmay_287 * rhoxycs_290 in
+  let t4_293 = rhoxy_288 * sigmay_287 / sigmax_286 in
+  let mux_294 = -(let {tup_elem_865, tup_elem_866, tup_elem_867, tup_elem_868,
+                       tup_elem_869} = {genome_832, genome_833, genome_834,
+                                        genome_835, genome_836} in
+                  bigmx(tup_elem_865, tup_elem_866, tup_elem_867, tup_elem_868,
+                        tup_elem_869, today_263, maturity_267, today_263,
+                        maturity_267)) in
+  let muy_295 = -(let {tup_elem_870, tup_elem_871, tup_elem_872, tup_elem_873,
+                       tup_elem_874} = {genome_832, genome_833, genome_834,
+                                        genome_835, genome_836} in
+                  bigmy(tup_elem_870, tup_elem_871, tup_elem_872, tup_elem_873,
+                        tup_elem_874, today_263, maturity_267, today_263,
+                        maturity_267)) in
+  // scheduleix_296 aliases tup_arr_elem_876, schedulei_845, swaption_842
+  // scheduleiy_297 aliases tup_arr_elem_877, schedulei_846, swaption_843
+  let {scheduleix_296, scheduleiy_297} =
+    // tup_arr_elem_876 aliases schedulei_845, swaption_842
+    // tup_arr_elem_877 aliases schedulei_846, swaption_843
+    let {tup_arr_cert_875, tup_arr_elem_876,
+         tup_arr_elem_877} = {zip_cert_schedulei_847, schedulei_845,
+                              schedulei_846} in
+    {tup_arr_elem_876, tup_arr_elem_877} in
+  // bai_314 aliases tup_arr_elem_912, soac_v_905
+  // bbi_315 aliases tup_arr_elem_913, soac_v_906
+  // aici_316 aliases tup_arr_elem_914, soac_v_907
+  // log_aici_317 aliases soac_v_908, tup_arr_elem_915
+  // t1_cst_318 aliases tup_arr_elem_916, soac_v_909
+  // scale_319 aliases tup_arr_elem_917, soac_v_910
+  let {bai_314, bbi_315, aici_316, log_aici_317, t1_cst_318, scale_319} =
+    // tup_arr_elem_912 aliases soac_v_905
+    // tup_arr_elem_913 aliases soac_v_906
+    // tup_arr_elem_914 aliases soac_v_907
+    // tup_arr_elem_915 aliases soac_v_908
+    // tup_arr_elem_916 aliases soac_v_909
+    // tup_arr_elem_917 aliases soac_v_910
+    let {tup_arr_cert_911, tup_arr_elem_912, tup_arr_elem_913, tup_arr_elem_914,
+         tup_arr_elem_915, tup_arr_elem_916, tup_arr_elem_917} =
+      // tup_arr_elem_880 aliases scheduleiy_297, tup_arr_elem_877, schedulei_846, swaption_843
+      // tup_arr_elem_881 aliases untuple_853, ci_275
+      let {tup_arr_cert_879, tup_arr_elem_880, tup_arr_elem_881} =
+        let zip_assert_878 = assert(size(0, scheduleiy_297) = size(0,
+                                                                   ci_275)) in
+        {zip_assert_878, scheduleiy_297, ci_275} in
+      let {soac_v_905, soac_v_906, soac_v_907, soac_v_908, soac_v_909,
+           soac_v_910} =
+        <tup_arr_cert_879>
+        mapT(fn {real, real, real, real, real, real} (real arg_884,
+                                                      real arg_885) =>
+               let {dc_882, dc_883} = {arg_884, arg_885} in
+               let {tup_elem_899, tup_elem_900, tup_elem_901, tup_elem_902,
+                    tup_elem_903, tup_elem_904} =
+                 let {end_date_299, ci_300} = {dc_882, dc_883} in
+                 let {v0_end_301, dummyA_302, dummyB_303} =
+                   let {tup_elem_886, tup_elem_887, tup_elem_888, tup_elem_889,
+                        tup_elem_890} = {genome_832, genome_833, genome_834,
+                                         genome_835, genome_836} in
+                   let val_891 = date_act_365(end_date_299, today_263) in
+                   bigv(tup_elem_886, tup_elem_887, tup_elem_888, tup_elem_889,
+                        tup_elem_890, val_891) in
+                 let {vt_end_304, bai_305, bbi_306} =
+                   let {tup_elem_892, tup_elem_893, tup_elem_894, tup_elem_895,
+                        tup_elem_896} = {genome_832, genome_833, genome_834,
+                                         genome_835, genome_836} in
+                   let val_897 = date_act_365(end_date_299, maturity_267) in
+                   bigv(tup_elem_892, tup_elem_893, tup_elem_894, tup_elem_895,
+                        tup_elem_896, val_897) in
+                 let aa_307 = zc(end_date_299) / zc_mat_280 * (let val_898 = 0.5
+                                                                             * (vt_end_304
+                                                                                - v0_end_301
+                                                                                + v0_mat_277) in
+                                                               exp(val_898)) in
+                 let aici_308 = ci_300 * aa_307 in
+                 let log_aici_309 = log(aici_308) in
+                 let t3_310 = muy_295 - (0.5 * rhoxyc_289 * sigmay_287
+                                         * sigmay_287 * bbi_306) in
+                 let cst_311 = bbi_306 * (mux_294 * t4_293 - t3_310) in
+                 let t1_cst_312 = aici_308 * exp(cst_311) in
+                 let scale_313 = -(bai_305 + bbi_306 * t4_293) in
+                 {bai_305, bbi_306, aici_308, log_aici_309, t1_cst_312,
+                  scale_313} in
+               {tup_elem_899, tup_elem_900, tup_elem_901, tup_elem_902,
+                tup_elem_903, tup_elem_904},
+             tup_arr_elem_880, tup_arr_elem_881) in
+      {conjoin(tup_arr_cert_879), soac_v_905, soac_v_906, soac_v_907,
+       soac_v_908, soac_v_909, soac_v_910} in
+    {tup_arr_elem_912, tup_arr_elem_913, tup_arr_elem_914, tup_arr_elem_915,
+     tup_arr_elem_916, tup_arr_elem_917} in
+  // babaici_922 aliases tup_arr_elem_912, soac_v_905, bai_314
+  // babaici_923 aliases tup_arr_elem_913, soac_v_906, bbi_315
+  // babaici_924 aliases aici_316, tup_arr_elem_914, soac_v_907
+  // babaici_925 aliases soac_v_908, log_aici_317, tup_arr_elem_915
+  let {zip_cert_babaici_926, babaici_922, babaici_923, babaici_924,
+       babaici_925} =
+    let zip_assert_918 = assert(size(0, bai_314) = size(0, bbi_315)) in
+    let zip_assert_919 = assert(size(0, bbi_315) = size(0, aici_316)) in
+    let zip_assert_920 = assert(size(0, aici_316) = size(0, log_aici_317)) in
+    let comb_cert_921 = conjoin(zip_assert_918, zip_assert_919,
+                                zip_assert_920) in
+    {comb_cert_921, bai_314, bbi_315, aici_316, log_aici_317} in
+  let {scals_927, scals_928, scals_929, scals_930, scals_931, scals_932,
+       scals_933, scals_934} = {b_282, sigmax_286, sigmay_287, rhoxy_288,
+                                rhoxyc_289, rhoxycs_290, mux_294, muy_295} in
+  let eps_322 = 0.5 * sigmax_286 in
+  let f_323 =
+    let {tup_elem_935, tup_elem_936, tup_elem_937, tup_elem_938, tup_elem_939,
+         tup_elem_940, tup_elem_941, tup_elem_942} = {scals_927, scals_928,
+                                                      scals_929, scals_930,
+                                                      scals_931, scals_932,
+                                                      scals_933, scals_934} in
+    // tup_arr_elem_944 aliases tup_arr_elem_912, soac_v_905, bai_314, babaici_922
+    // tup_arr_elem_945 aliases tup_arr_elem_913, soac_v_906, babaici_923, bbi_315
+    // tup_arr_elem_946 aliases aici_316, babaici_924, tup_arr_elem_914, soac_v_907
+    // tup_arr_elem_947 aliases soac_v_908, log_aici_317, babaici_925, tup_arr_elem_915
+    let {tup_arr_cert_943, tup_arr_elem_944, tup_arr_elem_945, tup_arr_elem_946,
+         tup_arr_elem_947} = {zip_cert_babaici_926, babaici_922, babaici_923,
+                              babaici_924, babaici_925} in
+    exactYhat(n_schedi_270, tup_elem_935, tup_elem_936, tup_elem_937,
+              tup_elem_938, tup_elem_939, tup_elem_940, tup_elem_941,
+              tup_elem_942, tup_arr_cert_943, tup_arr_elem_944,
+              tup_arr_elem_945, tup_arr_elem_946, tup_arr_elem_947, mux_294) in
+  let g_324 =
+    let {tup_elem_948, tup_elem_949, tup_elem_950, tup_elem_951, tup_elem_952,
+         tup_elem_953, tup_elem_954, tup_elem_955} = {scals_927, scals_928,
+                                                      scals_929, scals_930,
+                                                      scals_931, scals_932,
+                                                      scals_933, scals_934} in
+    // tup_arr_elem_957 aliases tup_arr_elem_912, soac_v_905, bai_314, babaici_922
+    // tup_arr_elem_958 aliases tup_arr_elem_913, soac_v_906, babaici_923, bbi_315
+    // tup_arr_elem_959 aliases aici_316, babaici_924, tup_arr_elem_914, soac_v_907
+    // tup_arr_elem_960 aliases soac_v_908, log_aici_317, babaici_925, tup_arr_elem_915
+    let {tup_arr_cert_956, tup_arr_elem_957, tup_arr_elem_958, tup_arr_elem_959,
+         tup_arr_elem_960} = {zip_cert_babaici_926, babaici_922, babaici_923,
+                              babaici_924, babaici_925} in
+    let val_961 = mux_294 + eps_322 in
+    exactYhat(n_schedi_270, tup_elem_948, tup_elem_949, tup_elem_950,
+              tup_elem_951, tup_elem_952, tup_elem_953, tup_elem_954,
+              tup_elem_955, tup_arr_cert_956, tup_arr_elem_957,
+              tup_arr_elem_958, tup_arr_elem_959, tup_arr_elem_960, val_961) in
+  let h_325 =
+    let {tup_elem_962, tup_elem_963, tup_elem_964, tup_elem_965, tup_elem_966,
+         tup_elem_967, tup_elem_968, tup_elem_969} = {scals_927, scals_928,
+                                                      scals_929, scals_930,
+                                                      scals_931, scals_932,
+                                                      scals_933, scals_934} in
+    // tup_arr_elem_971 aliases tup_arr_elem_912, soac_v_905, bai_314, babaici_922
+    // tup_arr_elem_972 aliases tup_arr_elem_913, soac_v_906, babaici_923, bbi_315
+    // tup_arr_elem_973 aliases aici_316, babaici_924, tup_arr_elem_914, soac_v_907
+    // tup_arr_elem_974 aliases soac_v_908, log_aici_317, babaici_925, tup_arr_elem_915
+    let {tup_arr_cert_970, tup_arr_elem_971, tup_arr_elem_972, tup_arr_elem_973,
+         tup_arr_elem_974} = {zip_cert_babaici_926, babaici_922, babaici_923,
+                              babaici_924, babaici_925} in
+    let val_975 = mux_294 - eps_322 in
+    exactYhat(n_schedi_270, tup_elem_962, tup_elem_963, tup_elem_964,
+              tup_elem_965, tup_elem_966, tup_elem_967, tup_elem_968,
+              tup_elem_969, tup_arr_cert_970, tup_arr_elem_971,
+              tup_arr_elem_972, tup_arr_elem_973, tup_arr_elem_974, val_975) in
+  let df_326 = 0.5 * (g_324 - h_325) / eps_322 in
+  let sqrt2sigmax_327 = (let val_976 = 2.0 in
+                         sqrt(val_976)) * sigmax_286 in
+  let {x_quads_328, w_quads_329} = gauss_hermite_coefficients() in
+  // tmps_348 aliases untuple_1008
+  let tmps_348 =
+    // tup_arr_elem_979 aliases x_quads_328
+    // tup_arr_elem_980 aliases w_quads_329
+    let {tup_arr_cert_978, tup_arr_elem_979, tup_arr_elem_980} =
+      let zip_assert_977 = assert(size(0, x_quads_328) = size(0,
+                                                              w_quads_329)) in
+      {zip_assert_977, x_quads_328, w_quads_329} in
+    let {untuple_1008} =
+      <tup_arr_cert_978>
+      mapT(fn {real} (real arg_983, real arg_984) =>
+             let {quad_981, quad_982} = {arg_983, arg_984} in
+             let val_1007 =
+               let {x_quad_331, w_quad_332} = {quad_981, quad_982} in
+               let x_333 = sqrt2sigmax_327 * x_quad_331 + mux_294 in
+               let tmp_334 = (x_333 - mux_294) / sigmax_286 in
+               let t1_335 =
+                 let val_985 = -(0.5 * tmp_334 * tmp_334) in
+                 exp(val_985) in
+               let yhat_x_336 = f_323 + df_326 * (x_333 - mux_294) in
+               let h1_337 = (yhat_x_336 - muy_295) / sigmay_rhoxycs_292
+                            - (t2_291 * (x_333 - mux_294)) in
+               // tmps_343 aliases untuple_1002
+               let tmps_343 =
+                 // tup_arr_elem_990 aliases tup_arr_elem_913, soac_v_906, babaici_923, bbi_315
+                 // tup_arr_elem_991 aliases tup_arr_elem_916, soac_v_909, t1_cst_318
+                 // tup_arr_elem_992 aliases tup_arr_elem_917, soac_v_910, scale_319
+                 let {tup_arr_cert_989, tup_arr_elem_990, tup_arr_elem_991,
+                      tup_arr_elem_992} =
+                   let zip_assert_986 = assert(size(0, bbi_315) = size(0,
+                                                                       t1_cst_318)) in
+                   let zip_assert_987 = assert(size(0, t1_cst_318) = size(0,
+                                                                          scale_319)) in
+                   let comb_cert_988 = conjoin(zip_assert_986,
+                                               zip_assert_987) in
+                   {comb_cert_988, bbi_315, t1_cst_318, scale_319} in
+                 let {untuple_1002} =
+                   <tup_arr_cert_989>
+                   mapT(fn {real} (real arg_996, real arg_997, real arg_998) =>
+                          let {bbit1cstscale_993, bbit1cstscale_994,
+                               bbit1cstscale_995} = {arg_996, arg_997,
+                                                     arg_998} in
+                          let val_1001 =
+                            let {bbii_339, t1_csti_340,
+                                 scalei_341} = {bbit1cstscale_993,
+                                                bbit1cstscale_994,
+                                                bbit1cstscale_995} in
+                            let h2_342 = h1_337 + bbii_339
+                                         * sigmay_rhoxycs_292 in
+                            t1_csti_340 * (let val_999 = scalei_341 * x_333 in
+                                           exp(val_999))
+                            * (let val_1000 = -h2_342 in
+                               uGaussian_P(val_1000)) in
+                          {val_1001},
+                        tup_arr_elem_990, tup_arr_elem_991, tup_arr_elem_992) in
+                 untuple_1002 in
+               let accum_346 =
+                 let val_1003 = 0.0 in
+                 let {untuple_1005} =
+                   reduceT(fn {real} (real x_344, real y_345) =>
+                             let val_1004 = x_344 + y_345 in
+                             {val_1004},
+                           {val_1003}, tmps_343) in
+                 untuple_1005 in
+               let integrand_res_347 = t1_335 * ((let val_1006 = -h1_337 in
+                                                  uGaussian_P(val_1006))
+                                                 - accum_346) in
+               w_quad_332 * integrand_res_347 in
+             {val_1007},
+           tup_arr_elem_979, tup_arr_elem_980) in
+    untuple_1008 in
+  let sum_351 =
+    let val_1009 = 0.0 in
+    let {untuple_1011} =
+      reduceT(fn {real} (real x_349, real y_350) =>
+                let val_1010 = x_349 + y_350 in
+                {val_1010},
+              {val_1009}, tmps_348) in
+    untuple_1011 in
+  zc_mat_280 * sum_351 / (let val_1012 = pi() in
+                          sqrt(val_1012))
+
+fun real exactYhat(int n_schedi_352, real scals_1013, real scals_1014,
+                   real scals_1015, real scals_1016, real scals_1017,
+                   real scals_1018, real scals_1019, real scals_1020,
+                   cert zip_cert_babaicis_1025, [real] babaicis_1021,
+                   [real] babaicis_1022, [real] babaicis_1023,
+                   [real] babaicis_1024, real x_355) =
+  let k_356 = -3.71901648545568 in
+  // uplos_1044 aliases soac_v_1042
+  // uplos_1045 aliases soac_v_1043
+  let {zip_cert_uplos_1046, uplos_1044, uplos_1045} =
+    // tup_arr_elem_1027 aliases babaicis_1021
+    // tup_arr_elem_1028 aliases babaicis_1022
+    // tup_arr_elem_1029 aliases babaicis_1023
+    // tup_arr_elem_1030 aliases babaicis_1024
+    let {tup_arr_cert_1026, tup_arr_elem_1027, tup_arr_elem_1028,
+         tup_arr_elem_1029, tup_arr_elem_1030} = {zip_cert_babaicis_1025,
+                                                  babaicis_1021, babaicis_1022,
+                                                  babaicis_1023,
+                                                  babaicis_1024} in
+    let {soac_v_1042, soac_v_1043} =
+      <tup_arr_cert_1026>
+      mapT(fn {real, real} (real arg_1035, real arg_1036, real arg_1037,
+                            real arg_1038) =>
+             let {babaici_1031, babaici_1032, babaici_1033,
+                  babaici_1034} = {arg_1035, arg_1036, arg_1037, arg_1038} in
+             let {tup_elem_1040, tup_elem_1041} =
+               let {bai_358, bbi_359, aici_360, log_aici_361} = {babaici_1031,
+                                                                 babaici_1032,
+                                                                 babaici_1033,
+                                                                 babaici_1034} in
+               let baix_362 = bai_358 * x_355 in
+               {aici_360 * (let val_1039 = -baix_362 in
+                            exp(val_1039)), (log_aici_361 - baix_362)
+                / bbi_359} in
+             {tup_elem_1040, tup_elem_1041},
+           tup_arr_elem_1027, tup_arr_elem_1028, tup_arr_elem_1029,
+           tup_arr_elem_1030) in
+    {conjoin(tup_arr_cert_1026), soac_v_1042, soac_v_1043} in
+  // ups_364 aliases tup_arr_elem_1048, uplos_1044, soac_v_1042
+  // los_365 aliases tup_arr_elem_1049, uplos_1045, soac_v_1043
+  let {ups_364, los_365} =
+    // tup_arr_elem_1048 aliases uplos_1044, soac_v_1042
+    // tup_arr_elem_1049 aliases uplos_1045, soac_v_1043
+    let {tup_arr_cert_1047, tup_arr_elem_1048,
+         tup_arr_elem_1049} = {zip_cert_uplos_1046, uplos_1044, uplos_1045} in
+    {tup_arr_elem_1048, tup_arr_elem_1049} in
+  let up_368 =
+    let val_1050 = 0.0 in
+    let {untuple_1052} =
+      reduceT(fn {real} (real x_366, real y_367) =>
+                let val_1051 = x_366 + y_367 in
+                {val_1051},
+              {val_1050}, ups_364) in
+    untuple_1052 in
+  let lo_371 =
+    let val_1053 = -infinity() in
+    let {untuple_1055} =
+      reduceT(fn {real} (real param_0_369, real param_1_370) =>
+                let val_1054 = MAX(param_0_369, param_1_370) in
+                {val_1054},
+              {val_1053}, los_365) in
+    untuple_1055 in
+  // bai_372 aliases babaicis_1021, tup_arr_elem_1057
+  // bbi_373 aliases babaicis_1022, tup_arr_elem_1058
+  // aici_374 aliases babaicis_1023, tup_arr_elem_1059
+  // log_aici_375 aliases babaicis_1024, tup_arr_elem_1060
+  let {bai_372, bbi_373, aici_374, log_aici_375} =
+    // tup_arr_elem_1057 aliases babaicis_1021
+    // tup_arr_elem_1058 aliases babaicis_1022
+    // tup_arr_elem_1059 aliases babaicis_1023
+    // tup_arr_elem_1060 aliases babaicis_1024
+    let {tup_arr_cert_1056, tup_arr_elem_1057, tup_arr_elem_1058,
+         tup_arr_elem_1059, tup_arr_elem_1060} = {zip_cert_babaicis_1025,
+                                                  babaicis_1021, babaicis_1022,
+                                                  babaicis_1023,
+                                                  babaicis_1024} in
+    {tup_arr_elem_1057, tup_arr_elem_1058, tup_arr_elem_1059,
+     tup_arr_elem_1060} in
+  if n_schedi_352 = 1
+  then lo_371
+  else let log_s_376 = log(up_368) in
+       let tmp_377 = log_s_376 / bbi_373[n_schedi_352 - 1] in
+       let up_379 =
+         if tmp_377 <= 0.0
+         then tmp_377
+         else let tmp_378 = log_s_376 / bbi_373[0] in
+              if 0.0 <= tmp_378
+              then tmp_378
+              else -infinity() in
+       let yl_380 = lo_371 - epsilon() in
+       let yu_381 = up_379 + epsilon() in
+       let {b_382, sigmax_383, sigmay_384, rhoxy_385, rhoxyc_386, rhoxycs_387,
+            mux_388, muy_389} = {scals_1013, scals_1014, scals_1015, scals_1016,
+                                 scals_1017, scals_1018, scals_1019,
+                                 scals_1020} in
+       let y0_390 = sigmay_384 * (rhoxy_385 * (x_355 - mux_388) / sigmax_383
+                                  + k_356 * rhoxycs_387) - (rhoxyc_386 / b_382)
+                    + muy_389 in
+       let y1_391 = sigmay_384 * (rhoxy_385 * (x_355 - mux_388) / sigmax_383
+                                  - (k_356 * rhoxycs_387)) + muy_389 in
+       if y1_391 <= yl_380
+       then y1_391 + 1.0
+       else if yu_381 <= y0_390
+            then y0_390 - 1.0
+            else // scales_395 aliases untuple_1071
+                 let scales_395 =
+                   // tup_arr_elem_1063 aliases bai_372, babaicis_1021, tup_arr_elem_1057
+                   // tup_arr_elem_1064 aliases aici_374, babaicis_1023, tup_arr_elem_1059
+                   let {tup_arr_cert_1062, tup_arr_elem_1063,
+                        tup_arr_elem_1064} =
+                     let zip_assert_1061 = assert(size(0, bai_372) = size(0,
+                                                                          aici_374)) in
+                     {zip_assert_1061, bai_372, aici_374} in
+                   let {untuple_1071} =
+                     <tup_arr_cert_1062>
+                     mapT(fn {real} (real arg_1067, real arg_1068) =>
+                            let {baiaici_1065, baiaici_1066} = {arg_1067,
+                                                                arg_1068} in
+                            let val_1070 =
+                              let {bai_393, aici_394} = {baiaici_1065,
+                                                         baiaici_1066} in
+                              aici_394 * (let val_1069 = -(bai_393 * x_355) in
+                                          exp(val_1069)) in
+                            {val_1070},
+                          tup_arr_elem_1063, tup_arr_elem_1064) in
+                   untuple_1071 in
+                 let root_lb_396 = MAX(yl_380, y0_390) in
+                 let root_ub_397 = MIN(yu_381, y1_391) in
+                 let {root_398, iteration_399, error_400} =
+                   let val_1072 = 1 in
+                   // tup_arr_elem_1075 aliases scales_395, untuple_1071
+                   // tup_arr_elem_1076 aliases bbi_373, babaicis_1022, tup_arr_elem_1058
+                   let {tup_arr_cert_1074, tup_arr_elem_1075,
+                        tup_arr_elem_1076} =
+                     let zip_assert_1073 = assert(size(0, scales_395) = size(0,
+                                                                             bbi_373)) in
+                     {zip_assert_1073, scales_395, bbi_373} in
+                   let val_1077 = 0.0001 in
+                   let val_1078 = 1000 in
+                   rootFinding_Brent(val_1072, tup_arr_cert_1074,
+                                     tup_arr_elem_1075, tup_arr_elem_1076,
+                                     root_lb_396, root_ub_397, val_1077,
+                                     val_1078) in
+                 if error_400 = -infinity()
+                 then y0_390 - 1.0
+                 else if error_400 = infinity()
+                      then y1_391 + 1.0
+                      else root_398
+
+fun int main_pricer_of_swaption() =
+  let {genome_1079, genome_1080, genome_1081, genome_1082,
+       genome_1083} = {0.02453, 0.98376, -0.824, 0.1183, 0.02398} in
+  let {swaption_1084, swaption_1085, swaption_1086} = {10.0, 6.0, 4.0} in
+  let price1_403 = 10000.0 * (let val_1087 = today() in
+                              let {tup_elem_1088, tup_elem_1089,
+                                   tup_elem_1090} = {swaption_1084,
+                                                     swaption_1085,
+                                                     swaption_1086} in
+                              let {tup_elem_1091, tup_elem_1092, tup_elem_1093,
+                                   tup_elem_1094, tup_elem_1095} = {genome_1079,
+                                                                    genome_1080,
+                                                                    genome_1081,
+                                                                    genome_1082,
+                                                                    genome_1083} in
+                              pricer_of_swaption(val_1087, tup_elem_1088,
+                                                 tup_elem_1089, tup_elem_1090,
+                                                 tup_elem_1091, tup_elem_1092,
+                                                 tup_elem_1093, tup_elem_1094,
+                                                 tup_elem_1095)) in
+  let tmp_404 = "Pricer_of_swaption test: " in
+  let tmp_407 =
+    if let val_1096 = 657.82158867845 in
+       equal(price1_403, val_1096)
+    then " SUCCESS! "
+    else let tmp_405 = " FAILS! should be: " in
+         let tmp_406 = 657.822 in
+         " is " in
+  let tmp_408 = price1_403 in
+  let tmp_409 = "\n\n" in
+  let {swaption_1097, swaption_1098, swaption_1099} = {30.0, 6.0, 30.0} in
+  let price2_411 = 10000.0 * (let val_1100 = today() in
+                              let {tup_elem_1101, tup_elem_1102,
+                                   tup_elem_1103} = {swaption_1097,
+                                                     swaption_1098,
+                                                     swaption_1099} in
+                              let {tup_elem_1104, tup_elem_1105, tup_elem_1106,
+                                   tup_elem_1107, tup_elem_1108} = {genome_1079,
+                                                                    genome_1080,
+                                                                    genome_1081,
+                                                                    genome_1082,
+                                                                    genome_1083} in
+                              pricer_of_swaption(val_1100, tup_elem_1101,
+                                                 tup_elem_1102, tup_elem_1103,
+                                                 tup_elem_1104, tup_elem_1105,
+                                                 tup_elem_1106, tup_elem_1107,
+                                                 tup_elem_1108)) in
+  let tmp_412 = "Pricer_of_swaption test: " in
+  let tmp_415 =
+    if let val_1109 = 1902.97628191498 in
+       equal(price2_411, val_1109)
+    then " SUCCESS! "
+    else let tmp_413 = " FAILS! should be: " in
+         let tmp_414 = 1902.976 in
+         " is " in
+  let tmp_416 = price2_411 in
+  let tmp_417 = "\n\n" in
+  let {swaption_1110, swaption_1111, swaption_1112} = {30.0, 6.0, 25.0} in
+  let price3_419 = 10000.0 * (let val_1113 = today() in
+                              let {tup_elem_1114, tup_elem_1115,
+                                   tup_elem_1116} = {swaption_1110,
+                                                     swaption_1111,
+                                                     swaption_1112} in
+                              let {tup_elem_1117, tup_elem_1118, tup_elem_1119,
+                                   tup_elem_1120, tup_elem_1121} = {genome_1079,
+                                                                    genome_1080,
+                                                                    genome_1081,
+                                                                    genome_1082,
+                                                                    genome_1083} in
+                              pricer_of_swaption(val_1113, tup_elem_1114,
+                                                 tup_elem_1115, tup_elem_1116,
+                                                 tup_elem_1117, tup_elem_1118,
+                                                 tup_elem_1119, tup_elem_1120,
+                                                 tup_elem_1121)) in
+  let tmp_420 = "Pricer_of_swaption test: " in
+  let tmp_423 =
+    if let val_1122 = 1840.859126408099 in
+       equal(price3_419, val_1122)
+    then " SUCCESS! "
+    else let tmp_421 = " FAILS! should be: " in
+         let tmp_422 = 1840.859126408099 in
+         " is " in
+  let tmp_424 = price3_419 in
+  let tmp_425 = "\n\n" in
+  33
+
+fun real main() =
+  let {genome_1123, genome_1124, genome_1125, genome_1126,
+       genome_1127} = {0.02453, 0.98376, -0.824, 0.1183, 0.02398} in
+  // prices_436 aliases untuple_1158
+  let prices_436 =
+    let {tup_arr_cert_1128, tup_arr_elem_1129, tup_arr_elem_1130,
+         tup_arr_elem_1131, tup_arr_elem_1132} = getSwaptionQuotes() in
+    let {untuple_1158} =
+      <tup_arr_cert_1128>
+      mapT(fn {real} (real arg_1137, real arg_1138, real arg_1139,
+                      real arg_1140) =>
+             let {swapquote_1133, swapquote_1134, swapquote_1135,
+                  swapquote_1136} = {arg_1137, arg_1138, arg_1139, arg_1140} in
+             let val_1157 =
+               let {swaption_1141, swaption_1142, swaption_1143,
+                    quote_429} = {swapquote_1133, swapquote_1134,
+                                  swapquote_1135, swapquote_1136} in
+               let g2pp_price_430 =
+                 let val_1144 = today() in
+                 let {tup_elem_1145, tup_elem_1146,
+                      tup_elem_1147} = {swaption_1141, swaption_1142,
+                                        swaption_1143} in
+                 let {tup_elem_1148, tup_elem_1149, tup_elem_1150,
+                      tup_elem_1151, tup_elem_1152} = {genome_1123, genome_1124,
+                                                       genome_1125, genome_1126,
+                                                       genome_1127} in
+                 pricer_of_swaption(val_1144, tup_elem_1145, tup_elem_1146,
+                                    tup_elem_1147, tup_elem_1148, tup_elem_1149,
+                                    tup_elem_1150, tup_elem_1151,
+                                    tup_elem_1152) in
+               let market_price_431 =
+                 let val_1153 = today() in
+                 let {tup_elem_1154, tup_elem_1155,
+                      tup_elem_1156} = {swaption_1141, swaption_1142,
+                                        swaption_1143} in
+                 black_price(val_1153, tup_elem_1154, tup_elem_1155,
+                             tup_elem_1156, quote_429) in
+               let {mat_year_432, swap_freq_433,
+                    term_year_434} = {swaption_1141, swaption_1142,
+                                      swaption_1143} in
+               let res_435 = (g2pp_price_430 - market_price_431)
+                             / market_price_431 in
+               res_435 * res_435 in
+             {val_1157},
+           tup_arr_elem_1129, tup_arr_elem_1130, tup_arr_elem_1131,
+           tup_arr_elem_1132) in
+    untuple_1158 in
+  let rms_439 =
+    let val_1159 = 0.0 in
+    let {untuple_1161} =
+      reduceT(fn {real} (real x_437, real y_438) =>
+                let val_1160 = x_437 + y_438 in
+                {val_1160},
+              {val_1159}, prices_436) in
+    untuple_1161 in
+  let numswapts_440 =
+    let {tup_arr_cert_1162, tup_arr_elem_1163, tup_arr_elem_1164,
+         tup_arr_elem_1165, tup_arr_elem_1166} = getSwaptionQuotes() in
+    <tup_arr_cert_1162>size(0, tup_arr_elem_1163) in
+  let rms_441 = 100.0 * (let val_1167 = rms_439 / toReal(numswapts_440) in
+                         sqrt(val_1167)) in
+  let tmp_442 = "\n\nComputed RMS is: " in
+  let tmp_443 = rms_441 in
+  let tmp_444 = "\n\n END \n\n" in
+  rms_441
+
+fun int MOD(int x_445, int y_446) =
+  x_445 - (x_445 / y_446 * y_446)
+
+fun int hours_in_dayI() =
+  24
+
+fun int minutes_in_dayI() =
+  hours_in_dayI() * 60
+
+fun int minutes_to_noonI() =
+  hours_in_dayI() / 2 * 60
+
+fun real minutes_in_day() =
+  24.0 * 60.0
+
+fun int date_of_gregorian(int date_1168, int date_1169, int date_1170,
+                          int date_1171, int date_1172) =
+  let {year_448, month_449, day_450, hour_451, mins_452} = {date_1168,
+                                                            date_1169,
+                                                            date_1170,
+                                                            date_1171,
+                                                            date_1172} in
+  let ym_453 =
+    if month_449 = 1 || month_449 = 2
+    then 1461 * (year_448 + 4800 - 1) / 4 + 367 * (month_449 + 10) / 12 - (3
+                                                                           * (year_448
+                                                                              + 4900
+                                                                              - 1)
+                                                                           / 100
+                                                                           / 4)
+    else 1461 * (year_448 + 4800) / 4 + 367 * (month_449 - 2) / 12 - (3
+                                                                      * (year_448
+                                                                         + 4900)
+                                                                      / 100
+                                                                      / 4) in
+  let tmp_454 = ym_453 + day_450 - 32075 - 2444238 in
+  tmp_454 * minutes_in_dayI() + hour_451 * 60 + mins_452
+
+fun {int, int, int, int, int} gregorian_of_date(int minutes_since_epoch_455) =
+  let jul_456 = minutes_since_epoch_455 / minutes_in_dayI() in
+  let l_457 = jul_456 + 68569 + 2444238 in
+  let n_458 = 4 * l_457 / 146097 in
+  let l_459 = l_457 - ((146097 * n_458 + 3) / 4) in
+  let i_460 = 4000 * (l_459 + 1) / 1461001 in
+  let l_461 = l_459 - (1461 * i_460 / 4) + 31 in
+  let j_462 = 80 * l_461 / 2447 in
+  let d_463 = l_461 - (2447 * j_462 / 80) in
+  let l_464 = j_462 / 11 in
+  let m_465 = j_462 + 2 - (12 * l_464) in
+  let y_466 = 100 * (n_458 - 49) + i_460 + l_464 in
+  let daytime_467 =
+    let val_1173 = minutes_in_dayI() in
+    MOD(minutes_since_epoch_455, val_1173) in
+  if daytime_467 = minutes_to_noonI()
+  then {y_466, m_465, d_463, 12, 0}
+  else {y_466, m_465, d_463, daytime_467 / 60, let val_1174 = 60 in
+                                               MOD(daytime_467, val_1174)}
+
+fun bool check_date(int year_468, int month_469, int day_470) =
+  let tmp1_471 = 1 <= day_470 && 1 <= month_469 && month_469 <= 12 && 1980
+                 <= year_468 && year_468 <= 2299 in
+  let tmp2_472 = day_470 <= 28 in
+  let tmp3_474 =
+    if month_469 = 2
+    then let tmpmod_473 =
+           let val_1175 = 100 in
+           MOD(year_468, val_1175) in
+         day_470 = 29 && (let val_1176 = 4 in
+                          MOD(year_468, val_1176)) = 0 && year_468 = 2000
+         || not (tmpmod_473 = 0)
+    else if month_469 = 4 || month_469 = 6 || month_469 = 9 || month_469 = 11
+         then day_470 <= 30
+         else day_470 <= 31 in
+  tmp1_471 && tmp2_472 || tmp3_474
+
+fun real days_between(real t1_475, real t2_476) =
+  (t1_475 - t2_476) / minutes_in_day()
+
+fun real date_act_365(real t1_477, real t2_478) =
+  days_between(t1_477, t2_478) / 365.0
+
+fun bool leap(int y_479) =
+  (let val_1177 = 4 in
+   MOD(y_479, val_1177)) = 0 && not ((let val_1178 = 100 in
+                                      MOD(y_479, val_1178)) = 0)
+  || (let val_1179 = 400 in
+      MOD(y_479, val_1179)) = 0
+
+fun int end_of_month(int year_480, int month_481) =
+  if month_481 = 2 && leap(year_480)
+  then 29
+  else if month_481 = 2
+       then 28
+       else if month_481 = 4 || month_481 = 6 || month_481 = 9 || month_481 = 11
+            then 30
+            else 31
+
+fun real add_months(real date_482, real rnbmonths_483) =
+  let nbmonths_484 = trunc(rnbmonths_483) in
+  let {y_485, m_486, d_487, h_488, min_489} =
+    let val_1180 = trunc(date_482) in
+    gregorian_of_date(val_1180) in
+  let m_490 = m_486 + nbmonths_484 in
+  let {y_491, m_492} = {y_485 + (m_490 - 1) / 12, (let val_1181 = m_490 - 1 in
+                                                   let val_1182 = 12 in
+                                                   MOD(val_1181, val_1182))
+                        + 1} in
+  let {y_493, m_494} =
+    if m_492 <= 0
+    then {y_491 - 1, m_492 + 12}
+    else {y_491, m_492} in
+  let resmin_495 =
+    let {tup_elem_1184, tup_elem_1185, tup_elem_1186, tup_elem_1187,
+         tup_elem_1188} = {y_493, m_494, let val_1183 = end_of_month(y_493,
+                                                                     m_494) in
+                                         MINI(d_487, val_1183), 12, 0} in
+    date_of_gregorian(tup_elem_1184, tup_elem_1185, tup_elem_1186,
+                      tup_elem_1187, tup_elem_1188) in
+  toReal(resmin_495)
+
+fun real add_years(real date_496, real nbyears_497) =
+  let val_1189 = nbyears_497 * 12.0 in
+  add_months(date_496, val_1189)
+
+fun real max_date() =
+  168307199.0
+
+fun real min_date() =
+  3600.0
+
+fun real today() =
+  let val_1195 =
+    let {tup_elem_1190, tup_elem_1191, tup_elem_1192, tup_elem_1193,
+         tup_elem_1194} = {2012, 1, 1, 12, 0} in
+    date_of_gregorian(tup_elem_1190, tup_elem_1191, tup_elem_1192,
+                      tup_elem_1193, tup_elem_1194) in
+  toReal(val_1195)
+
+fun int main_dates() =
+  let tmp_498 = "Today: " in
+  let tmp_499 =
+    let val_1196 = today() in
+    trunc(val_1196) in
+  let tmp_500 = "\n" in
+  let tmp_501 = "add_months(min_date,1)==48240" in
+  let tmp_502 =
+    let val_1197 = min_date() in
+    let val_1198 = 1.0 in
+    add_months(val_1197, val_1198) in
+  let bbb_503 =
+    if let val_1199 = 48240.0 in
+       equal(tmp_502, val_1199)
+    then "SUCCESS "
+    else "FAILS " in
+  let bbb_504 = tmp_502 in
+  let bbb_505 = "\n" in
+  let tmp_506 = "add_months(min_date,2)==90000" in
+  let tmp_507 =
+    let val_1200 = min_date() in
+    let val_1201 = 2.0 in
+    add_months(val_1200, val_1201) in
+  let bbb_508 =
+    if let val_1202 = 90000.0 in
+       equal(tmp_507, val_1202)
+    then "SUCCESS "
+    else "FAILS " in
+  let bbb_509 = tmp_507 in
+  let bbb_510 = "\n" in
+  let tmp_511 = "add_years(min_date,1)==530640" in
+  let tmp_512 =
+    let val_1203 = min_date() in
+    let val_1204 = 1.0 in
+    add_years(val_1203, val_1204) in
+  let bbb_513 =
+    if let val_1205 = 530640.0 in
+       equal(tmp_512, val_1205)
+    then "SUCCESS "
+    else "FAILS " in
+  let bbb_514 = tmp_512 in
+  let bbb_515 = "\n" in
+  let tmp_516 = "add_years(min_date,5)==2634480" in
+  let tmp_517 =
+    let val_1206 = min_date() in
+    let val_1207 = 5.0 in
+    add_years(val_1206, val_1207) in
+  let bbb_518 =
+    if let val_1208 = 2634480.0 in
+       equal(tmp_517, val_1208)
+    then "SUCCESS "
+    else "FAILS " in
+  let bbb_519 = tmp_517 in
+  let bbb_520 = "\n" in
+  let tmp_521 = "days_between(max_date(),min_date()) == 116877.499306" in
+  let tmp_522 =
+    let val_1209 = max_date() in
+    let val_1210 = min_date() in
+    days_between(val_1209, val_1210) in
+  let bbb_523 =
+    if let val_1211 = 116877.499305555 in
+       equal(tmp_522, val_1211)
+    then "SUCCESS "
+    else "FAILS " in
+  let bbb_524 = tmp_522 in
+  let bbb_525 = "\n" in
+  let tmp_526 = "act_365(max_date,min_date) == 320.212327" in
+  let tmp_527 =
+    let val_1212 = max_date() in
+    let val_1213 = min_date() in
+    date_act_365(val_1212, val_1213) in
+  let bbb_528 =
+    if let val_1214 = 320.2123268645 in
+       equal(tmp_527, val_1214)
+    then "SUCCESS "
+    else "FAILS " in
+  let bbb_529 = tmp_527 in
+  let bbb_530 = "\n" in
+  33

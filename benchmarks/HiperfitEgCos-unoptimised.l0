@@ -1,0 +1,1060 @@
+fun {int, int, [real], [real], [real], [[real]], [[real]], [[real]],
+     [[real]]} initGrid(real s0_0, real alpha_1, real nu_2, real t_3,
+                        int numX_4, int numY_5, int numT_6) =
+  let logAlpha_7 = log(alpha_1) in
+  // myTimeline_9 aliases untuple_253
+  let myTimeline_9 =
+    let val_251 = iota(numT_6) in
+    let {untuple_253} =
+      mapT(fn {real} (int i_8) =>
+             let val_252 = t_3 * toReal(i_8) / (toReal(numT_6) - 1.0) in
+             {val_252},
+           val_251) in
+    untuple_253 in
+  let stdX_10 = 20.0 * alpha_1 * s0_0 * sqrt(t_3) in
+  let stdY_11 = 10.0 * nu_2 * sqrt(t_3) in
+  let {dx_12, dy_13} = {stdX_10 / toReal(numX_4), stdY_11 / toReal(numY_5)} in
+  let {myXindex_14, myYindex_15} = {let val_254 = s0_0 / dx_12 in
+                                    trunc(val_254), numY_5 / 2} in
+  // myX_17 aliases untuple_257
+  let myX_17 =
+    let val_255 = iota(numX_4) in
+    let {untuple_257} =
+      mapT(fn {real} (int i_16) =>
+             let val_256 = toReal(i_16) * dx_12 - (toReal(myXindex_14) * dx_12)
+                           + s0_0 in
+             {val_256},
+           val_255) in
+    untuple_257 in
+  // myY_19 aliases untuple_260
+  let myY_19 =
+    let val_258 = iota(numY_5) in
+    let {untuple_260} =
+      mapT(fn {real} (int i_18) =>
+             let val_259 = toReal(i_18) * dy_13 - (toReal(myYindex_15) * dy_13)
+                           + logAlpha_7 in
+             {val_259},
+           val_258) in
+    untuple_260 in
+  let xXy_20 = replicate(numX_4, replicate(numY_5, 0.0)) in
+  // myMuX_21 aliases xXy_20
+  // myVarX_22 aliases xXy_20
+  // myMuY_23 aliases xXy_20
+  // myVarY_24 aliases xXy_20
+  let {myMuX_21, myVarX_22, myMuY_23, myVarY_24} = {xXy_20, xXy_20, xXy_20,
+                                                    xXy_20} in
+  {myXindex_14, myYindex_15, myX_17, myY_19, myTimeline_9, myMuX_21, myVarX_22,
+   myMuY_23, myVarY_24}
+
+fun {cert, [real], [real], [real], cert, [real], [real], [real]} initOperator
+([real] x_25) =
+  let n_26 = size(0, x_25) in
+  let dxu_27 = x_25[1] - x_25[0] in
+  let dxl_28 = 0.0 in
+  let {zip_cert_Dxlow_267, Dxlow_264, Dxlow_265, Dxlow_266} =
+    let {tup_elem_261, tup_elem_262, tup_elem_263} = {0.0, -(1.0 / dxu_27), 1.0
+                                                      / dxu_27} in
+    {Checked,
+     [tup_elem_261],
+     [tup_elem_262],
+     [tup_elem_263]} in
+  let {zip_cert_Dxxlow_271, Dxxlow_268, Dxxlow_269, Dxxlow_270} =
+    {Checked,
+     [0.0],
+     [0.0],
+     [0.0]} in
+  // Dxmid_282 aliases soac_v_279
+  // Dxmid_283 aliases soac_v_280
+  // Dxmid_284 aliases soac_v_281
+  let {zip_cert_Dxmid_285, Dxmid_282, Dxmid_283, Dxmid_284} =
+    // val_275 aliases untuple_274
+    let val_275 =
+      let val_272 = iota(n_26 - 2) in
+      let {untuple_274} =
+        mapT(fn {int} (int y_34) =>
+               let val_273 = 1 + y_34 in
+               {val_273},
+             val_272) in
+      untuple_274 in
+    let {soac_v_279, soac_v_280, soac_v_281} =
+      mapT(fn {real, real, real} (int i_31) =>
+             let {tup_elem_276, tup_elem_277, tup_elem_278} =
+               let dxl_32 = x_25[i_31] - x_25[i_31 - 1] in
+               let dxu_33 = x_25[i_31 + 1] - x_25[i_31] in
+               {-(dxu_33 / dxl_32 / (dxl_32 + dxu_33)), (dxu_33 / dxl_32
+                                                         - (dxl_32 / dxu_33))
+                / (dxl_32 + dxu_33), dxl_32 / dxu_33 / (dxl_32 + dxu_33)} in
+             {tup_elem_276, tup_elem_277, tup_elem_278},
+           val_275) in
+    {conjoin(), soac_v_279, soac_v_280, soac_v_281} in
+  // Dxxmid_296 aliases soac_v_293
+  // Dxxmid_297 aliases soac_v_294
+  // Dxxmid_298 aliases soac_v_295
+  let {zip_cert_Dxxmid_299, Dxxmid_296, Dxxmid_297, Dxxmid_298} =
+    // val_289 aliases untuple_288
+    let val_289 =
+      let val_286 = iota(n_26 - 2) in
+      let {untuple_288} =
+        mapT(fn {int} (int y_39) =>
+               let val_287 = 1 + y_39 in
+               {val_287},
+             val_286) in
+      untuple_288 in
+    let {soac_v_293, soac_v_294, soac_v_295} =
+      mapT(fn {real, real, real} (int i_36) =>
+             let {tup_elem_290, tup_elem_291, tup_elem_292} =
+               let dxl_37 = x_25[i_36] - x_25[i_36 - 1] in
+               let dxu_38 = x_25[i_36 + 1] - x_25[i_36] in
+               {2.0 / dxl_37 / (dxl_37 + dxu_38), -(2.0 * (1.0 / dxl_37 + 1.0
+                                                           / dxu_38) / (dxl_37
+                                                                        + dxu_38)),
+                2.0 / dxu_38 / (dxl_37 + dxu_38)} in
+             {tup_elem_290, tup_elem_291, tup_elem_292},
+           val_289) in
+    {conjoin(), soac_v_293, soac_v_294, soac_v_295} in
+  let dxl_41 = x_25[n_26 - 1] - x_25[n_26 - 2] in
+  let dxu_42 = 0.0 in
+  let {zip_cert_Dxhigh_306, Dxhigh_303, Dxhigh_304, Dxhigh_305} =
+    let {tup_elem_300, tup_elem_301, tup_elem_302} = {-(1.0 / dxl_41), 1.0
+                                                      / dxl_41, 0.0} in
+    {Checked,
+     [tup_elem_300],
+     [tup_elem_301],
+     [tup_elem_302]} in
+  let {zip_cert_Dxxhigh_310, Dxxhigh_307, Dxxhigh_308, Dxxhigh_309} =
+    {Checked,
+     [0.0],
+     [0.0],
+     [0.0]} in
+  // Dx_338 aliases Dxlow_264, tup_arr_elem_321, tup_arr_elem_330
+  // Dx_339 aliases Dxlow_265, tup_arr_elem_322, tup_arr_elem_331
+  // Dx_340 aliases tup_arr_elem_332, Dxlow_266, tup_arr_elem_323
+  let {zip_cert_Dx_341, Dx_338, Dx_339, Dx_340} =
+    // tup_arr_elem_330 aliases Dxlow_264, tup_arr_elem_321
+    // tup_arr_elem_331 aliases Dxlow_265, tup_arr_elem_322
+    // tup_arr_elem_332 aliases Dxlow_266, tup_arr_elem_323
+    let {tup_arr_cert_329, tup_arr_elem_330, tup_arr_elem_331,
+         tup_arr_elem_332} =
+      // tup_arr_elem_321 aliases Dxlow_264
+      // tup_arr_elem_322 aliases Dxlow_265
+      // tup_arr_elem_323 aliases Dxlow_266
+      let {tup_arr_cert_320, tup_arr_elem_321, tup_arr_elem_322,
+           tup_arr_elem_323} = {zip_cert_Dxlow_267, Dxlow_264, Dxlow_265,
+                                Dxlow_266} in
+      // tup_arr_elem_325 aliases Dxmid_282, soac_v_279
+      // tup_arr_elem_326 aliases soac_v_280, Dxmid_283
+      // tup_arr_elem_327 aliases Dxmid_284, soac_v_281
+      let {tup_arr_cert_324, tup_arr_elem_325, tup_arr_elem_326,
+           tup_arr_elem_327} = {zip_cert_Dxmid_285, Dxmid_282, Dxmid_283,
+                                Dxmid_284} in
+      let comb_cert_328 = conjoin(tup_arr_cert_320, tup_arr_cert_324) in
+      {comb_cert_328, <tup_arr_cert_320,
+                       tup_arr_cert_324>concat(tup_arr_elem_321,
+                                               tup_arr_elem_325),
+       <tup_arr_cert_320, tup_arr_cert_324>concat(tup_arr_elem_322,
+                                                  tup_arr_elem_326),
+       <tup_arr_cert_320, tup_arr_cert_324>concat(tup_arr_elem_323,
+                                                  tup_arr_elem_327)} in
+    // tup_arr_elem_334 aliases Dxhigh_303
+    // tup_arr_elem_335 aliases Dxhigh_304
+    // tup_arr_elem_336 aliases Dxhigh_305
+    let {tup_arr_cert_333, tup_arr_elem_334, tup_arr_elem_335,
+         tup_arr_elem_336} = {zip_cert_Dxhigh_306, Dxhigh_303, Dxhigh_304,
+                              Dxhigh_305} in
+    let comb_cert_337 = conjoin(tup_arr_cert_329, tup_arr_cert_333) in
+    {comb_cert_337, <tup_arr_cert_329, tup_arr_cert_333>concat(tup_arr_elem_330,
+                                                               tup_arr_elem_334),
+     <tup_arr_cert_329, tup_arr_cert_333>concat(tup_arr_elem_331,
+                                                tup_arr_elem_335),
+     <tup_arr_cert_329, tup_arr_cert_333>concat(tup_arr_elem_332,
+                                                tup_arr_elem_336)} in
+  // Dxx_369 aliases tup_arr_elem_352, Dxxlow_268, tup_arr_elem_361
+  // Dxx_370 aliases tup_arr_elem_353, Dxxlow_269, tup_arr_elem_362
+  // Dxx_371 aliases tup_arr_elem_354, Dxxlow_270, tup_arr_elem_363
+  let {zip_cert_Dxx_372, Dxx_369, Dxx_370, Dxx_371} =
+    // tup_arr_elem_361 aliases tup_arr_elem_352, Dxxlow_268
+    // tup_arr_elem_362 aliases tup_arr_elem_353, Dxxlow_269
+    // tup_arr_elem_363 aliases tup_arr_elem_354, Dxxlow_270
+    let {tup_arr_cert_360, tup_arr_elem_361, tup_arr_elem_362,
+         tup_arr_elem_363} =
+      // tup_arr_elem_352 aliases Dxxlow_268
+      // tup_arr_elem_353 aliases Dxxlow_269
+      // tup_arr_elem_354 aliases Dxxlow_270
+      let {tup_arr_cert_351, tup_arr_elem_352, tup_arr_elem_353,
+           tup_arr_elem_354} = {zip_cert_Dxxlow_271, Dxxlow_268, Dxxlow_269,
+                                Dxxlow_270} in
+      // tup_arr_elem_356 aliases Dxxmid_296, soac_v_293
+      // tup_arr_elem_357 aliases Dxxmid_297, soac_v_294
+      // tup_arr_elem_358 aliases Dxxmid_298, soac_v_295
+      let {tup_arr_cert_355, tup_arr_elem_356, tup_arr_elem_357,
+           tup_arr_elem_358} = {zip_cert_Dxxmid_299, Dxxmid_296, Dxxmid_297,
+                                Dxxmid_298} in
+      let comb_cert_359 = conjoin(tup_arr_cert_351, tup_arr_cert_355) in
+      {comb_cert_359, <tup_arr_cert_351,
+                       tup_arr_cert_355>concat(tup_arr_elem_352,
+                                               tup_arr_elem_356),
+       <tup_arr_cert_351, tup_arr_cert_355>concat(tup_arr_elem_353,
+                                                  tup_arr_elem_357),
+       <tup_arr_cert_351, tup_arr_cert_355>concat(tup_arr_elem_354,
+                                                  tup_arr_elem_358)} in
+    // tup_arr_elem_365 aliases Dxxhigh_307
+    // tup_arr_elem_366 aliases Dxxhigh_308
+    // tup_arr_elem_367 aliases Dxxhigh_309
+    let {tup_arr_cert_364, tup_arr_elem_365, tup_arr_elem_366,
+         tup_arr_elem_367} = {zip_cert_Dxxhigh_310, Dxxhigh_307, Dxxhigh_308,
+                              Dxxhigh_309} in
+    let comb_cert_368 = conjoin(tup_arr_cert_360, tup_arr_cert_364) in
+    {comb_cert_368, <tup_arr_cert_360, tup_arr_cert_364>concat(tup_arr_elem_361,
+                                                               tup_arr_elem_365),
+     <tup_arr_cert_360, tup_arr_cert_364>concat(tup_arr_elem_362,
+                                                tup_arr_elem_366),
+     <tup_arr_cert_360, tup_arr_cert_364>concat(tup_arr_elem_363,
+                                                tup_arr_elem_367)} in
+  {zip_cert_Dx_341, Dx_338, Dx_339, Dx_340, zip_cert_Dxx_372, Dxx_369, Dxx_370,
+   Dxx_371}
+
+fun real max(real x_47, real y_48) =
+  if y_48 < x_47
+  then x_47
+  else y_48
+
+fun int maxInt(int x_49, int y_50) =
+  if y_50 < x_49
+  then x_49
+  else y_50
+
+fun *[[real]] setPayoff(real strike_51, [real] myX_52, [real] myY_53) =
+  let n_54 = size(0, myY_53) in
+  let {untuple_376} =
+    mapT(fn {*[real]} (real xi_55) =>
+           let val_375 = replicate(n_54, let val_373 = xi_55 - strike_51 in
+                                         let val_374 = 0.0 in
+                                         max(val_373, val_374)) in
+           {val_375},
+         myX_52) in
+  untuple_376
+
+fun {*[[real]], *[[real]], *[[real]], *[[real]]} updateParams([real] myX_56,
+                                                              [real] myY_57,
+                                                              [real] myTimeline_58,
+                                                              int g_59,
+                                                              real alpha_60,
+                                                              real beta_61,
+                                                              real nu_62) =
+  // tup_arr_elem_400 aliases soac_v_395
+  // tup_arr_elem_401 aliases soac_v_396
+  // tup_arr_elem_402 aliases soac_v_397
+  // tup_arr_elem_403 aliases soac_v_398
+  let {tup_arr_cert_399, tup_arr_elem_400, tup_arr_elem_401, tup_arr_elem_402,
+       tup_arr_elem_403} =
+    let {soac_v_395, soac_v_396, soac_v_397, soac_v_398} =
+      mapT(fn {*[real], *[real], *[real], *[real]} (real xi_63) =>
+             // tup_elem_391 aliases soac_v_382, tup_arr_elem_387
+             // tup_elem_392 aliases tup_arr_elem_388, soac_v_383
+             // tup_elem_393 aliases soac_v_384, tup_arr_elem_389
+             // tup_elem_394 aliases soac_v_385, tup_arr_elem_390
+             let {tup_elem_391, tup_elem_392, tup_elem_393, tup_elem_394} =
+               // tup_arr_elem_387 aliases soac_v_382
+               // tup_arr_elem_388 aliases soac_v_383
+               // tup_arr_elem_389 aliases soac_v_384
+               // tup_arr_elem_390 aliases soac_v_385
+               let {tup_arr_cert_386, tup_arr_elem_387, tup_arr_elem_388,
+                    tup_arr_elem_389, tup_arr_elem_390} =
+                 let {soac_v_382, soac_v_383, soac_v_384, soac_v_385} =
+                   mapT(fn {real, real, real, real} (real yj_64) =>
+                          let {tup_elem_378, tup_elem_379, tup_elem_380,
+                               tup_elem_381} = {0.0, let val_377 = 2.0
+                                                                   * (beta_61
+                                                                      * log(xi_63)
+                                                                      + yj_64
+                                                                      - (0.5
+                                                                         * nu_62
+                                                                         * nu_62
+                                                                         * myTimeline_58[g_59])) in
+                                                     exp(val_377), 0.0, nu_62
+                                                * nu_62} in
+                          {tup_elem_378, tup_elem_379, tup_elem_380,
+                           tup_elem_381},
+                        myY_57) in
+                 {conjoin(), soac_v_382, soac_v_383, soac_v_384, soac_v_385} in
+               {tup_arr_elem_387, tup_arr_elem_388, tup_arr_elem_389,
+                tup_arr_elem_390} in
+             {tup_elem_391, tup_elem_392, tup_elem_393, tup_elem_394},
+           myX_56) in
+    {conjoin(), soac_v_395, soac_v_396, soac_v_397, soac_v_398} in
+  {tup_arr_elem_400, tup_arr_elem_401, tup_arr_elem_402, tup_arr_elem_403}
+
+fun {*[real], [real]} tridag([real] a_65, [real] b_66, [real] c_67, [real] r_68,
+                             int n_69) =
+  let bet_70 = 1.0 / b_66[0] in
+  let {u_71, uu_72} = {replicate(n_69, 0.0), replicate(n_69, 0.0)} in
+  let val_404 = r_68[0] * bet_70 in
+  let letwith_dst_405 = u_71 with [0] <- val_404 in
+  // u_73 aliases letwith_dst_405
+  let u_73 = letwith_dst_405 in
+  // u_74 aliases letwith_dst_405, u_73
+  // uu_75 aliases uu_72
+  loop ({u_74, uu_75, bet_76} = {u_73, uu_72, bet_70}) = for j_81 < n_69 - 1 do
+    let j_82 = j_81 + 1 in
+    let val_406 = c_67[j_82 - 1] * bet_76 in
+    let letwith_dst_407 = uu_75 with [j_82] <- val_406 in
+    // uu_83 aliases letwith_dst_407
+    let uu_83 = letwith_dst_407 in
+    let bet_84 = 1.0 / (b_66[j_82] - (a_65[j_82] * uu_83[j_82])) in
+    let val_408 = (r_68[j_82] - (a_65[j_82] * u_74[j_82 - 1])) * bet_84 in
+    let letwith_dst_409 = u_74 with [j_82] <- val_408 in
+    // u_85 aliases letwith_dst_409
+    let u_85 = letwith_dst_409 in
+    {u_85, uu_83, bet_84} in
+  // u_77 aliases u_74
+  loop (u_77 = u_74) = for j_78 < n_69 - 1 do
+    let j_79 = n_69 - 2 - j_78 in
+    let val_410 = u_77[j_79] - (uu_75[j_79 + 1] * u_77[j_79 + 1]) in
+    let letwith_dst_411 = u_77 with [j_79] <- val_410 in
+    // u_80 aliases letwith_dst_411
+    let u_80 = letwith_dst_411 in
+    u_80 in
+  {u_77, uu_75}
+
+fun [[real]] explicitX(int numX_86, int numY_87, real dtInv_88,
+                       [[real]] myResult_89, [[real]] myMuX_90,
+                       cert zip_cert_myDx_415, [real] myDx_412, [real] myDx_413,
+                       [real] myDx_414, cert zip_cert_myDxx_419,
+                       [real] myDxx_416, [real] myDxx_417, [real] myDxx_418,
+                       [[real]] myVarX_93) =
+  let val_420 = iota(numY_87) in
+  // untuple_425 aliases val_420
+  let {untuple_425} =
+    mapT(fn {[real]} (int j_94) =>
+           // val_424 aliases untuple_423
+           let val_424 =
+             let val_421 = iota(numX_86) in
+             let {untuple_423} =
+               mapT(fn {real} (int i_95) =>
+                      let val_422 =
+                        let res_96 = dtInv_88 * myResult_89[i_95, j_94] in
+                        let {dx0_97, dx1_98, dx2_99, dxx0_100, dxx1_101,
+                             dxx2_102} = {<zip_cert_myDx_415>myDx_412[i_95],
+                                          <zip_cert_myDx_415>myDx_413[i_95],
+                                          <zip_cert_myDx_415>myDx_414[i_95],
+                                          <zip_cert_myDxx_419>myDxx_416[i_95],
+                                          <zip_cert_myDxx_419>myDxx_417[i_95],
+                                          <zip_cert_myDxx_419>myDxx_418[i_95]} in
+                        let res_103 = res_96 + if i_95 = 0
+                                      then 0.0
+                                      else 0.5 * (myMuX_90[i_95, j_94] * dx0_97
+                                                  + 0.5 * myVarX_93[i_95, j_94]
+                                                  * dxx0_100) * myResult_89[i_95
+                                                                            - 1,
+                                                                            j_94] in
+                        let res_104 = res_103 + 0.5 * (myMuX_90[i_95, j_94]
+                                                       * dx1_98 + 0.5
+                                                       * myVarX_93[i_95, j_94]
+                                                       * dxx1_101)
+                                      * myResult_89[i_95, j_94] in
+                        let res_105 = res_104 + if i_95 = numX_86 - 1
+                                      then 0.0
+                                      else 0.5 * (myMuX_90[i_95, j_94] * dx2_99
+                                                  + 0.5 * myVarX_93[i_95, j_94]
+                                                  * dxx2_102) * myResult_89[i_95
+                                                                            + 1,
+                                                                            j_94] in
+                        res_105 in
+                      {val_422},
+                    val_421) in
+             untuple_423 in
+           {val_424},
+         val_420) in
+  untuple_425
+
+fun [[real]] explicitY(int numX_106, int numY_107, real dtInv_108,
+                       [[real]] myResult_109, [[real]] myMuY_110,
+                       cert zip_cert_myDy_429, [real] myDy_426, [real] myDy_427,
+                       [real] myDy_428, cert zip_cert_myDyy_433,
+                       [real] myDyy_430, [real] myDyy_431, [real] myDyy_432,
+                       [[real]] myVarY_113) =
+  let val_434 = iota(numX_106) in
+  // untuple_439 aliases val_434
+  let {untuple_439} =
+    mapT(fn {[real]} (int i_114) =>
+           // val_438 aliases untuple_437
+           let val_438 =
+             let val_435 = iota(numY_107) in
+             let {untuple_437} =
+               mapT(fn {real} (int j_115) =>
+                      let val_436 =
+                        let res_116 = 0.0 in
+                        let {dy0_117, dy1_118, dy2_119, dyy0_120, dyy1_121,
+                             dyy2_122} = {<zip_cert_myDy_429>myDy_426[j_115],
+                                          <zip_cert_myDy_429>myDy_427[j_115],
+                                          <zip_cert_myDy_429>myDy_428[j_115],
+                                          <zip_cert_myDyy_433>myDyy_430[j_115],
+                                          <zip_cert_myDyy_433>myDyy_431[j_115],
+                                          <zip_cert_myDyy_433>myDyy_432[j_115]} in
+                        let res_123 = res_116 + if j_115 = 0
+                                      then 0.0
+                                      else (myMuY_110[i_114, j_115] * dy0_117
+                                            + 0.5 * myVarY_113[i_114, j_115]
+                                            * dyy0_120) * myResult_109[i_114,
+                                                                       j_115
+                                                                       - 1] in
+                        let res_124 = res_123 + (myMuY_110[i_114, j_115]
+                                                 * dy1_118 + 0.5
+                                                 * myVarY_113[i_114, j_115]
+                                                 * dyy1_121)
+                                      * myResult_109[i_114, j_115] in
+                        let res_125 = res_124 + if j_115 = numY_107 - 1
+                                      then 0.0
+                                      else (myMuY_110[i_114, j_115] * dy2_119
+                                            + 0.5 * myVarY_113[i_114, j_115]
+                                            * dyy2_122) * myResult_109[i_114,
+                                                                       j_115
+                                                                       + 1] in
+                        res_125 in
+                      {val_436},
+                    val_435) in
+             untuple_437 in
+           {val_438},
+         val_434) in
+  untuple_439
+
+fun *[[real]] rollback([real] myX_126, [real] myY_127, [real] myTimeline_128,
+                       *[[real]] myResult_129, [[real]] myMuX_130,
+                       cert zip_cert_myDx_443, [real] myDx_440, [real] myDx_441,
+                       [real] myDx_442, cert zip_cert_myDxx_447,
+                       [real] myDxx_444, [real] myDxx_445, [real] myDxx_446,
+                       [[real]] myVarX_133, [[real]] myMuY_134,
+                       cert zip_cert_myDy_451, [real] myDy_448, [real] myDy_449,
+                       [real] myDy_450, cert zip_cert_myDyy_455,
+                       [real] myDyy_452, [real] myDyy_453, [real] myDyy_454,
+                       [[real]] myVarY_137, int g_138) =
+  let {numX_139, numY_140} = {size(0, myX_126), size(0, myY_127)} in
+  let numZ_141 = maxInt(numX_139, numY_140) in
+  let dtInv_142 = 1.0 / (myTimeline_128[g_138 + 1] - myTimeline_128[g_138]) in
+  // u_143 aliases myDxx_444, myDx_440, myDxx_445, myVarX_133, tup_arr_elem_461, myDx_441, myResult_129, tup_arr_elem_457, myDx_442, myMuX_130, tup_arr_elem_458, myDxx_446, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_463
+  let u_143 =
+    // tup_arr_elem_457 aliases myDx_440
+    // tup_arr_elem_458 aliases myDx_441
+    // tup_arr_elem_459 aliases myDx_442
+    let {tup_arr_cert_456, tup_arr_elem_457, tup_arr_elem_458,
+         tup_arr_elem_459} = {zip_cert_myDx_443, myDx_440, myDx_441,
+                              myDx_442} in
+    // tup_arr_elem_461 aliases myDxx_444
+    // tup_arr_elem_462 aliases myDxx_445
+    // tup_arr_elem_463 aliases myDxx_446
+    let {tup_arr_cert_460, tup_arr_elem_461, tup_arr_elem_462,
+         tup_arr_elem_463} = {zip_cert_myDxx_447, myDxx_444, myDxx_445,
+                              myDxx_446} in
+    explicitX(numX_139, numY_140, dtInv_142, myResult_129, myMuX_130,
+              tup_arr_cert_456, tup_arr_elem_457, tup_arr_elem_458,
+              tup_arr_elem_459, tup_arr_cert_460, tup_arr_elem_461,
+              tup_arr_elem_462, tup_arr_elem_463, myVarX_133) in
+  // v_144 aliases myDy_448, tup_arr_elem_472, myDyy_452, tup_arr_elem_468, myDyy_453, myResult_129, myDy_449, myVarY_137, tup_arr_elem_470, myDy_450, tup_arr_elem_466, myDyy_454, myMuY_134, tup_arr_elem_467, u_143, tup_arr_elem_471
+  let v_144 =
+    let val_464 = 0.0 in
+    // tup_arr_elem_466 aliases myDy_448
+    // tup_arr_elem_467 aliases myDy_449
+    // tup_arr_elem_468 aliases myDy_450
+    let {tup_arr_cert_465, tup_arr_elem_466, tup_arr_elem_467,
+         tup_arr_elem_468} = {zip_cert_myDy_451, myDy_448, myDy_449,
+                              myDy_450} in
+    // tup_arr_elem_470 aliases myDyy_452
+    // tup_arr_elem_471 aliases myDyy_453
+    // tup_arr_elem_472 aliases myDyy_454
+    let {tup_arr_cert_469, tup_arr_elem_470, tup_arr_elem_471,
+         tup_arr_elem_472} = {zip_cert_myDyy_455, myDyy_452, myDyy_453,
+                              myDyy_454} in
+    explicitY(numX_139, numY_140, val_464, myResult_129, myMuY_134,
+              tup_arr_cert_465, tup_arr_elem_466, tup_arr_elem_467,
+              tup_arr_elem_468, tup_arr_cert_469, tup_arr_elem_470,
+              tup_arr_elem_471, tup_arr_elem_472, myVarY_137) in
+  // u_151 aliases myDy_448, v_144, tup_arr_elem_472, myDxx_444, myDyy_452, tup_arr_elem_468, myDx_440, tup_arr_elem_476, val_473, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_461, myDx_441, tup_arr_elem_477, myResult_129, myDy_449, tup_arr_elem_457, myVarY_137, untuple_493, tup_arr_elem_470, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, tup_arr_elem_466, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_467, tup_arr_elem_463, u_143, tup_arr_elem_471
+  let u_151 =
+    // tup_arr_elem_476 aliases v_144, myDxx_444, myDx_440, val_473, myDxx_445, myVarX_133, tup_arr_elem_461, myDx_441, myResult_129, tup_arr_elem_457, myDx_442, myMuX_130, tup_arr_elem_458, myDxx_446, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_463, u_143
+    // tup_arr_elem_477 aliases myDy_448, v_144, tup_arr_elem_472, myDyy_452, tup_arr_elem_468, val_473, myDyy_453, myResult_129, myDy_449, myVarY_137, tup_arr_elem_470, myDy_450, tup_arr_elem_466, myDyy_454, myMuY_134, tup_arr_elem_467, u_143, tup_arr_elem_471
+    let {tup_arr_cert_475, tup_arr_elem_476, tup_arr_elem_477} =
+      // val_473 aliases myDy_448, v_144, tup_arr_elem_472, myDyy_452, tup_arr_elem_468, myDyy_453, myResult_129, myDy_449, myVarY_137, tup_arr_elem_470, myDy_450, tup_arr_elem_466, myDyy_454, myMuY_134, tup_arr_elem_467, u_143, tup_arr_elem_471
+      let val_473 = transpose(v_144) in
+      let zip_assert_474 = assert(size(0, u_143) = size(0, val_473)) in
+      {zip_assert_474, u_143, val_473} in
+    // untuple_493 aliases myDy_448, v_144, tup_arr_elem_472, myDxx_444, myDyy_452, tup_arr_elem_468, myDx_440, tup_arr_elem_476, val_473, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_461, myDx_441, tup_arr_elem_477, myResult_129, myDy_449, tup_arr_elem_457, myVarY_137, tup_arr_elem_470, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, tup_arr_elem_466, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_467, tup_arr_elem_463, u_143, tup_arr_elem_471
+    let {untuple_493} =
+      <tup_arr_cert_475>
+      mapT(fn {[real]} ([real] arg_480, [real] arg_481) =>
+             // tup_shim_478 aliases arg_480
+             // tup_shim_479 aliases arg_481
+             let {tup_shim_478, tup_shim_479} = {arg_480, arg_481} in
+             // val_492 aliases untuple_491
+             let val_492 =
+               // us_146 aliases arg_480, tup_shim_478
+               // vs_147 aliases arg_481, tup_shim_479
+               let {us_146, vs_147} = {tup_shim_478, tup_shim_479} in
+               // tup_arr_elem_484 aliases arg_480, tup_shim_478, us_146
+               // tup_arr_elem_485 aliases arg_481, vs_147, tup_shim_479
+               let {tup_arr_cert_483, tup_arr_elem_484, tup_arr_elem_485} =
+                 let zip_assert_482 = assert(size(0, us_146) = size(0,
+                                                                    vs_147)) in
+                 {zip_assert_482, us_146, vs_147} in
+               let {untuple_491} =
+                 <tup_arr_cert_483>
+                 mapT(fn {real} (real arg_488, real arg_489) =>
+                        let {tup_shim_486, tup_shim_487} = {arg_488, arg_489} in
+                        let val_490 =
+                          let {x_149, y_150} = {tup_shim_486, tup_shim_487} in
+                          x_149 + y_150 in
+                        {val_490},
+                      tup_arr_elem_484, tup_arr_elem_485) in
+               untuple_491 in
+             {val_492},
+           tup_arr_elem_476, tup_arr_elem_477) in
+    untuple_493 in
+  // u_174 aliases val_512, myDy_448, tup_arr_elem_528, v_144, tup_arr_elem_500, tup_arr_elem_472, myDxx_444, myDyy_452, tup_arr_elem_524, tup_arr_elem_496, tup_arr_elem_532, tup_arr_elem_468, tup_arr_elem_504, myDx_440, tup_arr_elem_476, val_473, tup_arr_elem_509, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_525, tup_arr_elem_461, tup_arr_elem_497, tup_arr_elem_505, myDx_441, tup_arr_elem_477, myResult_129, val_513, myDy_449, tup_arr_elem_457, myVarY_137, untuple_493, tup_arr_elem_529, tup_arr_elem_501, tup_arr_elem_470, tup_arr_elem_506, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, tup_arr_elem_530, tup_arr_elem_466, tup_arr_elem_502, tup_arr_elem_510, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_526, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_495, tup_arr_elem_531, tup_arr_elem_467, tup_arr_elem_511, untuple_619, tup_arr_elem_527, tup_arr_elem_463, u_143, u_151, tup_arr_elem_471
+  let u_174 =
+    // tup_arr_elem_524 aliases val_512, myDy_448, v_144, tup_arr_elem_500, tup_arr_elem_472, myDxx_444, myDyy_452, tup_arr_elem_468, myDx_440, tup_arr_elem_476, val_473, tup_arr_elem_509, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_461, myDx_441, tup_arr_elem_477, myResult_129, val_513, myDy_449, tup_arr_elem_457, myVarY_137, untuple_493, tup_arr_elem_501, tup_arr_elem_470, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, tup_arr_elem_466, tup_arr_elem_502, tup_arr_elem_510, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_467, tup_arr_elem_511, tup_arr_elem_463, u_143, u_151, tup_arr_elem_471
+    // tup_arr_elem_525 aliases tup_arr_elem_500, myDx_440, tup_arr_elem_495, u_143, u_151
+    // tup_arr_elem_526 aliases tup_arr_elem_496, myDx_441, tup_arr_elem_501, u_143, u_151
+    // tup_arr_elem_527 aliases tup_arr_elem_497, myDx_442, tup_arr_elem_502, u_143, u_151
+    // tup_arr_elem_528 aliases myDxx_444, tup_arr_elem_504, tup_arr_elem_509, u_143, u_151
+    // tup_arr_elem_529 aliases myDxx_445, tup_arr_elem_505, tup_arr_elem_510, u_143, u_151
+    // tup_arr_elem_530 aliases tup_arr_elem_506, myDxx_446, tup_arr_elem_511, u_143, u_151
+    // tup_arr_elem_531 aliases val_512, myMuX_130, u_143, u_151
+    // tup_arr_elem_532 aliases myVarX_133, val_513, u_143, u_151
+    let {tup_arr_cert_523, tup_arr_elem_524, tup_arr_elem_525, tup_arr_elem_526,
+         tup_arr_elem_527, tup_arr_elem_528, tup_arr_elem_529, tup_arr_elem_530,
+         tup_arr_elem_531, tup_arr_elem_532} =
+      // tup_arr_elem_500 aliases myDx_440, tup_arr_elem_495, u_143, u_151
+      // tup_arr_elem_501 aliases tup_arr_elem_496, myDx_441, u_143, u_151
+      // tup_arr_elem_502 aliases tup_arr_elem_497, myDx_442, u_143, u_151
+      let {tup_arr_cert_499, tup_arr_elem_500, tup_arr_elem_501,
+           tup_arr_elem_502} =
+        // tup_arr_elem_495 aliases myDx_440, u_143, u_151
+        // tup_arr_elem_496 aliases myDx_441, u_143, u_151
+        // tup_arr_elem_497 aliases myDx_442, u_143, u_151
+        let {tup_arr_cert_494, tup_arr_elem_495, tup_arr_elem_496,
+             tup_arr_elem_497} = {zip_cert_myDx_443, myDx_440, myDx_441,
+                                  myDx_442} in
+        let n_498 = numY_140 in
+        {Checked, replicate(n_498, tup_arr_elem_495), replicate(n_498,
+                                                                tup_arr_elem_496),
+         replicate(n_498, tup_arr_elem_497)} in
+      // tup_arr_elem_509 aliases myDxx_444, tup_arr_elem_504, u_143, u_151
+      // tup_arr_elem_510 aliases myDxx_445, tup_arr_elem_505, u_143, u_151
+      // tup_arr_elem_511 aliases tup_arr_elem_506, myDxx_446, u_143, u_151
+      let {tup_arr_cert_508, tup_arr_elem_509, tup_arr_elem_510,
+           tup_arr_elem_511} =
+        // tup_arr_elem_504 aliases myDxx_444, u_143, u_151
+        // tup_arr_elem_505 aliases myDxx_445, u_143, u_151
+        // tup_arr_elem_506 aliases myDxx_446, u_143, u_151
+        let {tup_arr_cert_503, tup_arr_elem_504, tup_arr_elem_505,
+             tup_arr_elem_506} = {zip_cert_myDxx_447, myDxx_444, myDxx_445,
+                                  myDxx_446} in
+        let n_507 = numY_140 in
+        {Checked, replicate(n_507, tup_arr_elem_504), replicate(n_507,
+                                                                tup_arr_elem_505),
+         replicate(n_507, tup_arr_elem_506)} in
+      // val_512 aliases myMuX_130, u_143, u_151
+      let val_512 = transpose(myMuX_130) in
+      // val_513 aliases myVarX_133, u_143, u_151
+      let val_513 = transpose(myVarX_133) in
+      let zip_assert_514 = assert(size(0, u_151) = size(0, tup_arr_elem_500)) in
+      let zip_assert_515 = assert(size(0, tup_arr_elem_500) = size(0,
+                                                                   tup_arr_elem_501)) in
+      let zip_assert_516 = assert(size(0, tup_arr_elem_501) = size(0,
+                                                                   tup_arr_elem_502)) in
+      let zip_assert_517 = assert(size(0, tup_arr_elem_502) = size(0,
+                                                                   tup_arr_elem_509)) in
+      let zip_assert_518 = assert(size(0, tup_arr_elem_509) = size(0,
+                                                                   tup_arr_elem_510)) in
+      let zip_assert_519 = assert(size(0, tup_arr_elem_510) = size(0,
+                                                                   tup_arr_elem_511)) in
+      let zip_assert_520 = assert(size(0, tup_arr_elem_511) = size(0,
+                                                                   val_512)) in
+      let zip_assert_521 = assert(size(0, val_512) = size(0, val_513)) in
+      let comb_cert_522 = conjoin(tup_arr_cert_499, tup_arr_cert_508,
+                                  zip_assert_514, zip_assert_515,
+                                  zip_assert_516, zip_assert_517,
+                                  zip_assert_518, zip_assert_519,
+                                  zip_assert_520, zip_assert_521) in
+      {comb_cert_522, u_151, tup_arr_elem_500, tup_arr_elem_501,
+       tup_arr_elem_502, tup_arr_elem_509, tup_arr_elem_510, tup_arr_elem_511,
+       val_512, val_513} in
+    // untuple_619 aliases val_512, myDy_448, tup_arr_elem_528, v_144, tup_arr_elem_500, tup_arr_elem_472, myDxx_444, myDyy_452, tup_arr_elem_524, tup_arr_elem_496, tup_arr_elem_532, tup_arr_elem_468, tup_arr_elem_504, myDx_440, tup_arr_elem_476, val_473, tup_arr_elem_509, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_525, tup_arr_elem_461, tup_arr_elem_497, tup_arr_elem_505, myDx_441, tup_arr_elem_477, myResult_129, val_513, myDy_449, tup_arr_elem_457, myVarY_137, untuple_493, tup_arr_elem_529, tup_arr_elem_501, tup_arr_elem_470, tup_arr_elem_506, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, tup_arr_elem_530, tup_arr_elem_466, tup_arr_elem_502, tup_arr_elem_510, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_526, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_495, tup_arr_elem_531, tup_arr_elem_467, tup_arr_elem_511, tup_arr_elem_527, tup_arr_elem_463, u_143, u_151, tup_arr_elem_471
+    let {untuple_619} =
+      <tup_arr_cert_523>
+      mapT(fn {[real]} ([real] arg_544, [real] arg_545, [real] arg_546,
+                        [real] arg_547, [real] arg_548, [real] arg_549,
+                        [real] arg_550, [real] arg_551, [real] arg_552) =>
+             // t_533 aliases arg_544
+             // t_535 aliases arg_545
+             // t_536 aliases arg_546
+             // t_537 aliases arg_547
+             // t_539 aliases arg_548
+             // t_540 aliases arg_549
+             // t_541 aliases arg_550
+             // t_542 aliases arg_551
+             // t_543 aliases arg_552
+             let {t_533, t_534, t_535, t_536, t_537, t_538, t_539, t_540, t_541,
+                  t_542, t_543} = {arg_544, conjoin(tup_arr_cert_523), arg_545,
+                                   arg_546, arg_547, conjoin(tup_arr_cert_523),
+                                   arg_548, arg_549, arg_550, arg_551,
+                                   arg_552} in
+             // val_618 aliases uj_172
+             let val_618 =
+               // uj_153 aliases arg_544, t_533
+               // myDx_553 aliases arg_545, t_535
+               // myDx_554 aliases t_536, arg_546
+               // myDx_555 aliases t_537, arg_547
+               // myDxx_557 aliases arg_548, t_539
+               // myDxx_558 aliases t_540, arg_549
+               // myDxx_559 aliases t_541, arg_550
+               // myMuX_156 aliases t_542, arg_551
+               // myVarX_157 aliases arg_552, t_543
+               let {uj_153, zip_cert_myDx_556, myDx_553, myDx_554, myDx_555,
+                    zip_cert_myDxx_560, myDxx_557, myDxx_558, myDxx_559,
+                    myMuX_156, myVarX_157} = {t_533, t_534, t_535, t_536, t_537,
+                                              t_538, t_539, t_540, t_541, t_542,
+                                              t_543} in
+               // a_169 aliases soac_v_611, tup_arr_elem_615
+               // b_170 aliases soac_v_612, tup_arr_elem_616
+               // c_171 aliases tup_arr_elem_617, soac_v_613
+               let {a_169, b_170, c_171} =
+                 // tup_arr_elem_615 aliases soac_v_611
+                 // tup_arr_elem_616 aliases soac_v_612
+                 // tup_arr_elem_617 aliases soac_v_613
+                 let {tup_arr_cert_614, tup_arr_elem_615, tup_arr_elem_616,
+                      tup_arr_elem_617} =
+                   // tup_arr_elem_578 aliases arg_545, myDx_553, tup_arr_elem_562, t_535
+                   // tup_arr_elem_579 aliases t_536, arg_546, myDx_554, tup_arr_elem_563
+                   // tup_arr_elem_580 aliases tup_arr_elem_564, t_537, arg_547, myDx_555
+                   // tup_arr_elem_581 aliases arg_548, myDxx_557, tup_arr_elem_566, t_539
+                   // tup_arr_elem_582 aliases t_540, arg_549, myDxx_558, tup_arr_elem_567
+                   // tup_arr_elem_583 aliases tup_arr_elem_568, t_541, arg_550, myDxx_559
+                   // tup_arr_elem_584 aliases myMuX_156, t_542, arg_551
+                   // tup_arr_elem_585 aliases arg_552, myVarX_157, t_543
+                   let {tup_arr_cert_577, tup_arr_elem_578, tup_arr_elem_579,
+                        tup_arr_elem_580, tup_arr_elem_581, tup_arr_elem_582,
+                        tup_arr_elem_583, tup_arr_elem_584, tup_arr_elem_585} =
+                     // tup_arr_elem_562 aliases arg_545, myDx_553, t_535
+                     // tup_arr_elem_563 aliases t_536, arg_546, myDx_554
+                     // tup_arr_elem_564 aliases t_537, arg_547, myDx_555
+                     let {tup_arr_cert_561, tup_arr_elem_562, tup_arr_elem_563,
+                          tup_arr_elem_564} = {zip_cert_myDx_556, myDx_553,
+                                               myDx_554, myDx_555} in
+                     // tup_arr_elem_566 aliases arg_548, myDxx_557, t_539
+                     // tup_arr_elem_567 aliases t_540, arg_549, myDxx_558
+                     // tup_arr_elem_568 aliases t_541, arg_550, myDxx_559
+                     let {tup_arr_cert_565, tup_arr_elem_566, tup_arr_elem_567,
+                          tup_arr_elem_568} = {zip_cert_myDxx_560, myDxx_557,
+                                               myDxx_558, myDxx_559} in
+                     let zip_assert_569 = assert(size(0, tup_arr_elem_562)
+                                                 = size(0, tup_arr_elem_563)) in
+                     let zip_assert_570 = assert(size(0, tup_arr_elem_563)
+                                                 = size(0, tup_arr_elem_564)) in
+                     let zip_assert_571 = assert(size(0, tup_arr_elem_564)
+                                                 = size(0, tup_arr_elem_566)) in
+                     let zip_assert_572 = assert(size(0, tup_arr_elem_566)
+                                                 = size(0, tup_arr_elem_567)) in
+                     let zip_assert_573 = assert(size(0, tup_arr_elem_567)
+                                                 = size(0, tup_arr_elem_568)) in
+                     let zip_assert_574 = assert(size(0, tup_arr_elem_568)
+                                                 = size(0, myMuX_156)) in
+                     let zip_assert_575 = assert(size(0, myMuX_156) = size(0,
+                                                                           myVarX_157)) in
+                     let comb_cert_576 = conjoin(tup_arr_cert_561,
+                                                 tup_arr_cert_565,
+                                                 zip_assert_569, zip_assert_570,
+                                                 zip_assert_571, zip_assert_572,
+                                                 zip_assert_573, zip_assert_574,
+                                                 zip_assert_575) in
+                     {comb_cert_576, tup_arr_elem_562, tup_arr_elem_563,
+                      tup_arr_elem_564, tup_arr_elem_566, tup_arr_elem_567,
+                      tup_arr_elem_568, myMuX_156, myVarX_157} in
+                   let {soac_v_611, soac_v_612, soac_v_613} =
+                     <tup_arr_cert_577>
+                     mapT(fn {real, real, real} (real arg_594, real arg_595,
+                                                 real arg_596, real arg_597,
+                                                 real arg_598, real arg_599,
+                                                 real arg_600, real arg_601) =>
+                            let {tt_586, tt_587, tt_588, tt_589, tt_590, tt_591,
+                                 tt_592, tt_593} = {arg_594, arg_595, arg_596,
+                                                    arg_597, arg_598, arg_599,
+                                                    arg_600, arg_601} in
+                            let {tup_elem_608, tup_elem_609, tup_elem_610} =
+                              let {myDx_602, myDx_603, myDx_604, myDxx_605,
+                                   myDxx_606, myDxx_607, myMuX_161,
+                                   myVarX_162} = {tt_586, tt_587, tt_588,
+                                                  tt_589, tt_590, tt_591,
+                                                  tt_592, tt_593} in
+                              let {dx0_163, dx1_164, dx2_165} = {myDx_602,
+                                                                 myDx_603,
+                                                                 myDx_604} in
+                              let {dxx0_166, dxx1_167, dxx2_168} = {myDxx_605,
+                                                                    myDxx_606,
+                                                                    myDxx_607} in
+                              {-(0.5 * (myMuX_161 * dx0_163 + 0.5 * myVarX_162
+                                        * dxx0_166)), dtInv_142 - (0.5
+                                                                   * (myMuX_161
+                                                                      * dx1_164
+                                                                      + 0.5
+                                                                      * myVarX_162
+                                                                      * dxx1_167)),
+                               -(0.5 * (myMuX_161 * dx2_165 + 0.5 * myVarX_162
+                                        * dxx2_168))} in
+                            {tup_elem_608, tup_elem_609, tup_elem_610},
+                          tup_arr_elem_578, tup_arr_elem_579, tup_arr_elem_580,
+                          tup_arr_elem_581, tup_arr_elem_582, tup_arr_elem_583,
+                          tup_arr_elem_584, tup_arr_elem_585) in
+                   {conjoin(tup_arr_cert_577), soac_v_611, soac_v_612,
+                    soac_v_613} in
+                 {tup_arr_elem_615, tup_arr_elem_616, tup_arr_elem_617} in
+               // yy_173 aliases soac_v_612, arg_544, tup_arr_elem_616, uj_153, tup_arr_elem_617, a_169, t_533, soac_v_613, b_170, soac_v_611, c_171, tup_arr_elem_615
+               let {uj_172, yy_173} = tridag(a_169, b_170, c_171, uj_153,
+                                             numX_139) in
+               uj_172 in
+             {val_618},
+           tup_arr_elem_524, tup_arr_elem_525, tup_arr_elem_526,
+           tup_arr_elem_527, tup_arr_elem_528, tup_arr_elem_529,
+           tup_arr_elem_530, tup_arr_elem_531, tup_arr_elem_532) in
+    untuple_619 in
+  // myResult_202 aliases untuple_758
+  let myResult_202 =
+    // tup_arr_elem_650 aliases val_512, myDy_448, val_620, tup_arr_elem_528, v_144, tup_arr_elem_500, tup_arr_elem_628, tup_arr_elem_472, tup_arr_elem_636, myDxx_444, myDyy_452, tup_arr_elem_524, tup_arr_elem_496, tup_arr_elem_532, tup_arr_elem_468, tup_arr_elem_504, myDx_440, tup_arr_elem_476, val_473, tup_arr_elem_509, tup_arr_elem_637, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_525, tup_arr_elem_461, tup_arr_elem_497, tup_arr_elem_505, myDx_441, tup_arr_elem_477, myResult_129, val_513, myDy_449, tup_arr_elem_457, myVarY_137, untuple_493, tup_arr_elem_529, tup_arr_elem_501, tup_arr_elem_629, tup_arr_elem_470, tup_arr_elem_506, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, u_174, tup_arr_elem_530, tup_arr_elem_466, tup_arr_elem_502, tup_arr_elem_510, tup_arr_elem_638, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_526, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_495, tup_arr_elem_531, tup_arr_elem_467, tup_arr_elem_511, untuple_619, tup_arr_elem_527, tup_arr_elem_463, u_143, tup_arr_elem_627, u_151, tup_arr_elem_471
+    // tup_arr_elem_651 aliases myDy_448, val_620, v_144, tup_arr_elem_628, tup_arr_elem_472, tup_arr_elem_636, myDyy_452, tup_arr_elem_468, tup_arr_elem_637, myDyy_453, myResult_129, myDy_449, myVarY_137, tup_arr_elem_629, tup_arr_elem_470, myDy_450, u_174, tup_arr_elem_466, tup_arr_elem_638, myDyy_454, myMuY_134, tup_arr_elem_467, u_143, tup_arr_elem_627, u_151, tup_arr_elem_471
+    // tup_arr_elem_652 aliases myDy_448, val_620, v_144, tup_arr_elem_622, u_174, tup_arr_elem_627, u_151
+    // tup_arr_elem_653 aliases val_620, v_144, tup_arr_elem_628, myDy_449, u_174, tup_arr_elem_623, u_151
+    // tup_arr_elem_654 aliases val_620, v_144, tup_arr_elem_624, tup_arr_elem_629, myDy_450, u_174, u_151
+    // tup_arr_elem_655 aliases val_620, v_144, tup_arr_elem_636, myDyy_452, u_174, tup_arr_elem_631, u_151
+    // tup_arr_elem_656 aliases val_620, v_144, tup_arr_elem_632, tup_arr_elem_637, myDyy_453, u_174, u_151
+    // tup_arr_elem_657 aliases val_620, v_144, tup_arr_elem_633, u_174, tup_arr_elem_638, myDyy_454, u_151
+    // tup_arr_elem_658 aliases val_620, v_144, u_174, myMuY_134, u_151
+    // tup_arr_elem_659 aliases val_620, v_144, myVarY_137, u_174, u_151
+    let {tup_arr_cert_649, tup_arr_elem_650, tup_arr_elem_651, tup_arr_elem_652,
+         tup_arr_elem_653, tup_arr_elem_654, tup_arr_elem_655, tup_arr_elem_656,
+         tup_arr_elem_657, tup_arr_elem_658, tup_arr_elem_659} =
+      // val_620 aliases val_512, myDy_448, tup_arr_elem_528, v_144, tup_arr_elem_500, tup_arr_elem_472, myDxx_444, myDyy_452, tup_arr_elem_524, tup_arr_elem_496, tup_arr_elem_532, tup_arr_elem_468, tup_arr_elem_504, myDx_440, tup_arr_elem_476, val_473, tup_arr_elem_509, myDxx_445, myDyy_453, myVarX_133, tup_arr_elem_525, tup_arr_elem_461, tup_arr_elem_497, tup_arr_elem_505, myDx_441, tup_arr_elem_477, myResult_129, val_513, myDy_449, tup_arr_elem_457, myVarY_137, untuple_493, tup_arr_elem_529, tup_arr_elem_501, tup_arr_elem_470, tup_arr_elem_506, myDx_442, myDy_450, myMuX_130, tup_arr_elem_458, u_174, tup_arr_elem_530, tup_arr_elem_466, tup_arr_elem_502, tup_arr_elem_510, myDxx_446, myDyy_454, myMuY_134, tup_arr_elem_526, tup_arr_elem_462, tup_arr_elem_459, tup_arr_elem_495, tup_arr_elem_531, tup_arr_elem_467, tup_arr_elem_511, untuple_619, tup_arr_elem_527, tup_arr_elem_463, u_143, u_151, tup_arr_elem_471
+      let val_620 = transpose(u_174) in
+      // tup_arr_elem_627 aliases myDy_448, val_620, v_144, tup_arr_elem_622, u_174, u_151
+      // tup_arr_elem_628 aliases val_620, v_144, myDy_449, u_174, tup_arr_elem_623, u_151
+      // tup_arr_elem_629 aliases val_620, v_144, tup_arr_elem_624, myDy_450, u_174, u_151
+      let {tup_arr_cert_626, tup_arr_elem_627, tup_arr_elem_628,
+           tup_arr_elem_629} =
+        // tup_arr_elem_622 aliases myDy_448, val_620, v_144, u_174, u_151
+        // tup_arr_elem_623 aliases val_620, v_144, myDy_449, u_174, u_151
+        // tup_arr_elem_624 aliases val_620, v_144, myDy_450, u_174, u_151
+        let {tup_arr_cert_621, tup_arr_elem_622, tup_arr_elem_623,
+             tup_arr_elem_624} = {zip_cert_myDy_451, myDy_448, myDy_449,
+                                  myDy_450} in
+        let n_625 = numX_139 in
+        {Checked, replicate(n_625, tup_arr_elem_622), replicate(n_625,
+                                                                tup_arr_elem_623),
+         replicate(n_625, tup_arr_elem_624)} in
+      // tup_arr_elem_636 aliases val_620, v_144, myDyy_452, u_174, tup_arr_elem_631, u_151
+      // tup_arr_elem_637 aliases val_620, v_144, tup_arr_elem_632, myDyy_453, u_174, u_151
+      // tup_arr_elem_638 aliases val_620, v_144, tup_arr_elem_633, u_174, myDyy_454, u_151
+      let {tup_arr_cert_635, tup_arr_elem_636, tup_arr_elem_637,
+           tup_arr_elem_638} =
+        // tup_arr_elem_631 aliases val_620, v_144, myDyy_452, u_174, u_151
+        // tup_arr_elem_632 aliases val_620, v_144, myDyy_453, u_174, u_151
+        // tup_arr_elem_633 aliases val_620, v_144, u_174, myDyy_454, u_151
+        let {tup_arr_cert_630, tup_arr_elem_631, tup_arr_elem_632,
+             tup_arr_elem_633} = {zip_cert_myDyy_455, myDyy_452, myDyy_453,
+                                  myDyy_454} in
+        let n_634 = numX_139 in
+        {Checked, replicate(n_634, tup_arr_elem_631), replicate(n_634,
+                                                                tup_arr_elem_632),
+         replicate(n_634, tup_arr_elem_633)} in
+      let zip_assert_639 = assert(size(0, val_620) = size(0, v_144)) in
+      let zip_assert_640 = assert(size(0, v_144) = size(0, tup_arr_elem_627)) in
+      let zip_assert_641 = assert(size(0, tup_arr_elem_627) = size(0,
+                                                                   tup_arr_elem_628)) in
+      let zip_assert_642 = assert(size(0, tup_arr_elem_628) = size(0,
+                                                                   tup_arr_elem_629)) in
+      let zip_assert_643 = assert(size(0, tup_arr_elem_629) = size(0,
+                                                                   tup_arr_elem_636)) in
+      let zip_assert_644 = assert(size(0, tup_arr_elem_636) = size(0,
+                                                                   tup_arr_elem_637)) in
+      let zip_assert_645 = assert(size(0, tup_arr_elem_637) = size(0,
+                                                                   tup_arr_elem_638)) in
+      let zip_assert_646 = assert(size(0, tup_arr_elem_638) = size(0,
+                                                                   myMuY_134)) in
+      let zip_assert_647 = assert(size(0, myMuY_134) = size(0, myVarY_137)) in
+      let comb_cert_648 = conjoin(tup_arr_cert_626, tup_arr_cert_635,
+                                  zip_assert_639, zip_assert_640,
+                                  zip_assert_641, zip_assert_642,
+                                  zip_assert_643, zip_assert_644,
+                                  zip_assert_645, zip_assert_646,
+                                  zip_assert_647) in
+      {comb_cert_648, val_620, v_144, tup_arr_elem_627, tup_arr_elem_628,
+       tup_arr_elem_629, tup_arr_elem_636, tup_arr_elem_637, tup_arr_elem_638,
+       myMuY_134, myVarY_137} in
+    let {untuple_758} =
+      <tup_arr_cert_649>
+      mapT(fn {*[real]} ([real] arg_672, [real] arg_673, [real] arg_674,
+                         [real] arg_675, [real] arg_676, [real] arg_677,
+                         [real] arg_678, [real] arg_679, [real] arg_680,
+                         [real] arg_681) =>
+             // t_660 aliases arg_672
+             // t_661 aliases arg_673
+             // t_663 aliases arg_674
+             // t_664 aliases arg_675
+             // t_665 aliases arg_676
+             // t_667 aliases arg_677
+             // t_668 aliases arg_678
+             // t_669 aliases arg_679
+             // t_670 aliases arg_680
+             // t_671 aliases arg_681
+             let {t_660, t_661, t_662, t_663, t_664, t_665, t_666, t_667, t_668,
+                  t_669, t_670, t_671} = {arg_672, arg_673,
+                                          conjoin(tup_arr_cert_649), arg_674,
+                                          arg_675, arg_676,
+                                          conjoin(tup_arr_cert_649), arg_677,
+                                          arg_678, arg_679, arg_680, arg_681} in
+             // val_757 aliases ri_200
+             let val_757 =
+               // ui_176 aliases arg_672, t_660
+               // vi_177 aliases arg_673, t_661
+               // myDy_682 aliases arg_674, t_663
+               // myDy_683 aliases t_664, arg_675
+               // myDy_684 aliases arg_676, t_665
+               // myDyy_686 aliases arg_677, t_667
+               // myDyy_687 aliases t_668, arg_678
+               // myDyy_688 aliases t_669, arg_679
+               // myMuY_180 aliases arg_680, t_670
+               // myVarY_181 aliases arg_681, t_671
+               let {ui_176, vi_177, zip_cert_myDy_685, myDy_682, myDy_683,
+                    myDy_684, zip_cert_myDyy_689, myDyy_686, myDyy_687,
+                    myDyy_688, myMuY_180, myVarY_181} = {t_660, t_661, t_662,
+                                                         t_663, t_664, t_665,
+                                                         t_666, t_667, t_668,
+                                                         t_669, t_670, t_671} in
+               // a_193 aliases soac_v_740, tup_arr_elem_744
+               // b_194 aliases tup_arr_elem_745, soac_v_741
+               // c_195 aliases soac_v_742, tup_arr_elem_746
+               let {a_193, b_194, c_195} =
+                 // tup_arr_elem_744 aliases soac_v_740
+                 // tup_arr_elem_745 aliases soac_v_741
+                 // tup_arr_elem_746 aliases soac_v_742
+                 let {tup_arr_cert_743, tup_arr_elem_744, tup_arr_elem_745,
+                      tup_arr_elem_746} =
+                   // tup_arr_elem_707 aliases arg_674, myDy_682, tup_arr_elem_691, t_663
+                   // tup_arr_elem_708 aliases tup_arr_elem_692, t_664, arg_675, myDy_683
+                   // tup_arr_elem_709 aliases arg_676, myDy_684, t_665, tup_arr_elem_693
+                   // tup_arr_elem_710 aliases arg_677, myDyy_686, tup_arr_elem_695, t_667
+                   // tup_arr_elem_711 aliases tup_arr_elem_696, t_668, arg_678, myDyy_687
+                   // tup_arr_elem_712 aliases myDyy_688, tup_arr_elem_697, t_669, arg_679
+                   // tup_arr_elem_713 aliases myMuY_180, arg_680, t_670
+                   // tup_arr_elem_714 aliases arg_681, myVarY_181, t_671
+                   let {tup_arr_cert_706, tup_arr_elem_707, tup_arr_elem_708,
+                        tup_arr_elem_709, tup_arr_elem_710, tup_arr_elem_711,
+                        tup_arr_elem_712, tup_arr_elem_713, tup_arr_elem_714} =
+                     // tup_arr_elem_691 aliases arg_674, myDy_682, t_663
+                     // tup_arr_elem_692 aliases t_664, arg_675, myDy_683
+                     // tup_arr_elem_693 aliases arg_676, myDy_684, t_665
+                     let {tup_arr_cert_690, tup_arr_elem_691, tup_arr_elem_692,
+                          tup_arr_elem_693} = {zip_cert_myDy_685, myDy_682,
+                                               myDy_683, myDy_684} in
+                     // tup_arr_elem_695 aliases arg_677, myDyy_686, t_667
+                     // tup_arr_elem_696 aliases t_668, arg_678, myDyy_687
+                     // tup_arr_elem_697 aliases myDyy_688, t_669, arg_679
+                     let {tup_arr_cert_694, tup_arr_elem_695, tup_arr_elem_696,
+                          tup_arr_elem_697} = {zip_cert_myDyy_689, myDyy_686,
+                                               myDyy_687, myDyy_688} in
+                     let zip_assert_698 = assert(size(0, tup_arr_elem_691)
+                                                 = size(0, tup_arr_elem_692)) in
+                     let zip_assert_699 = assert(size(0, tup_arr_elem_692)
+                                                 = size(0, tup_arr_elem_693)) in
+                     let zip_assert_700 = assert(size(0, tup_arr_elem_693)
+                                                 = size(0, tup_arr_elem_695)) in
+                     let zip_assert_701 = assert(size(0, tup_arr_elem_695)
+                                                 = size(0, tup_arr_elem_696)) in
+                     let zip_assert_702 = assert(size(0, tup_arr_elem_696)
+                                                 = size(0, tup_arr_elem_697)) in
+                     let zip_assert_703 = assert(size(0, tup_arr_elem_697)
+                                                 = size(0, myMuY_180)) in
+                     let zip_assert_704 = assert(size(0, myMuY_180) = size(0,
+                                                                           myVarY_181)) in
+                     let comb_cert_705 = conjoin(tup_arr_cert_690,
+                                                 tup_arr_cert_694,
+                                                 zip_assert_698, zip_assert_699,
+                                                 zip_assert_700, zip_assert_701,
+                                                 zip_assert_702, zip_assert_703,
+                                                 zip_assert_704) in
+                     {comb_cert_705, tup_arr_elem_691, tup_arr_elem_692,
+                      tup_arr_elem_693, tup_arr_elem_695, tup_arr_elem_696,
+                      tup_arr_elem_697, myMuY_180, myVarY_181} in
+                   let {soac_v_740, soac_v_741, soac_v_742} =
+                     <tup_arr_cert_706>
+                     mapT(fn {real, real, real} (real arg_723, real arg_724,
+                                                 real arg_725, real arg_726,
+                                                 real arg_727, real arg_728,
+                                                 real arg_729, real arg_730) =>
+                            let {tt_715, tt_716, tt_717, tt_718, tt_719, tt_720,
+                                 tt_721, tt_722} = {arg_723, arg_724, arg_725,
+                                                    arg_726, arg_727, arg_728,
+                                                    arg_729, arg_730} in
+                            let {tup_elem_737, tup_elem_738, tup_elem_739} =
+                              let {myDy_731, myDy_732, myDy_733, myDyy_734,
+                                   myDyy_735, myDyy_736, myMuY_185,
+                                   myVarY_186} = {tt_715, tt_716, tt_717,
+                                                  tt_718, tt_719, tt_720,
+                                                  tt_721, tt_722} in
+                              let {dy0_187, dy1_188, dy2_189} = {myDy_731,
+                                                                 myDy_732,
+                                                                 myDy_733} in
+                              let {dyy0_190, dyy1_191, dyy2_192} = {myDyy_734,
+                                                                    myDyy_735,
+                                                                    myDyy_736} in
+                              {-(0.5 * (myMuY_185 * dy0_187 + 0.5 * myVarY_186
+                                        * dyy0_190)), dtInv_142 - (0.5
+                                                                   * (myMuY_185
+                                                                      * dy1_188
+                                                                      + 0.5
+                                                                      * myVarY_186
+                                                                      * dyy1_191)),
+                               -(0.5 * (myMuY_185 * dy2_189 + 0.5 * myVarY_186
+                                        * dyy2_192))} in
+                            {tup_elem_737, tup_elem_738, tup_elem_739},
+                          tup_arr_elem_707, tup_arr_elem_708, tup_arr_elem_709,
+                          tup_arr_elem_710, tup_arr_elem_711, tup_arr_elem_712,
+                          tup_arr_elem_713, tup_arr_elem_714) in
+                   {conjoin(tup_arr_cert_706), soac_v_740, soac_v_741,
+                    soac_v_742} in
+                 {tup_arr_elem_744, tup_arr_elem_745, tup_arr_elem_746} in
+               // y_199 aliases untuple_756
+               let y_199 =
+                 // tup_arr_elem_749 aliases arg_672, ui_176, t_660
+                 // tup_arr_elem_750 aliases arg_673, vi_177, t_661
+                 let {tup_arr_cert_748, tup_arr_elem_749, tup_arr_elem_750} =
+                   let zip_assert_747 = assert(size(0, ui_176) = size(0,
+                                                                      vi_177)) in
+                   {zip_assert_747, ui_176, vi_177} in
+                 let {untuple_756} =
+                   <tup_arr_cert_748>
+                   mapT(fn {real} (real arg_753, real arg_754) =>
+                          let {uv_751, uv_752} = {arg_753, arg_754} in
+                          let val_755 =
+                            let {u_197, v_198} = {uv_751, uv_752} in
+                            dtInv_142 * u_197 - (0.5 * v_198) in
+                          {val_755},
+                        tup_arr_elem_749, tup_arr_elem_750) in
+                 untuple_756 in
+               // yy_201 aliases soac_v_740, untuple_756, tup_arr_elem_744, tup_arr_elem_745, a_193, soac_v_741, b_194, soac_v_742, tup_arr_elem_746, y_199, c_195
+               let {ri_200, yy_201} = tridag(a_193, b_194, c_195, y_199,
+                                             numY_140) in
+               ri_200 in
+             {val_757},
+           tup_arr_elem_650, tup_arr_elem_651, tup_arr_elem_652,
+           tup_arr_elem_653, tup_arr_elem_654, tup_arr_elem_655,
+           tup_arr_elem_656, tup_arr_elem_657, tup_arr_elem_658,
+           tup_arr_elem_659) in
+    untuple_758 in
+  myResult_202
+
+fun real value(real s0_203, real strike_204, real t_205, real alpha_206,
+               real nu_207, real beta_208) =
+  let {numX_209, numY_210, numT_211} = {32, 16, 32} in
+  let {myXindex_212, myYindex_213, myX_214, myY_215, myTimeline_216, myMuX_217,
+       myVarX_218, myMuY_219, myVarY_220} = initGrid(s0_203, alpha_206, nu_207,
+                                                     t_205, numX_209, numY_210,
+                                                     numT_211) in
+  // myDx_759 aliases myX_214
+  // myDx_760 aliases myX_214
+  // myDx_761 aliases myX_214
+  // myDxx_763 aliases myX_214
+  // myDxx_764 aliases myX_214
+  // myDxx_765 aliases myX_214
+  let {zip_cert_myDx_762, myDx_759, myDx_760, myDx_761, zip_cert_myDxx_766,
+       myDxx_763, myDxx_764, myDxx_765} = initOperator(myX_214) in
+  // myDy_767 aliases myY_215
+  // myDy_768 aliases myY_215
+  // myDy_769 aliases myY_215
+  // myDyy_771 aliases myY_215
+  // myDyy_772 aliases myY_215
+  // myDyy_773 aliases myY_215
+  let {zip_cert_myDy_770, myDy_767, myDy_768, myDy_769, zip_cert_myDyy_774,
+       myDyy_771, myDyy_772, myDyy_773} = initOperator(myY_215) in
+  let myResult_225 = setPayoff(strike_204, myX_214, myY_215) in
+  // indices_227 aliases untuple_777
+  let indices_227 =
+    let val_775 = iota(numT_211 - 1) in
+    let {untuple_777} =
+      mapT(fn {int} (int i_226) =>
+             let val_776 = numT_211 - 2 - i_226 in
+             {val_776},
+           val_775) in
+    untuple_777 in
+  // myResult_228 aliases myResult_225
+  // myMuX_229 aliases myMuX_217
+  // myVarX_230 aliases myVarX_218
+  // myMuY_231 aliases myMuY_219
+  // myVarY_232 aliases myVarY_220
+  loop ({myResult_228, myMuX_229, myVarX_230, myMuY_231,
+         myVarY_232} = {myResult_225, myMuX_217, myVarX_218, myMuY_219,
+                        myVarY_220}) = for i_233 < numT_211 - 1 do
+    let i_234 = numT_211 - 2 - i_233 in
+    let {myMuX_235, myVarX_236, myMuY_237, myVarY_238} = updateParams(myX_214,
+                                                                      myY_215,
+                                                                      myTimeline_216,
+                                                                      i_234,
+                                                                      alpha_206,
+                                                                      beta_208,
+                                                                      nu_207) in
+    let myResult_239 =
+      // tup_arr_elem_779 aliases myX_214, myDx_759
+      // tup_arr_elem_780 aliases myDx_760, myX_214
+      // tup_arr_elem_781 aliases myDx_761, myX_214
+      let {tup_arr_cert_778, tup_arr_elem_779, tup_arr_elem_780,
+           tup_arr_elem_781} = {zip_cert_myDx_762, myDx_759, myDx_760,
+                                myDx_761} in
+      // tup_arr_elem_783 aliases myX_214, myDxx_763
+      // tup_arr_elem_784 aliases myDxx_764, myX_214
+      // tup_arr_elem_785 aliases myDxx_765, myX_214
+      let {tup_arr_cert_782, tup_arr_elem_783, tup_arr_elem_784,
+           tup_arr_elem_785} = {zip_cert_myDxx_766, myDxx_763, myDxx_764,
+                                myDxx_765} in
+      // tup_arr_elem_787 aliases myDy_767, myY_215
+      // tup_arr_elem_788 aliases myDy_768, myY_215
+      // tup_arr_elem_789 aliases myDy_769, myY_215
+      let {tup_arr_cert_786, tup_arr_elem_787, tup_arr_elem_788,
+           tup_arr_elem_789} = {zip_cert_myDy_770, myDy_767, myDy_768,
+                                myDy_769} in
+      // tup_arr_elem_791 aliases myY_215, myDyy_771
+      // tup_arr_elem_792 aliases myDyy_772, myY_215
+      // tup_arr_elem_793 aliases myDyy_773, myY_215
+      let {tup_arr_cert_790, tup_arr_elem_791, tup_arr_elem_792,
+           tup_arr_elem_793} = {zip_cert_myDyy_774, myDyy_771, myDyy_772,
+                                myDyy_773} in
+      rollback(myX_214, myY_215, myTimeline_216, myResult_228, myMuX_235,
+               tup_arr_cert_778, tup_arr_elem_779, tup_arr_elem_780,
+               tup_arr_elem_781, tup_arr_cert_782, tup_arr_elem_783,
+               tup_arr_elem_784, tup_arr_elem_785, myVarX_236, myMuY_237,
+               tup_arr_cert_786, tup_arr_elem_787, tup_arr_elem_788,
+               tup_arr_elem_789, tup_arr_cert_790, tup_arr_elem_791,
+               tup_arr_elem_792, tup_arr_elem_793, myVarY_238, i_234) in
+    {myResult_239, myMuX_235, myVarX_236, myMuY_237, myVarY_238} in
+  myResult_228[myXindex_212, myYindex_213]
+
+fun [real] main() =
+  let OUTER_LOOP_COUNT_240 = 8 in
+  let {s0_241, strike_242, t_243, alpha_244, nu_245, beta_246} = {0.03, 0.03,
+                                                                  5.0, 0.2, 0.6,
+                                                                  0.5} in
+  // strikes_248 aliases untuple_796
+  let strikes_248 =
+    let val_794 = iota(OUTER_LOOP_COUNT_240) in
+    let {untuple_796} =
+      mapT(fn {real} (int i_247) =>
+             let val_795 = 0.001 * toReal(i_247) in
+             {val_795},
+           val_794) in
+    untuple_796 in
+  // res_250 aliases untuple_798
+  let res_250 =
+    let {untuple_798} =
+      mapT(fn {real} (real x_249) =>
+             let val_797 = value(s0_241, x_249, t_243, alpha_244, nu_245,
+                                 beta_246) in
+             {val_797},
+           strikes_248) in
+    untuple_798 in
+  res_250

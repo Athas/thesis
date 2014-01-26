@@ -1,0 +1,456 @@
+fun real main() =
+  let {untuple_2} =
+    mapT(fn {int} (int x_0) =>
+           let val_1 = x_0 + 1 in
+           {val_1},
+         iota(1000)) in
+  let norm_3 = [[1.0, 0.6, 0.8],
+                [0.6, 0.8, 0.15],
+                [0.8, 0.15, 0.5809475019311124]] in
+  let norm_10 = [[0.19, 0.19, 0.15],
+                 [0.19, 0.19, 0.15],
+                 [0.19, 0.19, 0.15],
+                 [0.19, 0.19, 0.15],
+                 [0.19, 0.19, 0.15]] in
+  let norm_11 = [3758.05, 11840.0, 1200.0] in
+  let {num_mc_it_12, num_dates_13, num_und_14, num_bits_15, dir_vs_16} =
+    {1000,
+     5,
+     3,
+     30,
+     [[536870912, 268435456, 134217728, 67108864, 33554432, 16777216, 8388608,
+       4194304, 2097152, 1048576, 524288, 262144, 131072, 65536, 32768, 16384,
+       8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1],
+      [536870912, 805306368, 671088640, 1006632960, 570425344, 855638016,
+       713031680, 1069547520, 538968064, 808452096, 673710080, 1010565120,
+       572653568, 858980352, 715816960, 1073725440, 536879104, 805318656,
+       671098880, 1006648320, 570434048, 855651072, 713042560, 1069563840,
+       538976288, 808464432, 673720360, 1010580540, 572662306, 858993459],
+      [536870912, 805306368, 402653184, 603979776, 973078528, 385875968,
+       595591168, 826277888, 438304768, 657457152, 999817216, 358875136,
+       538574848, 807862272, 406552576, 605372416, 975183872, 389033984,
+       597170176, 828646400, 437926400, 656873216, 1002152832, 357921088,
+       536885792, 805312304, 402662296, 603992420, 973085210, 385885991],
+      [536870912, 805306368, 939524096, 335544320, 234881024, 721420288,
+       411041792, 616562688, 920649728, 1062207488, 381157376, 258736128,
+       771883008, 453181440, 545488896, 817971200, 954261504, 340963328,
+       238651392, 732843008, 417426944, 609285376, 909831040, 1068349120,
+       383778848, 256901168, 783810616, 460062740, 537001998, 805503019],
+      [536870912, 805306368, 402653184, 1006632960, 167772160, 285212672,
+       713031680, 566231040, 853540864, 489684992, 952631296, 208928768,
+       316801024, 758317056, 550076416, 813154304, 417505280, 1009913856,
+       172697600, 297131008, 704744960, 553894656, 847291520, 499194688,
+       954376224, 204607536, 306915352, 766893116, 536972810, 805552913],
+      [536870912, 805306368, 402653184, 469762048, 301989888, 721420288,
+       92274688, 264241152, 941621248, 741343232, 169345024, 924581888,
+       395444224, 619380736, 1034256384, 603963392, 838868992, 452997120,
+       494934016, 331357184, 706744832, 120597248, 261621120, 953946048,
+       800208928, 148581424, 935168536, 350484252, 630339474, 1072370923],
+      [536870912, 805306368, 134217728, 1006632960, 503316480, 754974720,
+       629145600, 440401920, 94371840, 711983104, 229113856, 374079488,
+       330694656, 996212736, 907247616, 557531136, 867573760, 190918656,
+       1041467392, 490437632, 766918144, 643898624, 462663040, 125527616,
+       672545696, 202454896, 373006376, 288845836, 1000351766, 930090001],
+      [536870912, 268435456, 402653184, 872415232, 838860800, 956301312,
+       612368384, 717225984, 211812352, 386924544, 302514176, 688128000,
+       1015414784, 516751360, 1051492352, 773734400, 914432000, 63877120,
+       807741440, 165200896, 748683776, 118489344, 168296832, 486802240,
+       243663648, 667747216, 439124552, 81674924, 975249610, 350138737],
+      [536870912, 268435456, 671088640, 469762048, 973078528, 1023410176,
+       713031680, 339738624, 912261120, 797966336, 176685056, 71565312,
+       510263296, 865533952, 814120960, 961232896, 887136256, 668078080,
+       116070400, 382772224, 1047134720, 597098752, 411468416, 625689024,
+       249602976, 449975248, 745216680, 43033924, 134873446, 201786361],
+      [536870912, 268435456, 402653184, 67108864, 704643072, 385875968,
+       696254464, 205520896, 920649728, 946864128, 359137280, 859045888,
+       302907392, 50659328, 462192640, 524599296, 895541248, 590794752,
+       168810496, 118033408, 831447552, 138662144, 485185920, 796511296,
+       1021313184, 1064304752, 619184920, 997458052, 250479054, 745865975],
+      [536870912, 268435456, 939524096, 1006632960, 838860800, 889192448,
+       645922816, 46137344, 476053504, 584056832, 210239488, 465829888,
+       820903936, 689897472, 73695232, 249118720, 110075904, 315338752,
+       610637824, 517665792, 1049494016, 785318144, 376210304, 735921088,
+       402760480, 738505552, 168368744, 151499820, 344957894, 936096557],
+      [536870912, 805306368, 939524096, 1006632960, 503316480, 922746880,
+       41943040, 423624704, 228589568, 651165696, 195559424, 500957184,
+       791019520, 261292032, 1040285696, 118407168, 982065152, 625250304,
+       329533440, 298984448, 153690624, 76845824, 579619712, 692987840,
+       900670432, 450334832, 363187112, 719119956, 765461306, 382730781],
+      [536870912, 805306368, 402653184, 603979776, 838860800, 117440512,
+       478150656, 658505728, 752877568, 1060110336, 141033472, 209453056,
+       244187136, 272957440, 678068224, 1014546432, 377724928, 876875776,
+       443160576, 998185984, 168665600, 318837504, 914397568, 71818816,
+       40763680, 527762288, 939688008, 335855668, 705536494, 587273091],
+      [536870912, 268435456, 671088640, 738197504, 637534208, 150994944,
+       813694976, 943718400, 77594624, 179306496, 798490624, 967049216,
+       134348800, 1006698496, 235044864, 620937216, 377643008, 826314752,
+       874711040, 854819840, 725109248, 856992512, 664336768, 94804544,
+       100663328, 419430416, 411041832, 339738668, 580911142, 61865993],
+      [536870912, 805306368, 939524096, 603979776, 100663296, 452984832,
+       998244352, 188743680, 866123776, 389021696, 287834112, 172228608,
+       824836096, 977731584, 153714688, 507854848, 254402560, 88403968,
+       883578880, 235160576, 118055424, 422917888, 371224704, 326210368,
+       654926368, 691353392, 773877944, 930190180, 554263078, 842348331]]} in
+  // untuple_37 aliases untuple_2
+  let {untuple_37} =
+    mapT(fn {[real]} (int param_0_17) =>
+           let bop_18 = param_0_17 >> 1 in
+           let val_19 = bop_18 ^ param_0_17 in
+           let {untuple_32} =
+             mapT(fn {int} ([int] param_0_20) =>
+                    let {untuple_25} =
+                      filterT(fn {bool} (int param_0_21) =>
+                                let t_22 = 1 << param_0_21 in
+                                let bop_23 = val_19 & t_22 in
+                                let val_24 = bop_23 = t_22 in
+                                {val_24},
+                              iota(30)) in
+                    let {untuple_27} =
+                      mapT(fn {int} (int param_0_26) =>
+                             {param_0_20[param_0_26]},
+                           untuple_25) in
+                    let {untuple_31} =
+                      reduceT(fn {int} (int x_28, int y_29) =>
+                                let val_30 = x_28 ^ y_29 in
+                                {val_30},
+                              {0}, untuple_27) in
+                    {untuple_31},
+                  dir_vs_16) in
+           let {untuple_36} =
+             mapT(fn {real} (int x_33) =>
+                    let tmp_call_34 = toReal(x_33) in
+                    let val_35 = tmp_call_34 / 1073741824.0 in
+                    {val_35},
+                  untuple_32) in
+           {untuple_36},
+         untuple_2) in
+  // untuple_153 aliases untuple_37, untuple_2
+  let {untuple_153} =
+    mapT(fn {[real]} ([real] param_0_38) =>
+           let {untuple_152} =
+             mapT(fn {real} (real param_0_39) =>
+                    let dp_40 = param_0_39 - 0.5 in
+                    let bop_41 = 0.5 - dp_40 in
+                    let bop_42 = dp_40 + 0.5 in
+                    let bop_43 = dp_40 * dp_40 in
+                    let val_44 = 0.180625 - bop_43 in
+                    let bop_45 = val_44 * 2509.0809287301227 in
+                    let bop_46 = bop_45 + 33430.57558358813 in
+                    let bop_47 = val_44 * bop_46 in
+                    let bop_48 = bop_47 + 67265.7709270087 in
+                    let bop_49 = val_44 * bop_48 in
+                    let bop_50 = bop_49 + 45921.95393154987 in
+                    let bop_51 = val_44 * bop_50 in
+                    let bop_53 = bop_51 + 13731.69376550946 in
+                    let bop_54 = val_44 * bop_53 in
+                    let bop_55 = bop_54 + 1971.5909503065513 in
+                    let bop_56 = val_44 * bop_55 in
+                    let bop_57 = bop_56 + 133.14166789178438 in
+                    let bop_58 = val_44 * bop_57 in
+                    let bop_59 = bop_58 + 3.3871328727963665 in
+                    let bop_60 = val_44 * 5226.495278852854 in
+                    let bop_61 = bop_60 + 28729.085735721943 in
+                    let bop_62 = val_44 * bop_61 in
+                    let bop_63 = bop_62 + 39307.89580009271 in
+                    let bop_64 = val_44 * bop_63 in
+                    let bop_65 = bop_64 + 21213.794301586597 in
+                    let bop_66 = val_44 * bop_65 in
+                    let bop_67 = bop_66 + 5394.196021424751 in
+                    let bop_68 = val_44 * bop_67 in
+                    let bop_69 = bop_68 + 687.1870074920579 in
+                    let bop_70 = val_44 * bop_69 in
+                    let bop_71 = bop_70 + 42.31333070160091 in
+                    let bop_72 = val_44 * bop_71 in
+                    let bop_73 = bop_72 + 1.0 in
+                    let bop_74 = dp_40 <= 0.425 in
+                    let bop_75 = 0.0 <= dp_40 in
+                    let norm_76 = bop_75 && bop_74 in
+                    let bop_77 = 0.0 - dp_40 in
+                    let bop_78 = bop_77 <= 0.425 in
+                    let bop_79 = dp_40 < 0.0 in
+                    let norm_80 = bop_79 && bop_78 in
+                    let norm_81 = norm_80 || norm_76 in
+                    let val_151 = if norm_81
+                                  then let tmp_bop_82 = bop_59 / bop_73 in
+                                       let bop_83 = dp_40 * tmp_bop_82 in
+                                       bop_83
+                                  else let pp_84 = if bop_79
+                                                   then bop_42
+                                                   else bop_41 in
+                                       let tmp_call_85 = log(pp_84) in
+                                       let val_86 = -tmp_call_85 in
+                                       let tmp_call_87 = sqrt(val_86) in
+                                       let bop_88 = tmp_call_87 <= 5.0 in
+                                       let val_89 = tmp_call_87 - 1.6 in
+                                       let bop_90 = val_89 * 0.0007745450142783414 in
+                                       let bop_91 = bop_90 + 0.022723844989269184 in
+                                       let bop_92 = val_89 * bop_91 in
+                                       let bop_93 = bop_92 + 0.2417807251774506 in
+                                       let bop_94 = val_89 * bop_93 in
+                                       let bop_95 = bop_94 + 1.2704582524523684 in
+                                       let bop_96 = val_89 * bop_95 in
+                                       let bop_97 = bop_96 + 3.6478483247632045 in
+                                       let bop_98 = val_89 * bop_97 in
+                                       let bop_99 = bop_98 + 5.769497221460691 in
+                                       let bop_100 = val_89 * bop_99 in
+                                       let bop_101 = bop_100 + 4.630337846156546 in
+                                       let bop_102 = val_89 * bop_101 in
+                                       let bop_103 = bop_102 + 1.4234371107496835 in
+                                       let bop_104 = val_89 * 0.0000000010507500716444169 in
+                                       let bop_105 = bop_104 + 0.0005475938084995345 in
+                                       let bop_106 = val_89 * bop_105 in
+                                       let bop_107 = bop_106 + 0.015198666563616457 in
+                                       let bop_108 = val_89 * bop_107 in
+                                       let bop_109 = bop_108 + 0.14810397642748008 in
+                                       let bop_110 = val_89 * bop_109 in
+                                       let bop_111 = bop_110 + 0.6897673349851 in
+                                       let bop_112 = val_89 * bop_111 in
+                                       let bop_113 = bop_112 + 1.6763848301838038 in
+                                       let bop_114 = val_89 * bop_113 in
+                                       let bop_115 = bop_114 + 2.053191626637759 in
+                                       let bop_116 = val_89 * bop_115 in
+                                       let bop_117 = bop_116 + 1.0 in
+                                       let val_118 = tmp_call_87 - 5.0 in
+                                       let bop_119 = val_118 * 0.00000020103343992922881 in
+                                       let bop_120 = bop_119 + 0.000027115555687434876 in
+                                       let bop_121 = val_118 * bop_120 in
+                                       let bop_122 = bop_121 + 0.0012426609473880784 in
+                                       let bop_123 = val_118 * bop_122 in
+                                       let bop_124 = bop_123 + 0.026532189526576124 in
+                                       let bop_125 = val_118 * bop_124 in
+                                       let bop_126 = bop_125 + 0.29656057182850487 in
+                                       let bop_127 = val_118 * bop_126 in
+                                       let bop_128 = bop_127 + 1.7848265399172913 in
+                                       let bop_129 = val_118 * bop_128 in
+                                       let bop_130 = bop_129 + 5.463784911164114 in
+                                       let bop_131 = val_118 * bop_130 in
+                                       let bop_132 = bop_131 + 6.657904643501103 in
+                                       let bop_133 = val_118 * 0.000020442631033899398 in
+                                       let bop_134 = bop_133 + 0.0000001421511758316446 in
+                                       let bop_135 = val_118 * bop_134 in
+                                       let bop_136 = bop_135 + 0.000018463183175100548 in
+                                       let bop_137 = val_118 * bop_136 in
+                                       let bop_138 = bop_137 + 0.0007868691311456133 in
+                                       let bop_139 = val_118 * bop_138 in
+                                       let bop_140 = bop_139 + 0.014875361290850615 in
+                                       let bop_141 = val_118 * bop_140 in
+                                       let bop_142 = bop_141 + 0.1369298809227358 in
+                                       let bop_143 = val_118 * bop_142 in
+                                       let bop_144 = bop_143 + 0.599832206555888 in
+                                       let bop_145 = val_118 * bop_144 in
+                                       let bop_146 = bop_145 + 1.0 in
+                                       let x_149 = if bop_88
+                                                   then let bop_147 = bop_103 / bop_117 in
+                                                        bop_147
+                                                   else let bop_148 = bop_132 / bop_146 in
+                                                        bop_148 in
+                                       let bop_150 = 0.0 - x_149 in
+                                       if bop_79
+                                       then bop_150
+                                       else x_149 in
+                    {val_151},
+                  param_0_38) in
+           {untuple_152},
+         untuple_37) in
+  let val_154 = [-0.0283491736871803, 0.0178771081725381, 0.0043096808044729] in
+  let val_155 = [-0.0183841413744211, -0.0044530897672834,
+                 0.0024263805987983] in
+  let val_156 = [-0.0172686581005089, 0.0125638544546015, 0.0094452810918001] in
+  let val_157 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
+  let val_158 = [-0.0121497422218761, 0.0182904634062437, 0.0151125070556484] in
+  // tmp_lit_159 aliases val_156, val_157, val_158, val_154, val_155
+  let tmp_lit_159 = [val_154,
+                     val_155,
+                     val_156,
+                     val_157,
+                     val_158] in
+  let tmp_size_160 = size(0, tmp_lit_159) in
+  let tmp_e_161 = 5 = tmp_size_160 in
+  let zip_assert_162 = assert(tmp_e_161) in
+  let {bb_inds_163, bb_data_164} =
+    {[[5, 2, 1, 3, 4],
+      [0, 0, 0, 2, 3],
+      [0, 5, 2, 5, 5]],
+     [[2.237292884728058, 1.096095158985383, 0.7075902730592357,
+       0.816682804349221, 0.7075902730592357],
+      [0.0, 0.5998905309250137, 0.4993160054719562, 0.666970802919708,
+       0.5006839945280438],
+      [0.0, 0.4001094690749863, 0.5006839945280438, 0.3330291970802919,
+       0.4993160054719562]]} in
+  // untuple_197 aliases untuple_153, untuple_37, untuple_2
+  let {untuple_197} =
+    mapT(fn {[[real]]} ([real] param_0_165) =>
+           // untuple_194 aliases param_0_165
+           let {untuple_194} =
+             mapT(fn {[real]} ([real] param_0_166) =>
+                    let val_167 = 2.237292884728058 * param_0_166[0] in
+                    let bbrow_168 = replicate(5, 0.0) in
+                    let letwith_dst_8 = bbrow_168 with [4] <- val_167 in
+                    // bbrow_170 aliases letwith_dst_8
+                    loop (bbrow_170 = letwith_dst_8) = for i_178 < 4 do
+                      let bop_179 = i_178 + 1 in
+                      let j_180 = bb_inds_163[1, bop_179] - 1 in
+                      let bop_181 = j_180 + 1 in
+                      let bop_182 = bop_181 = 0 in
+                      let k_183 = bb_inds_163[2, bop_179] - 1 in
+                      let bop_184 = bb_data_164[2,
+                                                bop_179] * bbrow_170[k_183] in
+                      let l_185 = bb_inds_163[0, bop_179] - 1 in
+                      let bop_186 = bb_data_164[0,
+                                                bop_179] * param_0_166[bop_179] in
+                      let tmp_187 = bop_184 + bop_186 in
+                      let val_192 = if bop_182
+                                    then tmp_187
+                                    else let bop_188 = bb_data_164[1,
+                                                                   bop_179] * bbrow_170[j_180] in
+                                         let bop_190 = tmp_187 + bop_188 in
+                                         bop_190 in
+                      let letwith_dst_9 = bbrow_170 with [l_185] <- val_192 in
+                      letwith_dst_9 in
+                    // bbrow_171 aliases bbrow_170
+                    loop (bbrow_171 = bbrow_170) = for ii_172 < 4 do
+                      let bop_173 = ii_172 + 1 in
+                      let i_174 = 5 - bop_173 in
+                      let bop_175 = i_174 - 1 in
+                      let val_176 = bbrow_171[i_174] - bbrow_171[bop_175] in
+                      let letwith_dst_52 = bbrow_171 with [i_174] <- val_176 in
+                      letwith_dst_52 in
+                    {bbrow_171},
+                  transpose(reshape((5, 3), param_0_165))) in
+           {transpose(untuple_194)},
+         untuple_153) in
+  let tmp_size_213 = size(1, untuple_197) in
+  let tmp_e_215 = tmp_size_213 = 5 in
+  let zip_assert_222 = assert(tmp_e_215) in
+  let comb_cert_229 = conjoin(zip_assert_162, zip_assert_222) in
+  let tmp_size_230 = <comb_cert_229>size(1, tmp_lit_159) in
+  let tmp_e_286 = tmp_size_230 = 3 in
+  let zip_assert_358 = assert(tmp_e_286) in
+  // untuple_425 aliases untuple_153, untuple_197, untuple_37, untuple_2
+  let {untuple_425} =
+    mapT(fn {[[real]]} ([[real]] param_0_359) =>
+           // untuple_386 aliases param_0_359
+           let {untuple_386} =
+             mapT(fn {[real]} ([real] param_0_360) =>
+                    let {untuple_385} =
+                      mapT(fn {real} (int j_361) =>
+                             let val_362 = j_361 + 1 in
+                             let {first_364, rest_366} = split(val_362,
+                                                               param_0_360) in
+                             let {first_367, rest_368} = split(val_362,
+                                                               norm_3[j_361]) in
+                             let {untuple_378} =
+                               mapT(fn {real} (real arg_369, real arg_372,
+                                               int arg_376) =>
+                                      let val_377 = arg_369 * arg_372 in
+                                      {val_377},
+                                    first_364, first_367, iota(val_362)) in
+                             let {untuple_384} =
+                               reduceT(fn {real} (real x_379, real y_381) =>
+                                         let val_382 = x_379 + y_381 in
+                                         {val_382},
+                                       {0.0}, untuple_378) in
+                             {untuple_384},
+                           iota(3)) in
+                    {untuple_385},
+                  param_0_359) in
+           // untuple_406 aliases val_156, val_157, val_158, untuple_386, norm_10, val_154, val_155, tmp_lit_159, param_0_359
+           let {untuple_406} =
+             <comb_cert_229>
+             mapT(fn {[real]} ([real] arg_390, [real] arg_391,
+                               [real] arg_392) =>
+                    let {untuple_398} =
+                      mapT(fn {real} (real arg_394, real arg_395) =>
+                             let val_396 = arg_394 * arg_395 in
+                             {val_396},
+                           arg_390, arg_391) in
+                    let {untuple_403} =
+                      <zip_assert_358>
+                      mapT(fn {real} (real arg_400, real arg_401) =>
+                             let val_402 = arg_400 + arg_401 in
+                             {val_402},
+                           arg_392, untuple_398) in
+                    {untuple_403},
+                  untuple_386, norm_10, tmp_lit_159) in
+           // untuple_414 aliases val_156, val_157, untuple_406, val_158, untuple_386, norm_10, val_154, val_155, tmp_lit_159, param_0_359
+           let {untuple_414} =
+             mapT(fn {[real]} ([real] x_407) =>
+                    let {untuple_410} =
+                      mapT(fn {real} (real param_0_408) =>
+                             let val_409 = exp(param_0_408) in
+                             {val_409},
+                           x_407) in
+                    {untuple_410},
+                  untuple_406) in
+           let tmp_size_415 = size(1, untuple_406) in
+           let tmp_e_416 = 3 = tmp_size_415 in
+           let zip_assert_417 = assert(tmp_e_416) in
+           // untuple_424 aliases val_156, val_157, untuple_406, val_158, untuple_414, untuple_386, norm_10, val_154, val_155, tmp_lit_159, param_0_359
+           let {untuple_424} =
+             scanT(fn {[real]} ([real] x_418, [real] y_419) =>
+                     let {untuple_423} =
+                       <zip_assert_417>
+                       mapT(fn {real} (real arg_420, real arg_421) =>
+                              let val_422 = arg_420 * arg_421 in
+                              {val_422},
+                            x_418, y_419) in
+                     {untuple_423},
+                   {norm_11}, untuple_414) in
+           {untuple_424},
+         untuple_197) in
+  let divs_428 = [0.00026609544843735446, 0.00008445945945945946,
+                  0.0008333333333333334] in
+  let {untuple_462} =
+    mapT(fn {real} ([[real]] param_0_431) =>
+           // untuple_439 aliases param_0_431
+           let {untuple_439} =
+             mapT(fn {[real]} ([real] xs_432) =>
+                    let {untuple_437} =
+                      mapT(fn {real} (real arg_433, real arg_434) =>
+                             let val_435 = arg_433 * arg_434 in
+                             {val_435},
+                           xs_432, divs_428) in
+                    {untuple_437},
+                  param_0_431) in
+           let {untuple_452} =
+             mapT(fn {real} ([real] param_0_440) =>
+                    let {untuple_449} =
+                      reduceT(fn {real} (real x_441, real y_445) =>
+                                let bop_447 = x_441 < y_445 in
+                                let val_448 = if bop_447
+                                              then x_441
+                                              else y_445 in
+                                {val_448},
+                              {param_0_440[0]}, param_0_440) in
+                    {untuple_449},
+                  untuple_439) in
+           let bop_453 = 1.0 <= untuple_452[0] in
+           let val_461 = if bop_453
+                         then 1126.754229107682
+                         else let bop_454 = 1.0 <= untuple_452[1] in
+                              if bop_454
+                              then 1235.7473027229837
+                              else let bop_455 = 1.0 <= untuple_452[2] in
+                                   if bop_455
+                                   then 1336.1201435873802
+                                   else let bop_456 = 1.0 <= untuple_452[3] in
+                                        if bop_456
+                                        then 1425.0708889426294
+                                        else let val_457 = 1000.0 * untuple_452[4] in
+                                             let bop_458 = val_457 * 0.8588567633110704 in
+                                             let bop_459 = 0.75 < untuple_452[4] in
+                                             let bop_460 = 1.0 <= untuple_452[4] in
+                                             if bop_460
+                                             then 1502.9993357943733
+                                             else if bop_459
+                                                  then 858.8567633110704
+                                                  else bop_458 in
+           {val_461},
+         untuple_425) in
+  let {untuple_467} =
+    reduceT(fn {real} (real x_463, real y_464) =>
+              let val_466 = x_463 + y_464 in
+              {val_466},
+            {0.0}, untuple_462) in
+  let bop_468 = untuple_467 / 1000.0 in
+  bop_468

@@ -1,0 +1,697 @@
+fun int grayCode(int x_0) =
+  x_0 >> 1 ^ x_0
+
+fun int index([int] arr_1, int i_2) =
+  arr_1[i_2]
+
+fun bool testBit(int n_3, int ind_4) =
+  let t_5 = 1 << ind_4 in
+  (n_3 & t_5) = t_5
+
+fun int xorInds(int bits_num_6, int n_7, [int] dir_vs_8) =
+  let bits_9 = iota(bits_num_6) in
+  // indices_11 aliases untuple_184, bits_9
+  let indices_11 =
+    // untuple_184 aliases bits_9
+    let {untuple_184} =
+      filterT(fn {bool} (int param_0_10) =>
+                let val_183 =
+                  let val_182 = grayCode(n_7) in
+                  testBit(val_182, param_0_10) in
+                {val_183},
+              bits_9) in
+    untuple_184 in
+  // val_187 aliases untuple_186
+  let val_187 =
+    let {untuple_186} =
+      mapT(fn {int} (int param_0_14) =>
+             let val_185 = index(dir_vs_8, param_0_14) in
+             {val_185},
+           indices_11) in
+    untuple_186 in
+  let val_188 = 0 in
+  let {untuple_190} =
+    reduceT(fn {int} (int x_12, int y_13) =>
+              let val_189 = x_12 ^ y_13 in
+              {val_189},
+            {val_188}, val_187) in
+  untuple_190
+
+fun [int] sobolIndI(int bits_num_15, [[int]] dir_vs_16, int n_17) =
+  let {untuple_192} =
+    mapT(fn {int} ([int] param_0_18) =>
+           let val_191 = xorInds(bits_num_15, n_17, param_0_18) in
+           {val_191},
+         dir_vs_16) in
+  untuple_192
+
+fun [real] sobolIndR(int bits_num_19, [[int]] dir_vs_20, int n_21) =
+  let divisor_22 = 2.0 pow toReal(bits_num_19) in
+  // arri_23 aliases dir_vs_20
+  let arri_23 = sobolIndI(bits_num_19, dir_vs_20, n_21) in
+  let {untuple_194} =
+    mapT(fn {real} (int x_24) =>
+           let val_193 = toReal(x_24) / divisor_22 in
+           {val_193},
+         arri_23) in
+  untuple_194
+
+fun real polyAppr(real x_25, real a0_26, real a1_27, real a2_28, real a3_29,
+                  real a4_30, real a5_31, real a6_32, real a7_33, real b0_34,
+                  real b1_35, real b2_36, real b3_37, real b4_38, real b5_39,
+                  real b6_40, real b7_41) =
+  (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * a7_33 + a6_32) + a5_31) + a4_30) + a3_29) + a2_28) + a1_27) + a0_26) / (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * b7_41 + b6_40) + b5_39) + b4_38) + b3_37) + b2_36) + b1_35) + b0_34)
+
+fun real smallcase(real q_42) =
+  q_42 * let val_195 = 0.180625 - (q_42 * q_42) in
+  let val_196 = 3.3871328727963665 in
+  let val_197 = 133.14166789178438 in
+  let val_198 = 1971.5909503065513 in
+  let val_199 = 13731.69376550946 in
+  let val_200 = 45921.95393154987 in
+  let val_201 = 67265.7709270087 in
+  let val_202 = 33430.57558358813 in
+  let val_203 = 2509.0809287301227 in
+  let val_204 = 1.0 in
+  let val_205 = 42.31333070160091 in
+  let val_206 = 687.1870074920579 in
+  let val_207 = 5394.196021424751 in
+  let val_208 = 21213.794301586597 in
+  let val_209 = 39307.89580009271 in
+  let val_210 = 28729.085735721943 in
+  let val_211 = 5226.495278852854 in
+  polyAppr(val_195, val_196, val_197, val_198, val_199, val_200, val_201,
+           val_202, val_203, val_204, val_205, val_206, val_207, val_208,
+           val_209, val_210, val_211)
+
+fun real intermediate(real r_43) =
+  let val_212 = r_43 - 1.6 in
+  let val_213 = 1.4234371107496835 in
+  let val_214 = 4.630337846156546 in
+  let val_215 = 5.769497221460691 in
+  let val_216 = 3.6478483247632045 in
+  let val_217 = 1.2704582524523684 in
+  let val_218 = 0.2417807251774506 in
+  let val_219 = 0.022723844989269184 in
+  let val_220 = 0.0007745450142783414 in
+  let val_221 = 1.0 in
+  let val_222 = 2.053191626637759 in
+  let val_223 = 1.6763848301838038 in
+  let val_224 = 0.6897673349851 in
+  let val_225 = 0.14810397642748008 in
+  let val_226 = 0.015198666563616457 in
+  let val_227 = 0.0005475938084995345 in
+  let val_228 = 0.0000000010507500716444169 in
+  polyAppr(val_212, val_213, val_214, val_215, val_216, val_217, val_218,
+           val_219, val_220, val_221, val_222, val_223, val_224, val_225,
+           val_226, val_227, val_228)
+
+fun real tail(real r_44) =
+  let val_229 = r_44 - 5.0 in
+  let val_230 = 6.657904643501103 in
+  let val_231 = 5.463784911164114 in
+  let val_232 = 1.7848265399172913 in
+  let val_233 = 0.29656057182850487 in
+  let val_234 = 0.026532189526576124 in
+  let val_235 = 0.0012426609473880784 in
+  let val_236 = 0.000027115555687434876 in
+  let val_237 = 0.00000020103343992922881 in
+  let val_238 = 1.0 in
+  let val_239 = 0.599832206555888 in
+  let val_240 = 0.1369298809227358 in
+  let val_241 = 0.014875361290850615 in
+  let val_242 = 0.0007868691311456133 in
+  let val_243 = 0.000018463183175100548 in
+  let val_244 = 0.0000001421511758316446 in
+  let val_245 = 0.000020442631033899398 in
+  polyAppr(val_229, val_230, val_231, val_232, val_233, val_234, val_235,
+           val_236, val_237, val_238, val_239, val_240, val_241, val_242,
+           val_243, val_244, val_245)
+
+fun real ugaussianEl(real p_45) =
+  let dp_46 = p_45 - 0.5 in
+  if dp_46 < 0.0 && 0.0 - dp_46 <= 0.425 || 0.0 <= dp_46 && dp_46 <= 0.425
+  then smallcase(dp_46)
+  else let pp_47 = if dp_46 < 0.0
+                   then dp_46 + 0.5
+                   else 0.5 - dp_46 in
+       let r_48 =
+         let val_246 = -log(pp_47) in
+         sqrt(val_246) in
+       let x_49 = if r_48 <= 5.0
+                  then intermediate(r_48)
+                  else tail(r_48) in
+       if dp_46 < 0.0
+       then 0.0 - x_49
+       else x_49
+
+fun [real] ugaussian([real] ps_50) =
+  let {untuple_248} =
+    mapT(fn {real} (real param_0_51) =>
+           let val_247 = ugaussianEl(param_0_51) in
+           {val_247},
+         ps_50) in
+  untuple_248
+
+fun [real] brownianBridgeDates(int num_dates_52, [[int]] bb_inds_53,
+                               [[real]] bb_data_54, [real] gauss_55) =
+  // bi_56 aliases bb_inds_53
+  let bi_56 = bb_inds_53[0] in
+  // li_57 aliases bi_56, bb_inds_53
+  let li_57 = bb_inds_53[1] in
+  // ri_58 aliases bi_56, li_57, bb_inds_53
+  let ri_58 = bb_inds_53[2] in
+  // sd_59 aliases bb_data_54
+  let sd_59 = bb_data_54[0] in
+  // lw_60 aliases bb_data_54, sd_59
+  let lw_60 = bb_data_54[1] in
+  // rw_61 aliases lw_60, bb_data_54, sd_59
+  let rw_61 = bb_data_54[2] in
+  let bbrow_62 = replicate(num_dates_52, 0.0) in
+  let val_249 = sd_59[0] * gauss_55[0] in
+  let letwith_dst_250 = bbrow_62 with [bi_56[0] - 1] <- val_249 in
+  // bbrow_63 aliases letwith_dst_250
+  let bbrow_63 = letwith_dst_250 in
+  // bbrow_64 aliases letwith_dst_250, bbrow_63
+  loop (bbrow_64 = bbrow_63) = for i_69 < num_dates_52 - 1 do
+    let j_70 = li_57[i_69 + 1] - 1 in
+    let k_71 = ri_58[i_69 + 1] - 1 in
+    let l_72 = bi_56[i_69 + 1] - 1 in
+    let wk_73 = bbrow_64[k_71] in
+    let zi_74 = gauss_55[i_69 + 1] in
+    let tmp_75 = rw_61[i_69 + 1] * wk_73 + sd_59[i_69 + 1] * zi_74 in
+    let val_251 = if j_70 + 1 = 0
+                  then tmp_75
+                  else tmp_75 + lw_60[i_69 + 1] * bbrow_64[j_70] in
+    let letwith_dst_252 = bbrow_64 with [l_72] <- val_251 in
+    // bbrow_76 aliases letwith_dst_252
+    let bbrow_76 = letwith_dst_252 in
+    bbrow_76 in
+  // bbrow_65 aliases bbrow_64
+  loop (bbrow_65 = bbrow_64) = for ii_66 < num_dates_52 - 1 do
+    let i_67 = num_dates_52 - (ii_66 + 1) in
+    let val_253 = bbrow_65[i_67] - bbrow_65[i_67 - 1] in
+    let letwith_dst_254 = bbrow_65 with [i_67] <- val_253 in
+    // bbrow_68 aliases letwith_dst_254
+    let bbrow_68 = letwith_dst_254 in
+    bbrow_68 in
+  bbrow_65
+
+fun [[real]] brownianBridge(int num_paths_77, int num_dates_78,
+                            [[int]] bb_inds_79, [[real]] bb_data_80,
+                            [real] gaussian_arr_81) =
+  // gauss2d_82 aliases gaussian_arr_81
+  let gauss2d_82 = reshape((num_dates_78, num_paths_77), gaussian_arr_81) in
+  // gauss2dT_83 aliases gaussian_arr_81, gauss2d_82
+  let gauss2dT_83 = transpose(gauss2d_82) in
+  // val_257 aliases untuple_256, gaussian_arr_81, gauss2d_82, gauss2dT_83
+  let val_257 =
+    // untuple_256 aliases gaussian_arr_81, gauss2d_82, gauss2dT_83
+    let {untuple_256} =
+      mapT(fn {[real]} ([real] param_0_84) =>
+             // val_255 aliases bb_data_80, param_0_84, bb_inds_79
+             let val_255 = brownianBridgeDates(num_dates_78, bb_inds_79,
+                                               bb_data_80, param_0_84) in
+             {val_255},
+           gauss2dT_83) in
+    untuple_256 in
+  transpose(val_257)
+
+fun real zwop(real a_85, real b_86, int j_87) =
+  a_85 * b_86
+
+fun [real] take(int n_88, [real] a_89) =
+  let {first_90, rest_91} = split(n_88, a_89) in
+  first_90
+
+fun [real] fftmp(int num_paths_92, [[real]] md_c_93, [real] zi_94) =
+  let val_258 = iota(num_paths_92) in
+  let {untuple_284} =
+    mapT(fn {real} (int j_95) =>
+           let val_283 =
+             // x_100 aliases untuple_279
+             let x_100 =
+               // tup_arr_elem_269 aliases val_260, zi_94
+               // tup_arr_elem_270 aliases md_c_93, val_262, val_263
+               // tup_arr_elem_271 aliases val_264
+               let {tup_arr_cert_268, tup_arr_elem_269, tup_arr_elem_270,
+                    tup_arr_elem_271} =
+                 // val_260 aliases zi_94
+                 let val_260 =
+                   let val_259 = j_95 + 1 in
+                   take(val_259, zi_94) in
+                 // val_263 aliases md_c_93, val_262
+                 let val_263 =
+                   let val_261 = j_95 + 1 in
+                   // val_262 aliases md_c_93
+                   let val_262 = md_c_93[j_95] in
+                   take(val_261, val_262) in
+                 let val_264 = iota(j_95 + 1) in
+                 let zip_assert_265 = assert(size(0, val_260) = size(0,
+                                                                     val_263)) in
+                 let zip_assert_266 = assert(size(0, val_263) = size(0,
+                                                                     val_264)) in
+                 let comb_cert_267 = conjoin(zip_assert_265, zip_assert_266) in
+                 {comb_cert_267, val_260, val_263, val_264} in
+               let {untuple_279} =
+                 <tup_arr_cert_268>
+                 mapT(fn {real} (real arg_275, real arg_276, int arg_277) =>
+                        let {x_272, x_273, x_274} = {arg_275, arg_276,
+                                                     arg_277} in
+                        let val_278 =
+                          let {param_0_97, param_1_98, param_2_99} = {x_272,
+                                                                      x_273,
+                                                                      x_274} in
+                          zwop(param_0_97, param_1_98, param_2_99) in
+                        {val_278},
+                      tup_arr_elem_269, tup_arr_elem_270, tup_arr_elem_271) in
+               untuple_279 in
+             let val_280 = 0.0 in
+             let {untuple_282} =
+               reduceT(fn {real} (real x_101, real y_102) =>
+                         let val_281 = x_101 + y_102 in
+                         {val_281},
+                       {val_280}, x_100) in
+             untuple_282 in
+           {val_283},
+         val_258) in
+  untuple_284
+
+fun [[real]] correlateDeltas(int num_paths_103, [[real]] md_c_104,
+                             [[real]] zds_105) =
+  // untuple_286 aliases zds_105
+  let {untuple_286} =
+    mapT(fn {[real]} ([real] param_0_106) =>
+           // val_285 aliases md_c_104, param_0_106
+           let val_285 = fftmp(num_paths_103, md_c_104, param_0_106) in
+           {val_285},
+         zds_105) in
+  untuple_286
+
+fun [real] combineVs([real] n_row_107, [real] vol_row_108, [real] dr_row_109) =
+  // tup_arr_elem_300 aliases dr_row_109
+  // tup_arr_elem_301 aliases untuple_296, val_297
+  let {tup_arr_cert_299, tup_arr_elem_300, tup_arr_elem_301} =
+    // val_297 aliases untuple_296
+    let val_297 =
+      // tup_arr_elem_289 aliases n_row_107
+      // tup_arr_elem_290 aliases vol_row_108
+      let {tup_arr_cert_288, tup_arr_elem_289, tup_arr_elem_290} =
+        let zip_assert_287 = assert(size(0, n_row_107) = size(0,
+                                                              vol_row_108)) in
+        {zip_assert_287, n_row_107, vol_row_108} in
+      let {untuple_296} =
+        <tup_arr_cert_288>
+        mapT(fn {real} (real arg_293, real arg_294) =>
+               let {tup_shim_291, tup_shim_292} = {arg_293, arg_294} in
+               let val_295 =
+                 let {x_114, y_115} = {tup_shim_291, tup_shim_292} in
+                 x_114 * y_115 in
+               {val_295},
+             tup_arr_elem_289, tup_arr_elem_290) in
+      untuple_296 in
+    let zip_assert_298 = assert(size(0, dr_row_109) = size(0, val_297)) in
+    {zip_assert_298, dr_row_109, val_297} in
+  let {untuple_307} =
+    <tup_arr_cert_299>
+    mapT(fn {real} (real arg_304, real arg_305) =>
+           let {tup_shim_302, tup_shim_303} = {arg_304, arg_305} in
+           let val_306 =
+             let {x_111, y_112} = {tup_shim_302, tup_shim_303} in
+             x_111 + y_112 in
+           {val_306},
+         tup_arr_elem_300, tup_arr_elem_301) in
+  untuple_307
+
+fun [[real]] mkPrices([real] md_starts_116, [[real]] md_vols_117,
+                      [[real]] md_drifts_118, [[real]] noises_119) =
+  // e_rows_126 aliases tup_arr_elem_312, tup_arr_elem_313, md_vols_117, tup_arr_elem_314, untuple_322, md_drifts_118, noises_119, untuple_327, val_323
+  let e_rows_126 =
+    // val_323 aliases tup_arr_elem_312, tup_arr_elem_313, md_vols_117, tup_arr_elem_314, untuple_322, md_drifts_118, noises_119
+    let val_323 =
+      // tup_arr_elem_312 aliases noises_119
+      // tup_arr_elem_313 aliases md_vols_117
+      // tup_arr_elem_314 aliases md_drifts_118
+      let {tup_arr_cert_311, tup_arr_elem_312, tup_arr_elem_313,
+           tup_arr_elem_314} =
+        let zip_assert_308 = assert(size(0, noises_119) = size(0,
+                                                               md_vols_117)) in
+        let zip_assert_309 = assert(size(0, md_vols_117) = size(0,
+                                                                md_drifts_118)) in
+        let comb_cert_310 = conjoin(zip_assert_308, zip_assert_309) in
+        {comb_cert_310, noises_119, md_vols_117, md_drifts_118} in
+      // untuple_322 aliases tup_arr_elem_312, tup_arr_elem_313, md_vols_117, tup_arr_elem_314, md_drifts_118, noises_119
+      let {untuple_322} =
+        <tup_arr_cert_311>
+        mapT(fn {[real]} ([real] arg_318, [real] arg_319, [real] arg_320) =>
+               // x_315 aliases arg_318
+               // x_316 aliases arg_319
+               // x_317 aliases arg_320
+               let {x_315, x_316, x_317} = {arg_318, arg_319, arg_320} in
+               // val_321 aliases arg_320, x_316, param_1_124, param_2_125, x_317, arg_318, arg_319, x_315, param_0_123
+               let val_321 =
+                 // param_0_123 aliases arg_318, x_315
+                 // param_1_124 aliases x_316, arg_319
+                 // param_2_125 aliases arg_320, x_317
+                 let {param_0_123, param_1_124, param_2_125} = {x_315, x_316,
+                                                                x_317} in
+                 combineVs(param_0_123, param_1_124, param_2_125) in
+               {val_321},
+             tup_arr_elem_312, tup_arr_elem_313, tup_arr_elem_314) in
+      untuple_322 in
+    // untuple_327 aliases tup_arr_elem_312, tup_arr_elem_313, md_vols_117, tup_arr_elem_314, untuple_322, md_drifts_118, noises_119, val_323
+    let {untuple_327} =
+      mapT(fn {[real]} ([real] x_120) =>
+             // val_326 aliases untuple_325
+             let val_326 =
+               let {untuple_325} =
+                 mapT(fn {real} (real param_0_121) =>
+                        let val_324 = exp(param_0_121) in
+                        {val_324},
+                      x_120) in
+               untuple_325 in
+             {val_326},
+           val_323) in
+    untuple_327 in
+  // untuple_339 aliases tup_arr_elem_312, tup_arr_elem_313, md_vols_117, tup_arr_elem_314, untuple_322, md_drifts_118, e_rows_126, noises_119, untuple_327, val_323
+  let {untuple_339} =
+    scanT(fn {[real]} ([real] x_127, [real] y_128) =>
+            // val_338 aliases untuple_337
+            let val_338 =
+              // tup_arr_elem_330 aliases x_127
+              // tup_arr_elem_331 aliases y_128
+              let {tup_arr_cert_329, tup_arr_elem_330, tup_arr_elem_331} =
+                let zip_assert_328 = assert(size(0, x_127) = size(0, y_128)) in
+                {zip_assert_328, x_127, y_128} in
+              let {untuple_337} =
+                <tup_arr_cert_329>
+                mapT(fn {real} (real arg_334, real arg_335) =>
+                       let {tup_shim_332, tup_shim_333} = {arg_334, arg_335} in
+                       let val_336 =
+                         let {x_130, y_131} = {tup_shim_332, tup_shim_333} in
+                         x_130 * y_131 in
+                       {val_336},
+                     tup_arr_elem_330, tup_arr_elem_331) in
+              untuple_337 in
+            {val_338},
+          {md_starts_116}, e_rows_126) in
+  untuple_339
+
+fun [[real]] blackScholes(int num_paths_132, [[real]] md_c_133,
+                          [[real]] md_vols_134, [[real]] md_drifts_135,
+                          [real] md_starts_136, [[real]] bb_arr_137) =
+  // noises_138 aliases md_c_133, bb_arr_137
+  let noises_138 = correlateDeltas(num_paths_132, md_c_133, bb_arr_137) in
+  mkPrices(md_starts_136, md_vols_134, md_drifts_135, noises_138)
+
+fun real main() =
+  let {num_mc_it_139, num_dates_140, num_und_141, num_bits_142,
+       dir_vs_143} = getHLdata() in
+  let {md_c_144, md_vols_145, md_drifts_146, md_st_147, md_dv_148,
+       md_disc_149} = getModelData() in
+  let {bb_inds_150, bb_data_151} = getBBdata() in
+  // sobol_mat_154 aliases untuple_345, untuple_342, val_343
+  let sobol_mat_154 =
+    // val_343 aliases untuple_342
+    let val_343 =
+      let val_340 = iota(num_mc_it_139) in
+      let {untuple_342} =
+        mapT(fn {int} (int x_153) =>
+               let val_341 = x_153 + 1 in
+               {val_341},
+             val_340) in
+      untuple_342 in
+    // untuple_345 aliases untuple_342, val_343
+    let {untuple_345} =
+      mapT(fn {[real]} (int param_0_152) =>
+             // val_344 aliases dir_vs_143
+             let val_344 = sobolIndR(num_bits_142, dir_vs_143, param_0_152) in
+             {val_344},
+           val_343) in
+    untuple_345 in
+  // gauss_mat_156 aliases untuple_345, untuple_342, sobol_mat_154, untuple_347, val_343
+  let gauss_mat_156 =
+    // untuple_347 aliases untuple_345, untuple_342, sobol_mat_154, val_343
+    let {untuple_347} =
+      mapT(fn {[real]} ([real] param_0_155) =>
+             // val_346 aliases param_0_155
+             let val_346 = ugaussian(param_0_155) in
+             {val_346},
+           sobol_mat_154) in
+    untuple_347 in
+  // bb_mat_158 aliases gauss_mat_156, untuple_345, untuple_349, untuple_342, sobol_mat_154, untuple_347, val_343
+  let bb_mat_158 =
+    // untuple_349 aliases gauss_mat_156, untuple_345, untuple_342, sobol_mat_154, untuple_347, val_343
+    let {untuple_349} =
+      mapT(fn {[[real]]} ([real] param_0_157) =>
+             // val_348 aliases param_0_157, bb_inds_150, bb_data_151
+             let val_348 = brownianBridge(num_und_141, num_dates_140,
+                                          bb_inds_150, bb_data_151,
+                                          param_0_157) in
+             {val_348},
+           gauss_mat_156) in
+    untuple_349 in
+  // bs_mat_160 aliases gauss_mat_156, untuple_345, untuple_349, untuple_342, bb_mat_158, sobol_mat_154, untuple_347, val_343, untuple_351
+  let bs_mat_160 =
+    // untuple_351 aliases gauss_mat_156, untuple_345, untuple_349, untuple_342, bb_mat_158, sobol_mat_154, untuple_347, val_343
+    let {untuple_351} =
+      mapT(fn {[[real]]} ([[real]] param_0_159) =>
+             // val_350 aliases md_c_144, md_vols_145, md_drifts_146, md_st_147, param_0_159
+             let val_350 = blackScholes(num_und_141, md_c_144, md_vols_145,
+                                        md_drifts_146, md_st_147,
+                                        param_0_159) in
+             {val_350},
+           bb_mat_158) in
+    untuple_351 in
+  // payoffs_162 aliases untuple_353
+  let payoffs_162 =
+    let {untuple_353} =
+      mapT(fn {real} ([[real]] param_0_161) =>
+             let val_352 = payoff2(md_disc_149, param_0_161) in
+             {val_352},
+           bs_mat_160) in
+    untuple_353 in
+  let payoff_165 =
+    let val_354 = 0.0 in
+    let {untuple_356} =
+      reduceT(fn {real} (real x_163, real y_164) =>
+                let val_355 = x_163 + y_164 in
+                {val_355},
+              {val_354}, payoffs_162) in
+    untuple_356 in
+  payoff_165 / toReal(num_mc_it_139)
+
+fun real payoff2([real] md_disc_166, [[real]] xss_167) =
+  let divs_168 =
+    let val_357 = 1.0 / 3758.05 in
+    let val_358 = 1.0 / 11840.0 in
+    let val_359 = 1.0 / 1200.0 in
+    [val_357, val_358, val_359] in
+  // xss_div_173 aliases untuple_371, xss_167
+  let xss_div_173 =
+    // untuple_371 aliases xss_167
+    let {untuple_371} =
+      mapT(fn {[real]} ([real] xs_169) =>
+             // val_370 aliases untuple_369
+             let val_370 =
+               // tup_arr_elem_362 aliases xs_169
+               // tup_arr_elem_363 aliases divs_168
+               let {tup_arr_cert_361, tup_arr_elem_362, tup_arr_elem_363} =
+                 let zip_assert_360 = assert(size(0, xs_169) = size(0,
+                                                                    divs_168)) in
+                 {zip_assert_360, xs_169, divs_168} in
+               let {untuple_369} =
+                 <tup_arr_cert_361>
+                 mapT(fn {real} (real arg_366, real arg_367) =>
+                        let {tup_shim_364, tup_shim_365} = {arg_366, arg_367} in
+                        let val_368 =
+                          let {x_171, y_172} = {tup_shim_364, tup_shim_365} in
+                          x_171 * y_172 in
+                        {val_368},
+                      tup_arr_elem_362, tup_arr_elem_363) in
+               untuple_369 in
+             {val_370},
+           xss_167) in
+    untuple_371 in
+  // mins_175 aliases untuple_373
+  let mins_175 =
+    let {untuple_373} =
+      mapT(fn {real} ([real] param_0_174) =>
+             let val_372 = MIN(param_0_174) in
+             {val_372},
+           xss_div_173) in
+    untuple_373 in
+  if 1.0 <= mins_175[0]
+  then let val_374 = 1150.0 in
+       let val_375 = 0 in
+       trajInner(val_374, val_375, md_disc_166)
+  else if 1.0 <= mins_175[1]
+       then let val_376 = 1300.0 in
+            let val_377 = 1 in
+            trajInner(val_376, val_377, md_disc_166)
+       else if 1.0 <= mins_175[2]
+            then let val_378 = 1450.0 in
+                 let val_379 = 2 in
+                 trajInner(val_378, val_379, md_disc_166)
+            else if 1.0 <= mins_175[3]
+                 then let val_380 = 1600.0 in
+                      let val_381 = 3 in
+                      trajInner(val_380, val_381, md_disc_166)
+                 else if 1.0 <= mins_175[4]
+                      then let val_382 = 1750.0 in
+                           let val_383 = 4 in
+                           trajInner(val_382, val_383, md_disc_166)
+                      else if 0.75 < mins_175[4]
+                           then let val_384 = 1000.0 in
+                                let val_385 = 4 in
+                                trajInner(val_384, val_385, md_disc_166)
+                           else let val_386 = 1000.0 * mins_175[4] in
+                                let val_387 = 4 in
+                                trajInner(val_386, val_387, md_disc_166)
+
+fun real MIN([real] arr_176) =
+  let val_388 = arr_176[0] in
+  let {untuple_390} =
+    reduceT(fn {real} (real x_177, real y_178) =>
+              let val_389 = if x_177 < y_178
+                            then x_177
+                            else y_178 in
+              {val_389},
+            {val_388}, arr_176) in
+  untuple_390
+
+fun real trajInner(real amount_179, int ind_180, [real] disc_181) =
+  amount_179 * disc_181[ind_180]
+
+fun {int, int, int, int, [[int]]} getHLdata() =
+  {1000, 5, 3, 30, getDirVs()}
+
+fun {[[real]], [[real]], [[real]], [real], [real], [real]} getModelData() =
+  {[[1.0, 0.6, 0.8],
+    [0.6, 0.8, 0.15],
+    [0.8, 0.15, 0.5809475019311124]],
+   [[0.19, 0.19, 0.15],
+    [0.19, 0.19, 0.15],
+    [0.19, 0.19, 0.15],
+    [0.19, 0.19, 0.15],
+    [0.19, 0.19, 0.15]],
+   let val_394 =
+     let val_391 = -0.0283491736871803 in
+     let val_392 = 0.0178771081725381 in
+     let val_393 = 0.0043096808044729 in
+     [val_391, val_392, val_393] in
+   let val_398 =
+     let val_395 = -0.0183841413744211 in
+     let val_396 = -0.0044530897672834 in
+     let val_397 = 0.0024263805987983 in
+     [val_395, val_396, val_397] in
+   let val_402 =
+     let val_399 = -0.0172686581005089 in
+     let val_400 = 0.0125638544546015 in
+     let val_401 = 0.0094452810918001 in
+     [val_399, val_400, val_401] in
+   let val_406 =
+     let val_403 = -0.0144179417871814 in
+     let val_404 = 0.0157411263968213 in
+     let val_405 = 0.0125315353728014 in
+     [val_403, val_404, val_405] in
+   let val_410 =
+     let val_407 = -0.0121497422218761 in
+     let val_408 = 0.0182904634062437 in
+     let val_409 = 0.0151125070556484 in
+     [val_407, val_408, val_409] in
+   [val_394,
+    val_398,
+    val_402,
+    val_406,
+    val_410],
+   [3758.05, 11840.0, 1200.0],
+   [0.9997670577741848],
+   [0.979786286180593, 0.9505748482484491, 0.9214621679912968,
+    0.8906693055891434, 0.8588567633110704]}
+
+fun {[[int]], [[real]]} getBBdata() =
+  {[[5, 2, 1, 3, 4],
+    [0, 0, 0, 2, 3],
+    [0, 5, 2, 5, 5]],
+   [[2.237292884728058, 1.096095158985383, 0.7075902730592357,
+     0.816682804349221, 0.7075902730592357],
+    [0.0, 0.5998905309250137, 0.4993160054719562, 0.666970802919708,
+     0.5006839945280438],
+    [0.0, 0.4001094690749863, 0.5006839945280438, 0.3330291970802919,
+     0.4993160054719562]]}
+
+fun [[int]] getDirVs() =
+  [[536870912, 268435456, 134217728, 67108864, 33554432, 16777216, 8388608,
+    4194304, 2097152, 1048576, 524288, 262144, 131072, 65536, 32768, 16384,
+    8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1],
+   [536870912, 805306368, 671088640, 1006632960, 570425344, 855638016,
+    713031680, 1069547520, 538968064, 808452096, 673710080, 1010565120,
+    572653568, 858980352, 715816960, 1073725440, 536879104, 805318656,
+    671098880, 1006648320, 570434048, 855651072, 713042560, 1069563840,
+    538976288, 808464432, 673720360, 1010580540, 572662306, 858993459],
+   [536870912, 805306368, 402653184, 603979776, 973078528, 385875968, 595591168,
+    826277888, 438304768, 657457152, 999817216, 358875136, 538574848, 807862272,
+    406552576, 605372416, 975183872, 389033984, 597170176, 828646400, 437926400,
+    656873216, 1002152832, 357921088, 536885792, 805312304, 402662296,
+    603992420, 973085210, 385885991],
+   [536870912, 805306368, 939524096, 335544320, 234881024, 721420288, 411041792,
+    616562688, 920649728, 1062207488, 381157376, 258736128, 771883008,
+    453181440, 545488896, 817971200, 954261504, 340963328, 238651392, 732843008,
+    417426944, 609285376, 909831040, 1068349120, 383778848, 256901168,
+    783810616, 460062740, 537001998, 805503019],
+   [536870912, 805306368, 402653184, 1006632960, 167772160, 285212672,
+    713031680, 566231040, 853540864, 489684992, 952631296, 208928768, 316801024,
+    758317056, 550076416, 813154304, 417505280, 1009913856, 172697600,
+    297131008, 704744960, 553894656, 847291520, 499194688, 954376224, 204607536,
+    306915352, 766893116, 536972810, 805552913],
+   [536870912, 805306368, 402653184, 469762048, 301989888, 721420288, 92274688,
+    264241152, 941621248, 741343232, 169345024, 924581888, 395444224, 619380736,
+    1034256384, 603963392, 838868992, 452997120, 494934016, 331357184,
+    706744832, 120597248, 261621120, 953946048, 800208928, 148581424, 935168536,
+    350484252, 630339474, 1072370923],
+   [536870912, 805306368, 134217728, 1006632960, 503316480, 754974720,
+    629145600, 440401920, 94371840, 711983104, 229113856, 374079488, 330694656,
+    996212736, 907247616, 557531136, 867573760, 190918656, 1041467392,
+    490437632, 766918144, 643898624, 462663040, 125527616, 672545696, 202454896,
+    373006376, 288845836, 1000351766, 930090001],
+   [536870912, 268435456, 402653184, 872415232, 838860800, 956301312, 612368384,
+    717225984, 211812352, 386924544, 302514176, 688128000, 1015414784,
+    516751360, 1051492352, 773734400, 914432000, 63877120, 807741440, 165200896,
+    748683776, 118489344, 168296832, 486802240, 243663648, 667747216, 439124552,
+    81674924, 975249610, 350138737],
+   [536870912, 268435456, 671088640, 469762048, 973078528, 1023410176,
+    713031680, 339738624, 912261120, 797966336, 176685056, 71565312, 510263296,
+    865533952, 814120960, 961232896, 887136256, 668078080, 116070400, 382772224,
+    1047134720, 597098752, 411468416, 625689024, 249602976, 449975248,
+    745216680, 43033924, 134873446, 201786361],
+   [536870912, 268435456, 402653184, 67108864, 704643072, 385875968, 696254464,
+    205520896, 920649728, 946864128, 359137280, 859045888, 302907392, 50659328,
+    462192640, 524599296, 895541248, 590794752, 168810496, 118033408, 831447552,
+    138662144, 485185920, 796511296, 1021313184, 1064304752, 619184920,
+    997458052, 250479054, 745865975],
+   [536870912, 268435456, 939524096, 1006632960, 838860800, 889192448,
+    645922816, 46137344, 476053504, 584056832, 210239488, 465829888, 820903936,
+    689897472, 73695232, 249118720, 110075904, 315338752, 610637824, 517665792,
+    1049494016, 785318144, 376210304, 735921088, 402760480, 738505552,
+    168368744, 151499820, 344957894, 936096557],
+   [536870912, 805306368, 939524096, 1006632960, 503316480, 922746880, 41943040,
+    423624704, 228589568, 651165696, 195559424, 500957184, 791019520, 261292032,
+    1040285696, 118407168, 982065152, 625250304, 329533440, 298984448,
+    153690624, 76845824, 579619712, 692987840, 900670432, 450334832, 363187112,
+    719119956, 765461306, 382730781],
+   [536870912, 805306368, 402653184, 603979776, 838860800, 117440512, 478150656,
+    658505728, 752877568, 1060110336, 141033472, 209453056, 244187136,
+    272957440, 678068224, 1014546432, 377724928, 876875776, 443160576,
+    998185984, 168665600, 318837504, 914397568, 71818816, 40763680, 527762288,
+    939688008, 335855668, 705536494, 587273091],
+   [536870912, 268435456, 671088640, 738197504, 637534208, 150994944, 813694976,
+    943718400, 77594624, 179306496, 798490624, 967049216, 134348800, 1006698496,
+    235044864, 620937216, 377643008, 826314752, 874711040, 854819840, 725109248,
+    856992512, 664336768, 94804544, 100663328, 419430416, 411041832, 339738668,
+    580911142, 61865993],
+   [536870912, 805306368, 939524096, 603979776, 100663296, 452984832, 998244352,
+    188743680, 866123776, 389021696, 287834112, 172228608, 824836096, 977731584,
+    153714688, 507854848, 254402560, 88403968, 883578880, 235160576, 118055424,
+    422917888, 371224704, 326210368, 654926368, 691353392, 773877944, 930190180,
+    554263078, 842348331]]
