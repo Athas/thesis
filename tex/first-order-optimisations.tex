@@ -161,7 +161,7 @@ inlineable.
 
 Bindings with tuple-patterns can be inlined under some circumstances,
 specifically if the bindee is itself a tuple literal, where every
-component is itself inlineable.
+component is an inlineable expression.
 
 \begin{figure}
 \centering
@@ -206,33 +206,29 @@ still two cases that prevent inlining:
 \end{itemize}
 
 Apart from substituting variables, we also look at other expressions
-to determine whether constant-folding is possible.  The following
-reductions are done:
+to determine whether constant folding is possible. This is done by a
+bottoms-up traversal of the syntax tree, where each expression is
+processed as follows:
 
 \begin{description}
-  \item[\texttt{\textit{x} \textbf{arithop} \textit{y}}] \hfill\\
-    Constant-fold.
+\item[\texttt{\textit{x} \textbf{binop} \textit{y}}] \hfill\\
+  If \textit{x} and \textit{y} are literals, compute and substitute
+  with the result.
 
-  \item[\texttt{\textit{x} \textbf{bitop} \textit{y}}] \hfill\\
-    Constant-fold.
-
-  \item[\texttt{\textit{x} \&\& \textit{y}}]\hfill\\
-    Constant-fold.
-
-  \item[\texttt{\textit{x} || \textit{y}}]\hfill\\
-    Constant-fold.
-
-  \item[\texttt{not \textit{x}}]\hfill\\
-    Constant-fold.
-
-  \item[\texttt{-\textit{x}}]\hfill\\
-    Constant-fold.
-
-  \item[\texttt{a[i]}]\hfill\\
-    Lots of rules.
+  \item[\texttt{\textbf{unop} \textit{x}}]\hfill\\
+    If \textit{x} and \textit{y} is a literal, compute and substitute
+  with the result.
 
   \item[\texttt{size($k$, \textit{a})}]\hfill\\
-    Works.
+    Depending on $k$ and how \textit{a} was bound, we may be able to
+    replace the \texttt{size} expression.
+    \begin{itemize}
+    \item If $k=0$ and \texttt{a} is the result of \texttt{iota(n)} or
+      \texttt{replicate(n,e)}, we can substitute with simply
+      \texttt{n}, as that is the size of \texttt{a}.
+    \item If \texttt{a} is a literal constant, we can substitute
+      with the exact size.
+    \end{itemize}
 
   \item[\texttt{let \textit{pat} = \textit{e} in \textit{body}}]\hfill\\
     If, after transforming \textit{body}, none of the names in
@@ -246,9 +242,45 @@ reductions are done:
     If all parameters to a function call are literal values, we use
     the interpreter to evaluate the function and insert its return
     value.  At the moment, we assume that the function will terminate,
-    although this assumption is not justified in the long run.
-    Instead, we should probably only inline non-recursive functions.
+    although this assumption is not really justifiable.  Instead, we
+    should probably only evaluate non-recursive functions.
+
+  \item[\texttt{a[i]}]\hfill\\
+    There are several potential avenues for constant-folding index
+    operations, depending on how \texttt{a} was bound:
+    \begin{description}
+    \item[\texttt{a} is bound to a variable \texttt{b}:] Replace with \texttt{b[i]}.
+
+    \item[\texttt{a} is \texttt{iota(n)}:] Replace with \texttt{i} --
+      note that this may make an invalid program valid, as we remove
+      the bounds checks $\texttt{i}<\texttt{n}$.  We could use the
+      assertion mechanism from \cref{sec:assertions} to bring it back,
+      but this is not done in the current compiler.
+
+    \item[\texttt{a} is \texttt{b[j]}:] Replace with \texttt{b[j,i]}.
+
+    \item[\texttt{a} is an array literal:] Replace with the
+      corresponding element in the array literal.
+
+    \item[\texttt{a} is \texttt{replicate(n, v)}:] Replace with
+      \texttt{v}.
+    \end{description}
+
+  \item[\texttt{a[i,j]}]\hfill\\
+    If more than one index is given, we can handle the same cases as
+    above (although indexing into e.g. an \texttt{iota} would of
+    course be a type error), as well as a few more:\footnote{For
+      simplicity, I treat only the case where two indices are given.
+      The implementation in the \LO{} compiler supports an arbitrary
+      number indices.}
+    \begin{description}
+    \item[\texttt{a} is \texttt{transpose(b)}:] Replace with
+      \texttt{b[j,i]}.
+    \item[\texttt{a} is \texttt{replicate(n,iota(m)):}] Replace with
+      \texttt{j}.
+    \end{description}
 \end{description}
+
 
 \section{Hoisting}
 
