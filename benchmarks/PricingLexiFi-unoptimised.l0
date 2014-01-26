@@ -60,29 +60,38 @@ fun real polyAppr(real x_25, real a0_26, real a1_27, real a2_28, real a3_29,
                   real a4_30, real a5_31, real a6_32, real a7_33, real b0_34,
                   real b1_35, real b2_36, real b3_37, real b4_38, real b5_39,
                   real b6_40, real b7_41) =
-  (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * a7_33 + a6_32) + a5_31) + a4_30) + a3_29) + a2_28) + a1_27) + a0_26) / (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * b7_41 + b6_40) + b5_39) + b4_38) + b3_37) + b2_36) + b1_35) + b0_34)
+  (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * a7_33 + a6_32)
+                                           + a5_31) + a4_30) + a3_29) + a2_28)
+           + a1_27) + a0_26) / (x_25 * (x_25 * (x_25 * (x_25 * (x_25 * (x_25
+                                                                        * (x_25
+                                                                           * b7_41
+                                                                           + b6_40)
+                                                                        + b5_39)
+                                                                + b4_38)
+                                                        + b3_37) + b2_36)
+                                        + b1_35) + b0_34)
 
 fun real smallcase(real q_42) =
-  q_42 * let val_195 = 0.180625 - (q_42 * q_42) in
-  let val_196 = 3.3871328727963665 in
-  let val_197 = 133.14166789178438 in
-  let val_198 = 1971.5909503065513 in
-  let val_199 = 13731.69376550946 in
-  let val_200 = 45921.95393154987 in
-  let val_201 = 67265.7709270087 in
-  let val_202 = 33430.57558358813 in
-  let val_203 = 2509.0809287301227 in
-  let val_204 = 1.0 in
-  let val_205 = 42.31333070160091 in
-  let val_206 = 687.1870074920579 in
-  let val_207 = 5394.196021424751 in
-  let val_208 = 21213.794301586597 in
-  let val_209 = 39307.89580009271 in
-  let val_210 = 28729.085735721943 in
-  let val_211 = 5226.495278852854 in
-  polyAppr(val_195, val_196, val_197, val_198, val_199, val_200, val_201,
-           val_202, val_203, val_204, val_205, val_206, val_207, val_208,
-           val_209, val_210, val_211)
+  q_42 * (let val_195 = 0.180625 - (q_42 * q_42) in
+          let val_196 = 3.3871328727963665 in
+          let val_197 = 133.14166789178438 in
+          let val_198 = 1971.5909503065513 in
+          let val_199 = 13731.69376550946 in
+          let val_200 = 45921.95393154987 in
+          let val_201 = 67265.7709270087 in
+          let val_202 = 33430.57558358813 in
+          let val_203 = 2509.0809287301227 in
+          let val_204 = 1.0 in
+          let val_205 = 42.31333070160091 in
+          let val_206 = 687.1870074920579 in
+          let val_207 = 5394.196021424751 in
+          let val_208 = 21213.794301586597 in
+          let val_209 = 39307.89580009271 in
+          let val_210 = 28729.085735721943 in
+          let val_211 = 5226.495278852854 in
+          polyAppr(val_195, val_196, val_197, val_198, val_199, val_200,
+                   val_201, val_202, val_203, val_204, val_205, val_206,
+                   val_207, val_208, val_209, val_210, val_211))
 
 fun real intermediate(real r_43) =
   let val_212 = r_43 - 1.6 in
@@ -132,15 +141,17 @@ fun real ugaussianEl(real p_45) =
   let dp_46 = p_45 - 0.5 in
   if dp_46 < 0.0 && 0.0 - dp_46 <= 0.425 || 0.0 <= dp_46 && dp_46 <= 0.425
   then smallcase(dp_46)
-  else let pp_47 = if dp_46 < 0.0
-                   then dp_46 + 0.5
-                   else 0.5 - dp_46 in
+  else let pp_47 =
+         if dp_46 < 0.0
+         then dp_46 + 0.5
+         else 0.5 - dp_46 in
        let r_48 =
          let val_246 = -log(pp_47) in
          sqrt(val_246) in
-       let x_49 = if r_48 <= 5.0
-                  then intermediate(r_48)
-                  else tail(r_48) in
+       let x_49 =
+         if r_48 <= 5.0
+         then intermediate(r_48)
+         else tail(r_48) in
        if dp_46 < 0.0
        then 0.0 - x_49
        else x_49
@@ -180,9 +191,10 @@ fun [real] brownianBridgeDates(int num_dates_52, [[int]] bb_inds_53,
     let wk_73 = bbrow_64[k_71] in
     let zi_74 = gauss_55[i_69 + 1] in
     let tmp_75 = rw_61[i_69 + 1] * wk_73 + sd_59[i_69 + 1] * zi_74 in
-    let val_251 = if j_70 + 1 = 0
-                  then tmp_75
-                  else tmp_75 + lw_60[i_69 + 1] * bbrow_64[j_70] in
+    let val_251 =
+      if j_70 + 1 = 0
+      then tmp_75
+      else tmp_75 + lw_60[i_69 + 1] * bbrow_64[j_70] in
     let letwith_dst_252 = bbrow_64 with [l_72] <- val_251 in
     // bbrow_76 aliases letwith_dst_252
     let bbrow_76 = letwith_dst_252 in
@@ -553,9 +565,10 @@ fun real MIN([real] arr_176) =
   let val_388 = arr_176[0] in
   let {untuple_390} =
     reduceT(fn {real} (real x_177, real y_178) =>
-              let val_389 = if x_177 < y_178
-                            then x_177
-                            else y_178 in
+              let val_389 =
+                if x_177 < y_178
+                then x_177
+                else y_178 in
               {val_389},
             {val_388}, arr_176) in
   untuple_390

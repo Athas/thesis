@@ -77,19 +77,19 @@ fun real main() =
        824836096, 977731584, 153714688, 507854848, 254402560, 88403968,
        883578880, 235160576, 118055424, 422917888, 371224704, 326210368,
        654926368, 691353392, 773877944, 930190180, 554263078, 842348331]]} in
-  let val_5 = [-0.0283491736871803, 0.0178771081725381, 0.0043096808044729] in
-  let val_6 = [-0.0183841413744211, -0.0044530897672834, 0.0024263805987983] in
-  let val_7 = [-0.0172686581005089, 0.0125638544546015, 0.0094452810918001] in
-  let val_10 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
-  let val_11 = [-0.0121497422218761, 0.0182904634062437, 0.0151125070556484] in
-  // tmp_lit_13 aliases val_5, val_10, val_6, val_11, val_7
-  let tmp_lit_13 = [val_5,
-                    val_6,
-                    val_7,
+  let val_8 = [-0.0283491736871803, 0.0178771081725381, 0.0043096808044729] in
+  let val_9 = [-0.0183841413744211, -0.0044530897672834, 0.0024263805987983] in
+  let val_10 = [-0.0172686581005089, 0.0125638544546015, 0.0094452810918001] in
+  let val_11 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
+  let val_15 = [-0.0121497422218761, 0.0182904634062437, 0.0151125070556484] in
+  // tmp_lit_16 aliases val_8, val_9, val_10, val_11, val_15
+  let tmp_lit_16 = [val_8,
+                    val_9,
                     val_10,
-                    val_11] in
-  // md_drifts_18 aliases val_5, tmp_lit_13, val_10, val_6, val_11, val_7
-  let {md_c_15, md_vols_17, md_drifts_18, md_st_19, md_dv_20, md_disc_21} =
+                    val_11,
+                    val_15] in
+  // md_drifts_19 aliases val_8, tmp_lit_16, val_9, val_10, val_11, val_15
+  let {md_c_17, md_vols_18, md_drifts_19, md_st_20, md_dv_24, md_disc_25} =
     {[[1.0, 0.6, 0.8],
       [0.6, 0.8, 0.15],
       [0.8, 0.15, 0.5809475019311124]],
@@ -98,12 +98,12 @@ fun real main() =
       [0.19, 0.19, 0.15],
       [0.19, 0.19, 0.15],
       [0.19, 0.19, 0.15]],
-     tmp_lit_13,
+     tmp_lit_16,
      [3758.05, 11840.0, 1200.0],
      [0.9997670577741848],
      [0.979786286180593, 0.9505748482484491, 0.9214621679912968,
       0.8906693055891434, 0.8588567633110704]} in
-  let {bb_inds_22, bb_data_23} =
+  let {bb_inds_29, bb_data_30} =
     {[[5, 2, 1, 3, 4],
       [0, 0, 0, 2, 3],
       [0, 5, 2, 5, 5]],
@@ -113,252 +113,334 @@ fun real main() =
        0.5006839945280438],
       [0.0, 0.4001094690749863, 0.5006839945280438, 0.3330291970802919,
        0.4993160054719562]]} in
-  let {untuple_33} =
-    mapT(fn {int} (int x_31) =>
-           let val_32 = x_31 + 1 in
-           {val_32},
-         iota(10000)) in
-  // untuple_83 aliases untuple_33
-  let {untuple_83} =
-    mapT(fn {[real]} (int param_0_34) =>
-           let {untuple_67} =
-             mapT(fn {int} ([int] param_0_35) =>
-                    let {untuple_48} =
-                      filterT(fn {bool} (int param_0_36) =>
-                                let n_44 = param_0_34 >> 1 ^ param_0_34 in
-                                let t_46 = 1 << param_0_36 in
-                                let val_47 = (n_44 & t_46) = t_46 in
-                                {val_47},
+  let {untuple_40} =
+    mapT(fn {int} (int x_37) =>
+           let val_39 = x_37 + 1 in
+           {val_39},
+         iota(1000)) in
+  // untuple_68 aliases untuple_40
+  let {untuple_68} =
+    mapT(fn {[real]} (int param_0_41) =>
+           let {untuple_60} =
+             mapT(fn {int} ([int] param_0_42) =>
+                    let {untuple_53} =
+                      filterT(fn {bool} (int param_0_46) =>
+                                let val_50 = param_0_41 >> 1 ^ param_0_41 in
+                                let t_51 = 1 << param_0_46 in
+                                let val_52 = (val_50 & t_51) = t_51 in
+                                {val_52},
                               iota(30)) in
-                    let {untuple_52} =
-                      mapT(fn {int} (int param_0_50) =>
-                             {param_0_35[param_0_50]},
-                           untuple_48) in
-                    let {untuple_64} =
-                      reduceT(fn {int} (int x_55, int y_56) =>
-                                let val_62 = x_55 ^ y_56 in
-                                {val_62},
-                              {0}, untuple_52) in
-                    {untuple_64},
+                    let {untuple_55} =
+                      mapT(fn {int} (int param_0_54) =>
+                             {param_0_42[param_0_54]},
+                           untuple_53) in
+                    let {untuple_59} =
+                      reduceT(fn {int} (int x_56, int y_57) =>
+                                let val_58 = x_56 ^ y_57 in
+                                {val_58},
+                              {0}, untuple_55) in
+                    {untuple_59},
                   dir_vs_4) in
-           let {untuple_81} =
-             mapT(fn {real} (int x_71) =>
-                    let tmp_call_76 = toReal(x_71) in
-                    let val_79 = tmp_call_76 / 1073741824.0 in
-                    {val_79},
-                  untuple_67) in
-           {untuple_81},
-         untuple_33) in
-  // untuple_119 aliases untuple_33, untuple_83
-  let {untuple_119} =
-    mapT(fn {[real]} ([real] param_0_84) =>
-           let {untuple_118} =
-             mapT(fn {real} (real param_0_86) =>
-                    let dp_91 = param_0_86 - 0.5 in
-                    let val_117 = if dp_91 < 0.0 && 0.0 - dp_91 <= 0.425 || 0.0 <= dp_91 && dp_91 <= 0.425
-                                  then let x_92 = 0.180625 - (dp_91 * dp_91) in
-                                       let tmp_bop_93 = (x_92 * (x_92 * (x_92 * (x_92 * (x_92 * (x_92 * (x_92 * 2509.0809287301227 + 33430.57558358813) + 67265.7709270087) + 45921.95393154987) + 13731.69376550946) + 1971.5909503065513) + 133.14166789178438) + 3.3871328727963665) / (x_92 * (x_92 * (x_92 * (x_92 * (x_92 * (x_92 * (x_92 * 5226.495278852854 + 28729.085735721943) + 39307.89580009271) + 21213.794301586597) + 5394.196021424751) + 687.1870074920579) + 42.31333070160091) + 1.0) in
-                                       dp_91 * tmp_bop_93
-                                  else let pp_94 = if dp_91 < 0.0
-                                                   then dp_91 + 0.5
-                                                   else 0.5 - dp_91 in
-                                       let tmp_call_97 = log(pp_94) in
-                                       let val_100 = -tmp_call_97 in
-                                       let tmp_call_101 = sqrt(val_100) in
-                                       let x_112 = if tmp_call_101 <= 5.0
-                                                   then let x_107 = tmp_call_101 - 1.6 in
-                                                        (x_107 * (x_107 * (x_107 * (x_107 * (x_107 * (x_107 * (x_107 * 0.0007745450142783414 + 0.022723844989269184) + 0.2417807251774506) + 1.2704582524523684) + 3.6478483247632045) + 5.769497221460691) + 4.630337846156546) + 1.4234371107496835) / (x_107 * (x_107 * (x_107 * (x_107 * (x_107 * (x_107 * (x_107 * 0.0000000010507500716444169 + 0.0005475938084995345) + 0.015198666563616457) + 0.14810397642748008) + 0.6897673349851) + 1.6763848301838038) + 2.053191626637759) + 1.0)
-                                                   else let x_110 = tmp_call_101 - 5.0 in
-                                                        (x_110 * (x_110 * (x_110 * (x_110 * (x_110 * (x_110 * (x_110 * 0.00000020103343992922881 + 0.000027115555687434876) + 0.0012426609473880784) + 0.026532189526576124) + 0.29656057182850487) + 1.7848265399172913) + 5.463784911164114) + 6.657904643501103) / (x_110 * (x_110 * (x_110 * (x_110 * (x_110 * (x_110 * (x_110 * 0.000020442631033899398 + 0.0000001421511758316446) + 0.000018463183175100548) + 0.0007868691311456133) + 0.014875361290850615) + 0.1369298809227358) + 0.599832206555888) + 1.0) in
-                                       if dp_91 < 0.0
-                                       then 0.0 - x_112
-                                       else x_112 in
-                    {val_117},
-                  param_0_84) in
-           {untuple_118},
-         untuple_83) in
-  // untuple_157 aliases untuple_33, untuple_83, untuple_119
-  let {untuple_157} =
-    mapT(fn {[[real]]} ([real] param_0_120) =>
-           // untuple_152 aliases param_0_120
-           let {untuple_152} =
-             mapT(fn {[real]} ([real] param_0_121) =>
-                    let bbrow_122 = replicate(5, 0.0) in
-                    let val_125 = 2.237292884728058 * param_0_121[0] in
-                    let letwith_dst_16 = bbrow_122 with [4] <- val_125 in
-                    // bbrow_133 aliases letwith_dst_16
-                    loop (bbrow_133 = letwith_dst_16) = for i_145 < 4 do
-                      let j_146 = bb_inds_22[1, i_145 + 1] - 1 in
-                      let k_147 = bb_inds_22[2, i_145 + 1] - 1 in
-                      let l_148 = bb_inds_22[0, i_145 + 1] - 1 in
-                      let tmp_149 = bb_data_23[2,
-                                               i_145 + 1] * bbrow_133[k_147] + bb_data_23[0,
-                                                                                          i_145 + 1] * param_0_121[i_145 + 1] in
-                      let val_150 = if j_146 + 1 = 0
-                                    then tmp_149
-                                    else tmp_149 + bb_data_23[1,
-                                                              i_145 + 1] * bbrow_133[j_146] in
-                      let letwith_dst_24 = bbrow_133 with [l_148] <- val_150 in
-                      letwith_dst_24 in
-                    // bbrow_134 aliases bbrow_133
-                    loop (bbrow_134 = bbrow_133) = for ii_136 < 4 do
-                      let i_137 = 5 - (ii_136 + 1) in
-                      let val_138 = bbrow_134[i_137] - bbrow_134[i_137 - 1] in
-                      let letwith_dst_25 = bbrow_134 with [i_137] <- val_138 in
-                      letwith_dst_25 in
-                    {bbrow_134},
-                  transpose(reshape((5, 3), param_0_120))) in
-           {transpose(untuple_152)},
-         untuple_119) in
-  // untuple_271 aliases untuple_33, untuple_157, untuple_83, untuple_119
-  let {untuple_271} =
-    mapT(fn {[[real]]} ([[real]] param_0_159) =>
-           // untuple_218 aliases param_0_159
-           let {untuple_218} =
-             mapT(fn {[real]} ([real] param_0_161) =>
-                    let {untuple_216} =
-                      mapT(fn {real} (int j_164) =>
-                             let n_165 = j_164 + 1 in
-                             let {first_166, rest_167} = split(n_165,
-                                                               param_0_161) in
-                             let n_168 = j_164 + 1 in
-                             let {first_169, rest_170} = split(n_168,
-                                                               md_c_15[j_164]) in
-                             let tmp_size_171 = size(0, first_166) in
-                             let tmp_size_176 = size(0, first_169) in
-                             let tmp_e_178 = tmp_size_171 = tmp_size_176 in
-                             let zip_assert_181 = assert(tmp_e_178) in
-                             let tmp_size_196 = size(0, first_169) in
-                             let tmp_e_197 = tmp_size_196 = j_164 + 1 in
-                             let zip_assert_198 = assert(tmp_e_197) in
-                             let comb_cert_199 = conjoin(zip_assert_181,
-                                                         zip_assert_198) in
-                             let {untuple_205} =
-                               <comb_cert_199>
-                               mapT(fn {real} (real arg_200, real arg_201,
-                                               int arg_202) =>
-                                      let val_204 = arg_200 * arg_201 in
-                                      {val_204},
-                                    first_166, first_169, iota(j_164 + 1)) in
-                             let {untuple_212} =
-                               reduceT(fn {real} (real x_206, real y_207) =>
-                                         let val_210 = x_206 + y_207 in
-                                         {val_210},
-                                       {0.0}, untuple_205) in
-                             {untuple_212},
+           let {untuple_64} =
+             mapT(fn {real} (int x_61) =>
+                    let tmp_call_62 = toReal(x_61) in
+                    let val_63 = tmp_call_62 / 1073741824.0 in
+                    {val_63},
+                  untuple_60) in
+           {untuple_64},
+         untuple_40) in
+  // untuple_85 aliases untuple_68, untuple_40
+  let {untuple_85} =
+    mapT(fn {[real]} ([real] param_0_69) =>
+           let {untuple_84} =
+             mapT(fn {real} (real param_0_71) =>
+                    let dp_72 = param_0_71 - 0.5 in
+                    let val_83 =
+                      if dp_72 < 0.0 && 0.0 - dp_72 <= 0.425 || 0.0 <= dp_72
+                      && dp_72 <= 0.425
+                      then let val_73 = 0.180625 - (dp_72 * dp_72) in
+                           let tmp_bop_74 = (val_73 * (val_73 * (val_73
+                                                                 * (val_73
+                                                                    * (val_73
+                                                                       * (val_73
+                                                                          * (val_73
+                                                                             * 2509.0809287301227
+                                                                             + 33430.57558358813)
+                                                                          + 67265.7709270087)
+                                                                       + 45921.95393154987)
+                                                                    + 13731.69376550946)
+                                                                 + 1971.5909503065513)
+                                                       + 133.14166789178438)
+                                             + 3.3871328727963665) / (val_73
+                                                                      * (val_73
+                                                                         * (val_73
+                                                                            * (val_73
+                                                                               * (val_73
+                                                                                  * (val_73
+                                                                                     * (val_73
+                                                                                        * 5226.495278852854
+                                                                                        + 28729.085735721943)
+                                                                                     + 39307.89580009271)
+                                                                                  + 21213.794301586597)
+                                                                               + 5394.196021424751)
+                                                                            + 687.1870074920579)
+                                                                         + 42.31333070160091)
+                                                                      + 1.0) in
+                           dp_72 * tmp_bop_74
+                      else let pp_75 =
+                             if dp_72 < 0.0
+                             then dp_72 + 0.5
+                             else 0.5 - dp_72 in
+                           let tmp_call_76 = log(pp_75) in
+                           let val_77 = -tmp_call_76 in
+                           let tmp_call_78 = sqrt(val_77) in
+                           let x_82 =
+                             if tmp_call_78 <= 5.0
+                             then let val_79 = tmp_call_78 - 1.6 in
+                                  (val_79 * (val_79 * (val_79 * (val_79
+                                                                 * (val_79
+                                                                    * (val_79
+                                                                       * (val_79
+                                                                          * 0.0007745450142783414
+                                                                          + 0.022723844989269184)
+                                                                       + 0.2417807251774506)
+                                                                    + 1.2704582524523684)
+                                                                 + 3.6478483247632045)
+                                                       + 5.769497221460691)
+                                             + 4.630337846156546)
+                                   + 1.4234371107496835) / (val_79 * (val_79
+                                                                      * (val_79
+                                                                         * (val_79
+                                                                            * (val_79
+                                                                               * (val_79
+                                                                                  * (val_79
+                                                                                     * 0.0000000010507500716444169
+                                                                                     + 0.0005475938084995345)
+                                                                                  + 0.015198666563616457)
+                                                                               + 0.14810397642748008)
+                                                                            + 0.6897673349851)
+                                                                         + 1.6763848301838038)
+                                                                      + 2.053191626637759)
+                                                            + 1.0)
+                             else let val_80 = tmp_call_78 - 5.0 in
+                                  (val_80 * (val_80 * (val_80 * (val_80
+                                                                 * (val_80
+                                                                    * (val_80
+                                                                       * (val_80
+                                                                          * 0.00000020103343992922881
+                                                                          + 0.000027115555687434876)
+                                                                       + 0.0012426609473880784)
+                                                                    + 0.026532189526576124)
+                                                                 + 0.29656057182850487)
+                                                       + 1.7848265399172913)
+                                             + 5.463784911164114)
+                                   + 6.657904643501103) / (val_80 * (val_80
+                                                                     * (val_80
+                                                                        * (val_80
+                                                                           * (val_80
+                                                                              * (val_80
+                                                                                 * (val_80
+                                                                                    * 0.000020442631033899398
+                                                                                    + 0.0000001421511758316446)
+                                                                                 + 0.000018463183175100548)
+                                                                              + 0.0007868691311456133)
+                                                                           + 0.014875361290850615)
+                                                                        + 0.1369298809227358)
+                                                                     + 0.599832206555888)
+                                                           + 1.0) in
+                           if dp_72 < 0.0
+                           then 0.0 - x_82
+                           else x_82 in
+                    {val_83},
+                  param_0_69) in
+           {untuple_84},
+         untuple_68) in
+  // untuple_106 aliases untuple_68, untuple_40, untuple_85
+  let {untuple_106} =
+    mapT(fn {[[real]]} ([real] param_0_86) =>
+           // untuple_105 aliases param_0_86
+           let {untuple_105} =
+             mapT(fn {[real]} ([real] param_0_87) =>
+                    let bbrow_88 = replicate(5, 0.0) in
+                    let val_89 = 2.237292884728058 * param_0_87[0] in
+                    let letwith_dst_13 = bbrow_88 with [4] <- val_89 in
+                    // bbrow_91 aliases letwith_dst_13
+                    loop (bbrow_91 = letwith_dst_13) = for i_98 < 4 do
+                      let j_99 = bb_inds_29[1, i_98 + 1] - 1 in
+                      let k_100 = bb_inds_29[2, i_98 + 1] - 1 in
+                      let l_101 = bb_inds_29[0, i_98 + 1] - 1 in
+                      let tmp_102 = bb_data_30[2, i_98 + 1] * bbrow_91[k_100]
+                                    + bb_data_30[0, i_98 + 1] * param_0_87[i_98
+                                                                           + 1] in
+                      let val_103 =
+                        if j_99 + 1 = 0
+                        then tmp_102
+                        else tmp_102 + bb_data_30[1, i_98 + 1]
+                             * bbrow_91[j_99] in
+                      let letwith_dst_14 = bbrow_91 with [l_101] <- val_103 in
+                      letwith_dst_14 in
+                    // bbrow_92 aliases bbrow_91
+                    loop (bbrow_92 = bbrow_91) = for ii_93 < 4 do
+                      let i_94 = 5 - (ii_93 + 1) in
+                      let val_95 = bbrow_92[i_94] - bbrow_92[i_94 - 1] in
+                      let letwith_dst_21 = bbrow_92 with [i_94] <- val_95 in
+                      letwith_dst_21 in
+                    {bbrow_92},
+                  transpose(reshape((5, 3), param_0_86))) in
+           {transpose(untuple_105)},
+         untuple_85) in
+  // untuple_183 aliases untuple_68, untuple_40, untuple_85, untuple_106
+  let {untuple_183} =
+    mapT(fn {[[real]]} ([[real]] param_0_107) =>
+           // untuple_139 aliases param_0_107
+           let {untuple_139} =
+             mapT(fn {[real]} ([real] param_0_108) =>
+                    let {untuple_138} =
+                      mapT(fn {real} (int j_109) =>
+                             let val_111 = j_109 + 1 in
+                             let {first_112, rest_114} = split(val_111,
+                                                               param_0_108) in
+                             let val_115 = j_109 + 1 in
+                             let {first_116, rest_117} = split(val_115,
+                                                               md_c_17[j_109]) in
+                             let tmp_size_118 = size(0, first_112) in
+                             let tmp_size_119 = size(0, first_116) in
+                             let tmp_e_120 = tmp_size_118 = tmp_size_119 in
+                             let zip_assert_121 = assert(tmp_e_120) in
+                             let tmp_size_123 = size(0, first_116) in
+                             let tmp_size_124 = j_109 + 1 in
+                             let tmp_e_125 = tmp_size_123 = tmp_size_124 in
+                             let zip_assert_126 = assert(tmp_e_125) in
+                             let comb_cert_127 = conjoin(zip_assert_121,
+                                                         zip_assert_126) in
+                             let {untuple_133} =
+                               <comb_cert_127>
+                               mapT(fn {real} (real arg_128, real arg_130,
+                                               int arg_131) =>
+                                      let val_132 = arg_128 * arg_130 in
+                                      {val_132},
+                                    first_112, first_116, iota(j_109 + 1)) in
+                             let {untuple_137} =
+                               reduceT(fn {real} (real x_134, real y_135) =>
+                                         let val_136 = x_134 + y_135 in
+                                         {val_136},
+                                       {0.0}, untuple_133) in
+                             {untuple_137},
                            iota(3)) in
-                    {untuple_216},
-                  param_0_159) in
-           let tmp_size_221 = size(0, untuple_218) in
-           let tmp_e_223 = tmp_size_221 = 5 in
-           let zip_assert_225 = assert(tmp_e_223) in
-           let tmp_size_227 = size(0, tmp_lit_13) in
-           let tmp_e_229 = 5 = tmp_size_227 in
-           let zip_assert_230 = assert(tmp_e_229) in
-           let comb_cert_231 = conjoin(zip_assert_225, zip_assert_230) in
-           // untuple_253 aliases val_5, tmp_lit_13, md_vols_17, val_10, md_drifts_18, untuple_218, val_6, val_11, val_7, param_0_159
-           let {untuple_253} =
-             <comb_cert_231>
-             mapT(fn {[real]} ([real] arg_232, [real] arg_233,
-                               [real] arg_234) =>
-                    let tmp_size_235 = size(0, arg_232) in
-                    let tmp_size_236 = size(0, arg_233) in
-                    let tmp_e_237 = tmp_size_235 = tmp_size_236 in
-                    let zip_assert_238 = assert(tmp_e_237) in
-                    let {untuple_242} =
-                      <zip_assert_238>
-                      mapT(fn {real} (real arg_239, real arg_240) =>
-                             let val_241 = arg_239 * arg_240 in
-                             {val_241},
-                           arg_232, arg_233) in
-                    let tmp_size_243 = size(0, arg_234) in
-                    let tmp_size_244 = size(0, untuple_242) in
-                    let tmp_e_246 = tmp_size_243 = tmp_size_244 in
-                    let zip_assert_247 = assert(tmp_e_246) in
-                    let {untuple_252} =
-                      <zip_assert_247>
-                      mapT(fn {real} (real arg_249, real arg_250) =>
-                             let val_251 = arg_249 + arg_250 in
-                             {val_251},
-                           arg_234, untuple_242) in
-                    {untuple_252},
-                  untuple_218, md_vols_17, tmp_lit_13) in
-           // untuple_258 aliases untuple_253, val_5, tmp_lit_13, md_vols_17, val_10, md_drifts_18, untuple_218, val_6, val_11, val_7, param_0_159
-           let {untuple_258} =
-             mapT(fn {[real]} ([real] x_254) =>
-                    let {untuple_257} =
-                      mapT(fn {real} (real param_0_255) =>
-                             let tmp_call_256 = exp(param_0_255) in
-                             {tmp_call_256},
-                           x_254) in
-                    {untuple_257},
-                  untuple_253) in
-           // untuple_270 aliases untuple_253, val_5, tmp_lit_13, md_vols_17, untuple_258, val_10, md_drifts_18, untuple_218, val_6, val_11, val_7, param_0_159
-           let {untuple_270} =
-             scanT(fn {[real]} ([real] x_259, [real] y_260) =>
-                     let tmp_size_261 = size(0, x_259) in
-                     let tmp_size_262 = size(0, y_260) in
-                     let tmp_e_263 = tmp_size_261 = tmp_size_262 in
-                     let zip_assert_264 = assert(tmp_e_263) in
-                     let {untuple_269} =
-                       <zip_assert_264>
-                       mapT(fn {real} (real arg_265, real arg_267) =>
-                              let val_268 = arg_265 * arg_267 in
-                              {val_268},
-                            x_259, y_260) in
-                     {untuple_269},
-                   {md_st_19}, untuple_258) in
-           {untuple_270},
-         untuple_157) in
-  let {untuple_295} =
-    mapT(fn {real} ([[real]] param_0_272) =>
-           let divs_273 = [0.00026609544843735446, 0.00008445945945945946,
+                    {untuple_138},
+                  param_0_107) in
+           let tmp_size_140 = size(0, untuple_139) in
+           let tmp_e_141 = tmp_size_140 = 5 in
+           let zip_assert_142 = assert(tmp_e_141) in
+           let tmp_size_143 = size(0, tmp_lit_16) in
+           let tmp_e_144 = 5 = tmp_size_143 in
+           let zip_assert_145 = assert(tmp_e_144) in
+           let comb_cert_146 = conjoin(zip_assert_142, zip_assert_145) in
+           // untuple_166 aliases val_8, tmp_lit_16, val_9, val_10, md_vols_18, val_11, untuple_139, md_drifts_19, param_0_107, val_15
+           let {untuple_166} =
+             <comb_cert_146>
+             mapT(fn {[real]} ([real] arg_147, [real] arg_148,
+                               [real] arg_149) =>
+                    let tmp_size_150 = size(0, arg_147) in
+                    let tmp_size_151 = size(0, arg_148) in
+                    let tmp_e_152 = tmp_size_150 = tmp_size_151 in
+                    let zip_assert_153 = assert(tmp_e_152) in
+                    let {untuple_157} =
+                      <zip_assert_153>
+                      mapT(fn {real} (real arg_154, real arg_155) =>
+                             let val_156 = arg_154 * arg_155 in
+                             {val_156},
+                           arg_147, arg_148) in
+                    let tmp_size_158 = size(0, arg_149) in
+                    let tmp_size_159 = size(0, untuple_157) in
+                    let tmp_e_160 = tmp_size_158 = tmp_size_159 in
+                    let zip_assert_161 = assert(tmp_e_160) in
+                    let {untuple_165} =
+                      <zip_assert_161>
+                      mapT(fn {real} (real arg_162, real arg_163) =>
+                             let val_164 = arg_162 + arg_163 in
+                             {val_164},
+                           arg_149, untuple_157) in
+                    {untuple_165},
+                  untuple_139, md_vols_18, tmp_lit_16) in
+           // untuple_171 aliases val_8, tmp_lit_16, val_9, untuple_166, val_10, md_vols_18, val_11, untuple_139, md_drifts_19, param_0_107, val_15
+           let {untuple_171} =
+             mapT(fn {[real]} ([real] x_167) =>
+                    let {untuple_170} =
+                      mapT(fn {real} (real param_0_168) =>
+                             let val_169 = exp(param_0_168) in
+                             {val_169},
+                           x_167) in
+                    {untuple_170},
+                  untuple_166) in
+           // untuple_182 aliases val_8, tmp_lit_16, val_9, untuple_166, val_10, md_vols_18, val_11, untuple_139, md_drifts_19, param_0_107, untuple_171, val_15
+           let {untuple_182} =
+             scanT(fn {[real]} ([real] x_172, [real] y_173) =>
+                     let tmp_size_174 = size(0, x_172) in
+                     let tmp_size_175 = size(0, y_173) in
+                     let tmp_e_176 = tmp_size_174 = tmp_size_175 in
+                     let zip_assert_177 = assert(tmp_e_176) in
+                     let {untuple_181} =
+                       <zip_assert_177>
+                       mapT(fn {real} (real arg_178, real arg_179) =>
+                              let val_180 = arg_178 * arg_179 in
+                              {val_180},
+                            x_172, y_173) in
+                     {untuple_181},
+                   {md_st_20}, untuple_171) in
+           {untuple_182},
+         untuple_106) in
+  let {untuple_204} =
+    mapT(fn {real} ([[real]] param_0_184) =>
+           let divs_185 = [0.00026609544843735446, 0.00008445945945945946,
                            0.0008333333333333334] in
-           // untuple_284 aliases param_0_272
-           let {untuple_284} =
-             mapT(fn {[real]} ([real] xs_274) =>
-                    let tmp_size_275 = size(0, xs_274) in
-                    let tmp_e_277 = tmp_size_275 = 3 in
-                    let zip_assert_278 = assert(tmp_e_277) in
-                    let {untuple_282} =
-                      <zip_assert_278>
-                      mapT(fn {real} (real arg_279, real arg_280) =>
-                             let val_281 = arg_279 * arg_280 in
-                             {val_281},
-                           xs_274, divs_273) in
-                    {untuple_282},
-                  param_0_272) in
-           let {untuple_291} =
-             mapT(fn {real} ([real] param_0_286) =>
-                    let {untuple_290} =
-                      reduceT(fn {real} (real x_287, real y_288) =>
-                                let val_289 = if x_287 < y_288
-                                              then x_287
-                                              else y_288 in
-                                {val_289},
-                              {param_0_286[0]}, param_0_286) in
-                    {untuple_290},
-                  untuple_284) in
-           let val_294 = if 1.0 <= untuple_291[0]
-                         then 1126.754229107682
-                         else if 1.0 <= untuple_291[1]
-                              then 1235.7473027229837
-                              else if 1.0 <= untuple_291[2]
-                                   then 1336.1201435873802
-                                   else if 1.0 <= untuple_291[3]
-                                        then 1425.0708889426294
-                                        else if 1.0 <= untuple_291[4]
-                                             then 1502.9993357943733
-                                             else if 0.75 < untuple_291[4]
-                                                  then 858.8567633110704
-                                                  else let amount_292 = 1000.0 * untuple_291[4] in
-                                                       amount_292 * 0.8588567633110704 in
-           {val_294},
-         untuple_271) in
-  let {untuple_299} =
-    reduceT(fn {real} (real x_296, real y_297) =>
-              let val_298 = x_296 + y_297 in
-              {val_298},
-            {0.0}, untuple_295) in
-  let payoff_300 = trace(untuple_299) in
-  payoff_300 / 1000.0
+           // untuple_195 aliases param_0_184
+           let {untuple_195} =
+             mapT(fn {[real]} ([real] xs_186) =>
+                    let tmp_size_187 = size(0, xs_186) in
+                    let tmp_e_189 = tmp_size_187 = 3 in
+                    let zip_assert_190 = assert(tmp_e_189) in
+                    let {untuple_194} =
+                      <zip_assert_190>
+                      mapT(fn {real} (real arg_191, real arg_192) =>
+                             let val_193 = arg_191 * arg_192 in
+                             {val_193},
+                           xs_186, divs_185) in
+                    {untuple_194},
+                  param_0_184) in
+           let {untuple_201} =
+             mapT(fn {real} ([real] param_0_196) =>
+                    let {untuple_200} =
+                      reduceT(fn {real} (real x_197, real y_198) =>
+                                let val_199 =
+                                  if x_197 < y_198
+                                  then x_197
+                                  else y_198 in
+                                {val_199},
+                              {param_0_196[0]}, param_0_196) in
+                    {untuple_200},
+                  untuple_195) in
+           let val_203 =
+             if 1.0 <= untuple_201[0]
+             then 1126.754229107682
+             else if 1.0 <= untuple_201[1]
+                  then 1235.7473027229837
+                  else if 1.0 <= untuple_201[2]
+                       then 1336.1201435873802
+                       else if 1.0 <= untuple_201[3]
+                            then 1425.0708889426294
+                            else if 1.0 <= untuple_201[4]
+                                 then 1502.9993357943733
+                                 else if 0.75 < untuple_201[4]
+                                      then 858.8567633110704
+                                      else let val_202 = 1000.0
+                                                         * untuple_201[4] in
+                                           val_202 * 0.8588567633110704 in
+           {val_203},
+         untuple_183) in
+  let {untuple_208} =
+    reduceT(fn {real} (real x_205, real y_206) =>
+              let val_207 = x_205 + y_206 in
+              {val_207},
+            {0.0}, untuple_204) in
+  untuple_208 / 1000.0

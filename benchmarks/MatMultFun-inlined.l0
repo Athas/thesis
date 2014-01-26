@@ -1,55 +1,55 @@
-fun [[int]] main([[int]] x_30, [[int]] y_31) =
-  let N_34 = size(0, x_30) in
-  // br_35 aliases y_31
-  let br_35 = replicate(N_34, transpose(y_31)) in
-  // untuple_10 aliases x_30
-  let {untuple_10} =
-    mapT(fn {[[int]]} ([int] param_0_36) =>
-           // tmp_repl_9 aliases param_0_36
-           let tmp_repl_9 = replicate(N_34, param_0_36) in
+fun [[int]] main([[int]] x_0, [[int]] y_1) =
+  let N_2 = size(0, x_0) in
+  // br_3 aliases y_1
+  let br_3 = replicate(N_2, transpose(y_1)) in
+  // untuple_14 aliases x_0
+  let {untuple_14} =
+    mapT(fn {[[int]]} ([int] param_0_8) =>
+           // tmp_repl_9 aliases param_0_8
+           let tmp_repl_9 = replicate(N_2, param_0_8) in
            {tmp_repl_9},
-         x_30) in
-  let tmp_size_37 = size(0, untuple_10) in
-  let tmp_e_38 = tmp_size_37 = N_34 in
-  let zip_assert_12 = assert(tmp_e_38) in
-  // untuple_80 aliases x_30, untuple_10, br_35, y_31
-  let {untuple_80} =
-    <zip_assert_12>
+         x_0) in
+  let tmp_size_15 = size(0, untuple_14) in
+  let tmp_e_17 = tmp_size_15 = N_2 in
+  let zip_assert_19 = assert(tmp_e_17) in
+  // untuple_38 aliases x_0, y_1, untuple_14, br_3
+  let {untuple_38} =
+    <zip_assert_19>
     mapT(fn {[[int]]} ([[int]] arg_21, [[int]] arg_22) =>
-           let tmp_size_27 = size(0, arg_21) in
-           let tmp_size_28 = size(0, arg_22) in
-           let tmp_e_29 = tmp_size_27 = tmp_size_28 in
-           let zip_assert_23 = assert(tmp_e_29) in
-           // untuple_78 aliases arg_21, arg_22
-           let {untuple_78} =
-             <zip_assert_23>
-             mapT(fn {[int]} ([int] arg_62, [int] arg_63) =>
-                    let tmp_size_16 = size(0, arg_62) in
-                    let tmp_size_17 = size(0, arg_63) in
-                    let tmp_e_18 = tmp_size_16 = tmp_size_17 in
-                    let zip_assert_64 = assert(tmp_e_18) in
-                    let {untuple_76} =
-                      <zip_assert_64>
-                      mapT(fn {int} (int arg_73, int arg_74) =>
-                             let val_75 = arg_73 * arg_74 in
-                             {val_75},
-                           arg_62, arg_63) in
-                    {untuple_76},
+           let tmp_size_23 = size(0, arg_21) in
+           let tmp_size_24 = size(0, arg_22) in
+           let tmp_e_25 = tmp_size_23 = tmp_size_24 in
+           let zip_assert_26 = assert(tmp_e_25) in
+           // untuple_37 aliases arg_21, arg_22
+           let {untuple_37} =
+             <zip_assert_26>
+             mapT(fn {[int]} ([int] arg_27, [int] arg_28) =>
+                    let tmp_size_29 = size(0, arg_27) in
+                    let tmp_size_30 = size(0, arg_28) in
+                    let tmp_e_31 = tmp_size_29 = tmp_size_30 in
+                    let zip_assert_32 = assert(tmp_e_31) in
+                    let {untuple_36} =
+                      <zip_assert_32>
+                      mapT(fn {int} (int arg_33, int arg_34) =>
+                             let val_35 = arg_33 * arg_34 in
+                             {val_35},
+                           arg_27, arg_28) in
+                    {untuple_36},
                   arg_21, arg_22) in
-           {untuple_78},
-         untuple_10, br_35) in
-  // untuple_87 aliases untuple_80, x_30, untuple_10, br_35, y_31
-  let {untuple_87} =
-    mapT(fn {[int]} ([[int]] param_0_54) =>
-           let {untuple_85} =
-             mapT(fn {int} ([int] param_0_56) =>
-                    let {untuple_83} =
-                      reduceT(fn {int} (int x_58, int y_59) =>
-                                let val_82 = x_58 + y_59 in
-                                {val_82},
-                              {0}, param_0_56) in
-                    {untuple_83},
-                  param_0_54) in
-           {untuple_85},
-         untuple_80) in
-  untuple_87
+           {untuple_37},
+         untuple_14, br_3) in
+  // untuple_46 aliases x_0, y_1, untuple_38, untuple_14, br_3
+  let {untuple_46} =
+    mapT(fn {[int]} ([[int]] param_0_39) =>
+           let {untuple_45} =
+             mapT(fn {int} ([int] param_0_40) =>
+                    let {untuple_44} =
+                      reduceT(fn {int} (int x_41, int y_42) =>
+                                let val_43 = x_41 + y_42 in
+                                {val_43},
+                              {0}, param_0_40) in
+                    {untuple_44},
+                  param_0_39) in
+           {untuple_45},
+         untuple_38) in
+  untuple_46

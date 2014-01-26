@@ -1,0 +1,109 @@
+fun real horner(real x_0) =
+  let {c1_1, c2_2, c3_3, c4_4, c5_5} = {0.31938153, -0.356563782, 1.781477937,
+                                        -1.821255978, 1.330274429} in
+  x_0 * (c1_1 + x_0 * (c2_2 + x_0 * (c3_3 + x_0 * (c4_4 + x_0 * c5_5))))
+
+fun real abs(real x_6) =
+  if x_6 < 0.0
+  then -x_6
+  else x_6
+
+fun real cnd0(real d_7) =
+  let k_8 = 1.0 / (1.0 + 0.2316419 * abs(d_7)) in
+  let p_9 = horner(k_8) in
+  let rsqrt2pi_10 = 0.3989422804014327 in
+  rsqrt2pi_10 * (let val_35 = -(0.5 * d_7 * d_7) in
+                 exp(val_35)) * p_9
+
+fun real cnd(real d_11) =
+  let c_12 = cnd0(d_11) in
+  if 0.0 < d_11
+  then 1.0 - c_12
+  else c_12
+
+fun real go(bool x_36, real x_37, real x_38, real x_39) =
+  let {call_14, price_15, strike_16, years_17} = {x_36, x_37, x_38, x_39} in
+  let r_18 = 0.08 in
+  let v_19 = 0.3 in
+  let v_sqrtT_20 = v_19 * sqrt(years_17) in
+  let d1_21 = ((let val_40 = price_15 / strike_16 in
+                log(val_40)) + (r_18 + 0.5 * v_19 * v_19) * years_17)
+              / v_sqrtT_20 in
+  let d2_22 = d1_21 - v_sqrtT_20 in
+  let cndD1_23 = cnd(d1_21) in
+  let cndD2_24 = cnd(d2_22) in
+  let x_expRT_25 = strike_16 * (let val_41 = -(r_18 * years_17) in
+                                exp(val_41)) in
+  if call_14
+  then price_15 * cndD1_23 - (x_expRT_25 * cndD2_24)
+  else x_expRT_25 * (1.0 - cndD2_24) - (price_15 * (1.0 - cndD1_23))
+
+fun [real] blackscholes(cert zip_cert_xs_46, [bool] xs_42, [real] xs_43,
+                        [real] xs_44, [real] xs_45) =
+  // tup_arr_elem_48 aliases xs_42
+  // tup_arr_elem_49 aliases xs_43
+  // tup_arr_elem_50 aliases xs_44
+  // tup_arr_elem_51 aliases xs_45
+  let {tup_arr_cert_47, tup_arr_elem_48, tup_arr_elem_49, tup_arr_elem_50,
+       tup_arr_elem_51} = {zip_cert_xs_46, xs_42, xs_43, xs_44, xs_45} in
+  let {untuple_65} =
+    <tup_arr_cert_47>
+    mapT(fn {real} (bool arg_56, real arg_57, real arg_58, real arg_59) =>
+           let {param_0_52, param_0_53, param_0_54, param_0_55} = {arg_56,
+                                                                   arg_57,
+                                                                   arg_58,
+                                                                   arg_59} in
+           let val_64 =
+             let {tup_elem_60, tup_elem_61, tup_elem_62,
+                  tup_elem_63} = {param_0_52, param_0_53, param_0_54,
+                                  param_0_55} in
+             go(tup_elem_60, tup_elem_61, tup_elem_62, tup_elem_63) in
+           {val_64},
+         tup_arr_elem_48, tup_arr_elem_49, tup_arr_elem_50, tup_arr_elem_51) in
+  untuple_65
+
+fun [real] main() =
+  let days_28 = 5 * 365 in
+  // a_30 aliases untuple_68
+  let a_30 =
+    let val_66 = iota(days_28) in
+    let {untuple_68} =
+      mapT(fn {int} (int y_29) =>
+             let val_67 = 1 + y_29 in
+             {val_67},
+           val_66) in
+    untuple_68 in
+  // a_32 aliases untuple_70
+  let a_32 =
+    let {untuple_70} =
+      mapT(fn {real} (int param_0_31) =>
+             let val_69 = toReal(param_0_31) in
+             {val_69},
+           a_30) in
+    untuple_70 in
+  // a_79 aliases soac_v_75
+  // a_80 aliases soac_v_76
+  // a_81 aliases soac_v_77
+  // a_82 aliases soac_v_78
+  let {zip_cert_a_83, a_79, a_80, a_81, a_82} =
+    let {soac_v_75, soac_v_76, soac_v_77, soac_v_78} =
+      mapT(fn {bool, real, real, real} (real x_33) =>
+             let {tup_elem_71, tup_elem_72, tup_elem_73, tup_elem_74} = {True,
+                                                                         58.0
+                                                                         + 4.0
+                                                                         * x_33
+                                                                         / toReal(days_28),
+                                                                         65.0,
+                                                                         x_33
+                                                                         / 365.0} in
+             {tup_elem_71, tup_elem_72, tup_elem_73, tup_elem_74},
+           a_32) in
+    {conjoin(), soac_v_75, soac_v_76, soac_v_77, soac_v_78} in
+  // tup_arr_elem_85 aliases soac_v_75, a_79
+  // tup_arr_elem_86 aliases a_80, soac_v_76
+  // tup_arr_elem_87 aliases soac_v_77, a_81
+  // tup_arr_elem_88 aliases a_82, soac_v_78
+  let {tup_arr_cert_84, tup_arr_elem_85, tup_arr_elem_86, tup_arr_elem_87,
+       tup_arr_elem_88} = {zip_cert_a_83, a_79, a_80, a_81, a_82} in
+  blackscholes(tup_arr_cert_84, tup_arr_elem_85, tup_arr_elem_86,
+               tup_arr_elem_87, tup_arr_elem_88)

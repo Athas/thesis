@@ -1,0 +1,37 @@
+fun [[int]] main() =
+  let arr_0 = [[2, 4, 5],
+               [1, 1000, 3],
+               [3, 7, 1]] in
+  // untuple_37 aliases arr_0
+  let {untuple_37} =
+    mapT(fn {[int]} ([int] param_0_1) =>
+           let {untuple_36} =
+             mapT(fn {int} (int arg_2, [int] arg_4) =>
+                    let {untuple_33} =
+                      redomapT(fn {int} (int param_0_5, int param_1_24) =>
+                                 let bop_25 = param_0_5 < param_1_24 in
+                                 let val_26 =
+                                   if bop_25
+                                   then param_0_5
+                                   else param_1_24 in
+                                 {val_26},
+                               fn {int} (int param_0_27, int arg_28,
+                                         int arg_29) =>
+                                 let val_30 = arg_28 + arg_29 in
+                                 let bop_31 = param_0_27 < val_30 in
+                                 let val_32 =
+                                   if bop_31
+                                   then param_0_27
+                                   else val_30 in
+                                 {val_32},
+                               {1200}, arg_4, param_0_1) in
+                    let bop_34 = untuple_33 < arg_2 in
+                    let val_35 =
+                      if bop_34
+                      then untuple_33
+                      else arg_2 in
+                    {val_35},
+                  param_0_1, transpose(arr_0)) in
+           {untuple_36},
+         arr_0) in
+  untuple_37

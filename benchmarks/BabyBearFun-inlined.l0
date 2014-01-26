@@ -1,0 +1,82 @@
+fun [[int]] main() =
+  let arr_0 = [[2, 4, 5],
+               [1, 1000, 3],
+               [3, 7, 1]] in
+  // D3_5 aliases arr_0
+  let D3_5 = replicate(3, transpose(arr_0)) in
+  // untuple_10 aliases arr_0, D3_5
+  let {untuple_10} =
+    mapT(fn {[[int]]} ([int] param_0_6) =>
+           // tmp_repl_8 aliases param_0_6
+           let tmp_repl_8 = replicate(3, param_0_6) in
+           {tmp_repl_8},
+         arr_0) in
+  let tmp_size_11 = size(0, untuple_10) in
+  let tmp_e_12 = 3 = tmp_size_11 in
+  let zip_assert_13 = assert(tmp_e_12) in
+  // untuple_41 aliases arr_0, D3_5, untuple_10
+  let {untuple_41} =
+    <zip_assert_13>
+    mapT(fn {[[int]]} ([[int]] arg_14, [[int]] arg_15) =>
+           let tmp_size_19 = size(0, arg_14) in
+           let tmp_size_20 = size(0, arg_15) in
+           let tmp_e_21 = tmp_size_19 = tmp_size_20 in
+           let zip_assert_25 = assert(tmp_e_21) in
+           // untuple_40 aliases arg_14, arg_15
+           let {untuple_40} =
+             <zip_assert_25>
+             mapT(fn {[int]} ([int] arg_26, [int] arg_27) =>
+                    let tmp_size_29 = size(0, arg_26) in
+                    let tmp_size_31 = size(0, arg_27) in
+                    let tmp_e_33 = tmp_size_29 = tmp_size_31 in
+                    let zip_assert_34 = assert(tmp_e_33) in
+                    let {untuple_39} =
+                      <zip_assert_34>
+                      mapT(fn {int} (int arg_36, int arg_37) =>
+                             let val_38 = arg_36 + arg_37 in
+                             {val_38},
+                           arg_26, arg_27) in
+                    {untuple_39},
+                  arg_14, arg_15) in
+           {untuple_40},
+         D3_5, untuple_10) in
+  // untuple_49 aliases arr_0, D3_5, untuple_41, untuple_10
+  let {untuple_49} =
+    mapT(fn {[int]} ([[int]] param_0_42) =>
+           let {untuple_48} =
+             mapT(fn {int} ([int] param_0_43) =>
+                    let {untuple_47} =
+                      reduceT(fn {int} (int param_0_44, int param_1_45) =>
+                                let val_46 =
+                                  if param_0_44 < param_1_45
+                                  then param_0_44
+                                  else param_1_45 in
+                                {val_46},
+                              {1200}, param_0_43) in
+                    {untuple_47},
+                  param_0_42) in
+           {untuple_48},
+         untuple_41) in
+  let tmp_size_50 = size(0, untuple_49) in
+  let tmp_e_51 = tmp_size_50 = 3 in
+  let zip_assert_52 = assert(tmp_e_51) in
+  // untuple_63 aliases arr_0, D3_5, untuple_41, untuple_49, untuple_10
+  let {untuple_63} =
+    <zip_assert_52>
+    mapT(fn {[int]} ([int] arg_53, [int] arg_54) =>
+           let tmp_size_55 = size(0, arg_53) in
+           let tmp_size_56 = size(0, arg_54) in
+           let tmp_e_57 = tmp_size_55 = tmp_size_56 in
+           let zip_assert_58 = assert(tmp_e_57) in
+           let {untuple_62} =
+             <zip_assert_58>
+             mapT(fn {int} (int arg_59, int arg_60) =>
+                    let val_61 =
+                      if arg_59 < arg_60
+                      then arg_59
+                      else arg_60 in
+                    {val_61},
+                  arg_53, arg_54) in
+           {untuple_62},
+         untuple_49, arr_0) in
+  untuple_63

@@ -8,7 +8,7 @@ fun real main() =
                 [0.19, 0.19, 0.15],
                 [0.19, 0.19, 0.15]] in
   let norm_3 = [3758.05, 11840.0, 1200.0] in
-  let {num_mc_it_7, num_dates_10, num_und_13, num_bits_14, dir_vs_15} =
+  let {num_mc_it_4, num_dates_9, num_und_13, num_bits_15, dir_vs_16} =
     {1000,
      5,
      3,
@@ -86,33 +86,33 @@ fun real main() =
        824836096, 977731584, 153714688, 507854848, 254402560, 88403968,
        883578880, 235160576, 118055424, 422917888, 371224704, 326210368,
        654926368, 691353392, 773877944, 930190180, 554263078, 842348331]]} in
-  let tmp_size_16 = size(0, reshape((5, 3, 30), dir_vs_15)) in
-  let tmp_e_17 = tmp_size_16 = 5 in
-  let zip_assert_19 = assert(tmp_e_17) in
-  let val_20 = [-0.0283491736871803, 0.0178771081725381, 0.0043096808044729] in
-  let val_21 = [-0.0183841413744211, -0.0044530897672834, 0.0024263805987983] in
-  let val_22 = [-0.0172686581005089, 0.0125638544546015, 0.0094452810918001] in
-  let val_23 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
-  let val_24 = [-0.0121497422218761, 0.0182904634062437, 0.0151125070556484] in
-  // tmp_lit_25 aliases val_24, val_20, val_21, val_22, val_23
-  let tmp_lit_25 = [val_20,
-                    val_21,
+  let tmp_size_18 = size(0, reshape((5, 3, 30), dir_vs_16)) in
+  let tmp_e_19 = tmp_size_18 = 5 in
+  let zip_assert_20 = assert(tmp_e_19) in
+  let val_21 = [-0.0283491736871803, 0.0178771081725381, 0.0043096808044729] in
+  let val_22 = [-0.0183841413744211, -0.0044530897672834, 0.0024263805987983] in
+  let val_24 = [-0.0172686581005089, 0.0125638544546015, 0.0094452810918001] in
+  let val_25 = [-0.0144179417871814, 0.0157411263968213, 0.0125315353728014] in
+  let val_26 = [-0.0121497422218761, 0.0182904634062437, 0.0151125070556484] in
+  // tmp_lit_27 aliases val_24, val_25, val_21, val_22, val_26
+  let tmp_lit_27 = [val_21,
                     val_22,
-                    val_23,
-                    val_24] in
-  let tmp_size_26 = size(0, tmp_lit_25) in
-  let tmp_e_27 = 5 = tmp_size_26 in
-  let zip_assert_28 = assert(tmp_e_27) in
-  let comb_cert_29 = conjoin(zip_assert_19, zip_assert_28) in
-  let tmp_size_30 = <comb_cert_29>size(1, tmp_lit_25) in
-  let tmp_e_32 = tmp_size_30 = 3 in
-  let zip_assert_33 = assert(tmp_e_32) in
-  let tmp_size_34 = <comb_cert_29, zip_assert_33>size(1, tmp_lit_25) in
-  let tmp_e_35 = 3 = tmp_size_34 in
-  let zip_assert_36 = assert(tmp_e_35) in
-  let tmp_e_37 = tmp_size_34 = 3 in
+                    val_24,
+                    val_25,
+                    val_26] in
+  let tmp_size_28 = size(0, tmp_lit_27) in
+  let tmp_e_29 = 5 = tmp_size_28 in
+  let zip_assert_30 = assert(tmp_e_29) in
+  let comb_cert_31 = conjoin(zip_assert_20, zip_assert_30) in
+  let tmp_size_32 = <comb_cert_31>size(1, tmp_lit_27) in
+  let tmp_e_33 = tmp_size_32 = 3 in
+  let zip_assert_35 = assert(tmp_e_33) in
+  let tmp_size_36 = <comb_cert_31, zip_assert_35>size(1, tmp_lit_27) in
+  let tmp_e_37 = 3 = tmp_size_36 in
   let zip_assert_38 = assert(tmp_e_37) in
-  let {bb_inds_39, bb_data_40} =
+  let tmp_e_39 = tmp_size_36 = 3 in
+  let zip_assert_40 = assert(tmp_e_39) in
+  let {bb_inds_41, bb_data_42} =
     {[[5, 2, 1, 3, 4],
       [0, 0, 0, 2, 3],
       [0, 5, 2, 5, 5]],
@@ -122,281 +122,324 @@ fun real main() =
        0.5006839945280438],
       [0.0, 0.4001094690749863, 0.5006839945280438, 0.3330291970802919,
        0.4993160054719562]]} in
-  let divs_41 = [0.00026609544843735446, 0.00008445945945945946,
+  let divs_43 = [0.00026609544843735446, 0.00008445945945945946,
                  0.0008333333333333334] in
   let {untuple_502} =
-    redomapT(fn {real} (real x_42, real y_43) =>
-               let val_44 = x_42 + y_43 in
-               {val_44},
-             fn {real} (real x_45, int x_46) =>
-               let val_47 = x_46 + 1 in
-               let bop_48 = val_47 >> 1 in
-               let val_49 = bop_48 ^ val_47 in
-               // untuple_382 aliases dir_vs_15
-               let {untuple_382} =
-                 mapT(fn {[real]} ([[int]] pullReshape_param_50) =>
-                        let bbrow_51 = replicate(5, 0.0) in
-                        let {pullReshape_bnd_286} =
-                          mapT(fn {real} ([int] param_0_52) =>
-                                 let {untuple_73} =
-                                   redomapT(fn {int} (int x_53, int y_54) =>
-                                              let val_55 = x_53 ^ y_54 in
-                                              {val_55},
-                                            fn {int} (int x_56,
-                                                      int param_0_57) =>
-                                              let t_61 = 1 << param_0_57 in
-                                              let bop_63 = val_49 & t_61 in
-                                              let val_64 = bop_63 = t_61 in
-                                              if val_64
-                                              then let val_68 = x_56 ^ param_0_52[param_0_57] in
-                                                   {val_68}
-                                              else {x_56},
+    redomapT(fn {real} (real x_44, real y_45) =>
+               let val_46 = x_44 + y_45 in
+               {val_46},
+             fn {real} (real x_47, int x_48) =>
+               let val_53 = x_48 + 1 in
+               let bop_54 = val_53 >> 1 in
+               let val_60 = bop_54 ^ val_53 in
+               // untuple_440 aliases dir_vs_16
+               let {untuple_440} =
+                 mapT(fn {[real]} ([[int]] pullReshape_param_61) =>
+                        let bbrow_62 = replicate(5, 0.0) in
+                        let {pullReshape_bnd_410} =
+                          mapT(fn {real} ([int] param_0_83) =>
+                                 let {untuple_226} =
+                                   redomapT(fn {int} (int x_92, int y_210) =>
+                                              let val_212 = x_92 ^ y_210 in
+                                              {val_212},
+                                            fn {int} (int x_217,
+                                                      int param_0_218) =>
+                                              let t_219 = 1 << param_0_218 in
+                                              let bop_220 = val_60 & t_219 in
+                                              let val_222 = bop_220 = t_219 in
+                                              if val_222
+                                              then let val_225 = x_217
+                                                                 ^ param_0_83[param_0_218] in
+                                                   {val_225}
+                                              else {x_217},
                                             {0}, iota(30)) in
-                                 let tmp_call_74 = toReal(untuple_73) in
-                                 let val_75 = tmp_call_74 / 1073741824.0 in
-                                 let dp_81 = val_75 - 0.5 in
-                                 let bop_82 = 0.5 - dp_81 in
-                                 let bop_83 = dp_81 + 0.5 in
-                                 let bop_84 = dp_81 * dp_81 in
-                                 let val_85 = 0.180625 - bop_84 in
-                                 let bop_86 = val_85 * 2509.0809287301227 in
-                                 let bop_87 = bop_86 + 33430.57558358813 in
-                                 let bop_88 = val_85 * bop_87 in
-                                 let bop_89 = bop_88 + 67265.7709270087 in
-                                 let bop_91 = val_85 * bop_89 in
-                                 let bop_92 = bop_91 + 45921.95393154987 in
-                                 let bop_93 = val_85 * bop_92 in
-                                 let bop_94 = bop_93 + 13731.69376550946 in
-                                 let bop_95 = val_85 * bop_94 in
-                                 let bop_96 = bop_95 + 1971.5909503065513 in
-                                 let bop_97 = val_85 * bop_96 in
-                                 let bop_98 = bop_97 + 133.14166789178438 in
-                                 let bop_100 = val_85 * bop_98 in
-                                 let bop_101 = bop_100 + 3.3871328727963665 in
-                                 let bop_104 = val_85 * 5226.495278852854 in
-                                 let bop_105 = bop_104 + 28729.085735721943 in
-                                 let bop_116 = val_85 * bop_105 in
-                                 let bop_117 = bop_116 + 39307.89580009271 in
-                                 let bop_118 = val_85 * bop_117 in
-                                 let bop_119 = bop_118 + 21213.794301586597 in
-                                 let bop_120 = val_85 * bop_119 in
-                                 let bop_121 = bop_120 + 5394.196021424751 in
-                                 let bop_122 = val_85 * bop_121 in
-                                 let bop_123 = bop_122 + 687.1870074920579 in
-                                 let bop_124 = val_85 * bop_123 in
-                                 let bop_125 = bop_124 + 42.31333070160091 in
-                                 let bop_126 = val_85 * bop_125 in
-                                 let bop_127 = bop_126 + 1.0 in
-                                 let bop_128 = dp_81 <= 0.425 in
-                                 let bop_129 = 0.0 <= dp_81 in
-                                 let norm_130 = bop_129 && bop_128 in
-                                 let bop_131 = 0.0 - dp_81 in
-                                 let bop_132 = bop_131 <= 0.425 in
-                                 let bop_133 = dp_81 < 0.0 in
-                                 let norm_134 = bop_133 && bop_132 in
-                                 let norm_135 = norm_134 || norm_130 in
-                                 let val_285 = if norm_135
-                                               then let tmp_bop_136 = bop_101 / bop_127 in
-                                                    let bop_137 = dp_81 * tmp_bop_136 in
-                                                    bop_137
-                                               else let pp_138 = if bop_133
-                                                                 then bop_83
-                                                                 else bop_82 in
-                                                    let tmp_call_139 = log(pp_138) in
-                                                    let val_140 = -tmp_call_139 in
-                                                    let tmp_call_141 = sqrt(val_140) in
-                                                    let bop_142 = tmp_call_141 <= 5.0 in
-                                                    let val_143 = tmp_call_141 - 1.6 in
-                                                    let bop_144 = val_143 * 0.0007745450142783414 in
-                                                    let bop_145 = bop_144 + 0.022723844989269184 in
-                                                    let bop_146 = val_143 * bop_145 in
-                                                    let bop_147 = bop_146 + 0.2417807251774506 in
-                                                    let bop_148 = val_143 * bop_147 in
-                                                    let bop_149 = bop_148 + 1.2704582524523684 in
-                                                    let bop_150 = val_143 * bop_149 in
-                                                    let bop_151 = bop_150 + 3.6478483247632045 in
-                                                    let bop_152 = val_143 * bop_151 in
-                                                    let bop_153 = bop_152 + 5.769497221460691 in
-                                                    let bop_154 = val_143 * bop_153 in
-                                                    let bop_155 = bop_154 + 4.630337846156546 in
-                                                    let bop_156 = val_143 * bop_155 in
-                                                    let bop_157 = bop_156 + 1.4234371107496835 in
-                                                    let bop_158 = val_143 * 0.0000000010507500716444169 in
-                                                    let bop_159 = bop_158 + 0.0005475938084995345 in
-                                                    let bop_160 = val_143 * bop_159 in
-                                                    let bop_161 = bop_160 + 0.015198666563616457 in
-                                                    let bop_162 = val_143 * bop_161 in
-                                                    let bop_163 = bop_162 + 0.14810397642748008 in
-                                                    let bop_164 = val_143 * bop_163 in
-                                                    let bop_165 = bop_164 + 0.6897673349851 in
-                                                    let bop_166 = val_143 * bop_165 in
-                                                    let bop_167 = bop_166 + 1.6763848301838038 in
-                                                    let bop_168 = val_143 * bop_167 in
-                                                    let bop_169 = bop_168 + 2.053191626637759 in
-                                                    let bop_170 = val_143 * bop_169 in
-                                                    let bop_171 = bop_170 + 1.0 in
-                                                    let val_172 = tmp_call_141 - 5.0 in
-                                                    let bop_173 = val_172 * 0.00000020103343992922881 in
-                                                    let bop_174 = bop_173 + 0.000027115555687434876 in
-                                                    let bop_175 = val_172 * bop_174 in
-                                                    let bop_176 = bop_175 + 0.0012426609473880784 in
-                                                    let bop_177 = val_172 * bop_176 in
-                                                    let bop_178 = bop_177 + 0.026532189526576124 in
-                                                    let bop_179 = val_172 * bop_178 in
-                                                    let bop_180 = bop_179 + 0.29656057182850487 in
-                                                    let bop_181 = val_172 * bop_180 in
-                                                    let bop_182 = bop_181 + 1.7848265399172913 in
-                                                    let bop_183 = val_172 * bop_182 in
-                                                    let bop_184 = bop_183 + 5.463784911164114 in
-                                                    let bop_185 = val_172 * bop_184 in
-                                                    let bop_186 = bop_185 + 6.657904643501103 in
-                                                    let bop_187 = val_172 * 0.000020442631033899398 in
-                                                    let bop_188 = bop_187 + 0.0000001421511758316446 in
-                                                    let bop_189 = val_172 * bop_188 in
-                                                    let bop_190 = bop_189 + 0.000018463183175100548 in
-                                                    let bop_191 = val_172 * bop_190 in
-                                                    let bop_192 = bop_191 + 0.0007868691311456133 in
-                                                    let bop_193 = val_172 * bop_192 in
-                                                    let bop_194 = bop_193 + 0.014875361290850615 in
-                                                    let bop_195 = val_172 * bop_194 in
-                                                    let bop_196 = bop_195 + 0.1369298809227358 in
-                                                    let bop_197 = val_172 * bop_196 in
-                                                    let bop_206 = bop_197 + 0.599832206555888 in
-                                                    let bop_215 = val_172 * bop_206 in
-                                                    let bop_223 = bop_215 + 1.0 in
-                                                    let x_236 = if bop_142
-                                                                then let bop_229 = bop_157 / bop_171 in
-                                                                     bop_229
-                                                                else let bop_230 = bop_186 / bop_223 in
-                                                                     bop_230 in
-                                                    let bop_237 = 0.0 - x_236 in
-                                                    if bop_133
-                                                    then bop_237
-                                                    else x_236 in
-                                 {val_285},
-                               pullReshape_param_50) in
-                        let val_333 = 2.237292884728058 * pullReshape_bnd_286[0] in
-                        let letwith_dst_9 = bbrow_51 with [4] <- val_333 in
-                        // bbrow_340 aliases letwith_dst_9
-                        loop (bbrow_340 = letwith_dst_9) = for i_355 < 4 do
-                          let bop_357 = i_355 + 1 in
-                          let j_359 = bb_inds_39[1, bop_357] - 1 in
-                          let bop_361 = j_359 + 1 in
-                          let bop_362 = bop_361 = 0 in
-                          let k_364 = bb_inds_39[2, bop_357] - 1 in
-                          let bop_366 = bb_data_40[2,
-                                                   bop_357] * bbrow_340[k_364] in
-                          let l_367 = bb_inds_39[0, bop_357] - 1 in
-                          let bop_372 = bb_data_40[0,
-                                                   bop_357] * pullReshape_bnd_286[bop_357] in
-                          let tmp_373 = bop_366 + bop_372 in
-                          let val_377 = if bop_362
-                                        then tmp_373
-                                        else let bop_374 = bb_data_40[1,
-                                                                      bop_357] * bbrow_340[j_359] in
-                                             let bop_376 = tmp_373 + bop_374 in
-                                             bop_376 in
-                          let letwith_dst_11 = bbrow_340 with [l_367] <- val_377 in
+                                 let tmp_call_228 = toReal(untuple_226) in
+                                 let val_229 = tmp_call_228 / 1073741824.0 in
+                                 let dp_231 = val_229 - 0.5 in
+                                 let bop_233 = 0.5 - dp_231 in
+                                 let bop_235 = dp_231 + 0.5 in
+                                 let bop_236 = dp_231 * dp_231 in
+                                 let val_237 = 0.180625 - bop_236 in
+                                 let bop_240 = val_237 * 2509.0809287301227 in
+                                 let bop_241 = bop_240 + 33430.57558358813 in
+                                 let bop_245 = val_237 * bop_241 in
+                                 let bop_247 = bop_245 + 67265.7709270087 in
+                                 let bop_250 = val_237 * bop_247 in
+                                 let bop_251 = bop_250 + 45921.95393154987 in
+                                 let bop_252 = val_237 * bop_251 in
+                                 let bop_253 = bop_252 + 13731.69376550946 in
+                                 let bop_254 = val_237 * bop_253 in
+                                 let bop_255 = bop_254 + 1971.5909503065513 in
+                                 let bop_256 = val_237 * bop_255 in
+                                 let bop_257 = bop_256 + 133.14166789178438 in
+                                 let bop_258 = val_237 * bop_257 in
+                                 let bop_259 = bop_258 + 3.3871328727963665 in
+                                 let bop_260 = val_237 * 5226.495278852854 in
+                                 let bop_262 = bop_260 + 28729.085735721943 in
+                                 let bop_266 = val_237 * bop_262 in
+                                 let bop_268 = bop_266 + 39307.89580009271 in
+                                 let bop_269 = val_237 * bop_268 in
+                                 let bop_284 = bop_269 + 21213.794301586597 in
+                                 let bop_295 = val_237 * bop_284 in
+                                 let bop_299 = bop_295 + 5394.196021424751 in
+                                 let bop_301 = val_237 * bop_299 in
+                                 let bop_315 = bop_301 + 687.1870074920579 in
+                                 let bop_317 = val_237 * bop_315 in
+                                 let bop_319 = bop_317 + 42.31333070160091 in
+                                 let bop_321 = val_237 * bop_319 in
+                                 let bop_323 = bop_321 + 1.0 in
+                                 let bop_324 = dp_231 <= 0.425 in
+                                 let bop_325 = 0.0 <= dp_231 in
+                                 let norm_334 = bop_325 && bop_324 in
+                                 let bop_335 = 0.0 - dp_231 in
+                                 let bop_336 = bop_335 <= 0.425 in
+                                 let bop_337 = dp_231 < 0.0 in
+                                 let norm_338 = bop_337 && bop_336 in
+                                 let norm_339 = norm_338 || norm_334 in
+                                 let val_409 =
+                                   if norm_339
+                                   then let tmp_bop_340 = bop_259 / bop_323 in
+                                        let bop_341 = dp_231 * tmp_bop_340 in
+                                        bop_341
+                                   else let pp_342 =
+                                          if bop_337
+                                          then bop_235
+                                          else bop_233 in
+                                        let tmp_call_343 = log(pp_342) in
+                                        let val_344 = -tmp_call_343 in
+                                        let tmp_call_345 = sqrt(val_344) in
+                                        let bop_346 = tmp_call_345 <= 5.0 in
+                                        let val_347 = tmp_call_345 - 1.6 in
+                                        let bop_348 = val_347
+                                                      * 0.0007745450142783414 in
+                                        let bop_349 = bop_348
+                                                      + 0.022723844989269184 in
+                                        let bop_350 = val_347 * bop_349 in
+                                        let bop_351 = bop_350
+                                                      + 0.2417807251774506 in
+                                        let bop_352 = val_347 * bop_351 in
+                                        let bop_353 = bop_352
+                                                      + 1.2704582524523684 in
+                                        let bop_354 = val_347 * bop_353 in
+                                        let bop_355 = bop_354
+                                                      + 3.6478483247632045 in
+                                        let bop_356 = val_347 * bop_355 in
+                                        let bop_357 = bop_356
+                                                      + 5.769497221460691 in
+                                        let bop_358 = val_347 * bop_357 in
+                                        let bop_359 = bop_358
+                                                      + 4.630337846156546 in
+                                        let bop_360 = val_347 * bop_359 in
+                                        let bop_361 = bop_360
+                                                      + 1.4234371107496835 in
+                                        let bop_362 = val_347
+                                                      * 0.0000000010507500716444169 in
+                                        let bop_363 = bop_362
+                                                      + 0.0005475938084995345 in
+                                        let bop_364 = val_347 * bop_363 in
+                                        let bop_365 = bop_364
+                                                      + 0.015198666563616457 in
+                                        let bop_366 = val_347 * bop_365 in
+                                        let bop_367 = bop_366
+                                                      + 0.14810397642748008 in
+                                        let bop_368 = val_347 * bop_367 in
+                                        let bop_369 = bop_368
+                                                      + 0.6897673349851 in
+                                        let bop_370 = val_347 * bop_369 in
+                                        let bop_371 = bop_370
+                                                      + 1.6763848301838038 in
+                                        let bop_372 = val_347 * bop_371 in
+                                        let bop_373 = bop_372
+                                                      + 2.053191626637759 in
+                                        let bop_374 = val_347 * bop_373 in
+                                        let bop_375 = bop_374 + 1.0 in
+                                        let val_376 = tmp_call_345 - 5.0 in
+                                        let bop_377 = val_376
+                                                      * 0.00000020103343992922881 in
+                                        let bop_378 = bop_377
+                                                      + 0.000027115555687434876 in
+                                        let bop_379 = val_376 * bop_378 in
+                                        let bop_380 = bop_379
+                                                      + 0.0012426609473880784 in
+                                        let bop_381 = val_376 * bop_380 in
+                                        let bop_382 = bop_381
+                                                      + 0.026532189526576124 in
+                                        let bop_383 = val_376 * bop_382 in
+                                        let bop_384 = bop_383
+                                                      + 0.29656057182850487 in
+                                        let bop_385 = val_376 * bop_384 in
+                                        let bop_386 = bop_385
+                                                      + 1.7848265399172913 in
+                                        let bop_387 = val_376 * bop_386 in
+                                        let bop_388 = bop_387
+                                                      + 5.463784911164114 in
+                                        let bop_389 = val_376 * bop_388 in
+                                        let bop_390 = bop_389
+                                                      + 6.657904643501103 in
+                                        let bop_391 = val_376
+                                                      * 0.000020442631033899398 in
+                                        let bop_392 = bop_391
+                                                      + 0.0000001421511758316446 in
+                                        let bop_393 = val_376 * bop_392 in
+                                        let bop_394 = bop_393
+                                                      + 0.000018463183175100548 in
+                                        let bop_395 = val_376 * bop_394 in
+                                        let bop_396 = bop_395
+                                                      + 0.0007868691311456133 in
+                                        let bop_397 = val_376 * bop_396 in
+                                        let bop_398 = bop_397
+                                                      + 0.014875361290850615 in
+                                        let bop_399 = val_376 * bop_398 in
+                                        let bop_400 = bop_399
+                                                      + 0.1369298809227358 in
+                                        let bop_401 = val_376 * bop_400 in
+                                        let bop_402 = bop_401
+                                                      + 0.599832206555888 in
+                                        let bop_403 = val_376 * bop_402 in
+                                        let bop_404 = bop_403 + 1.0 in
+                                        let x_407 =
+                                          if bop_346
+                                          then let bop_405 = bop_361
+                                                             / bop_375 in
+                                               bop_405
+                                          else let bop_406 = bop_390
+                                                             / bop_404 in
+                                               bop_406 in
+                                        let bop_408 = 0.0 - x_407 in
+                                        if bop_337
+                                        then bop_408
+                                        else x_407 in
+                                 {val_409},
+                               pullReshape_param_61) in
+                        let val_411 = 2.237292884728058
+                                      * pullReshape_bnd_410[0] in
+                        let letwith_dst_10 = bbrow_62 with [4] <- val_411 in
+                        // bbrow_414 aliases letwith_dst_10
+                        loop (bbrow_414 = letwith_dst_10) = for i_424 < 4 do
+                          let bop_425 = i_424 + 1 in
+                          let bop_426 = bb_data_42[0, bop_425]
+                                        * pullReshape_bnd_410[bop_425] in
+                          let l_428 = bb_inds_41[0, bop_425] - 1 in
+                          let k_429 = bb_inds_41[2, bop_425] - 1 in
+                          let bop_430 = bb_data_42[2, bop_425]
+                                        * bbrow_414[k_429] in
+                          let tmp_431 = bop_430 + bop_426 in
+                          let j_432 = bb_inds_41[1, bop_425] - 1 in
+                          let bop_433 = j_432 + 1 in
+                          let bop_434 = bop_433 = 0 in
+                          let val_438 =
+                            if bop_434
+                            then tmp_431
+                            else let bop_436 = bb_data_42[1, bop_425]
+                                               * bbrow_414[j_432] in
+                                 let bop_437 = tmp_431 + bop_436 in
+                                 bop_437 in
+                          let letwith_dst_11 = bbrow_414 with [l_428] <- val_438 in
                           letwith_dst_11 in
-                        // bbrow_341 aliases bbrow_340
-                        loop (bbrow_341 = bbrow_340) = for ii_342 < 4 do
-                          let bop_348 = ii_342 + 1 in
-                          let i_351 = 5 - bop_348 in
-                          let bop_352 = i_351 - 1 in
-                          let val_353 = bbrow_341[i_351] - bbrow_341[bop_352] in
-                          let letwith_dst_12 = bbrow_341 with [i_351] <- val_353 in
+                        // bbrow_415 aliases bbrow_414
+                        loop (bbrow_415 = bbrow_414) = for ii_416 < 4 do
+                          let bop_417 = ii_416 + 1 in
+                          let i_419 = 5 - bop_417 in
+                          let bop_420 = i_419 - 1 in
+                          let val_422 = bbrow_415[i_419] - bbrow_415[bop_420] in
+                          let letwith_dst_12 = bbrow_415 with [i_419] <- val_422 in
                           letwith_dst_12 in
-                        {bbrow_341},
-                      transpose(reshape((5, 3, 30), dir_vs_15))) in
-               // tmp_repl_383 aliases untuple_382, dir_vs_15
-               let tmp_repl_383 = replicate(3, transpose(untuple_382)) in
-               let tmp_repl_384 = replicate(5, iota(3)) in
-               // untuple_trns_476 aliases val_24, val_20, tmp_lit_25, val_21, val_22, norm_2, untuple_382, tmp_repl_383, dir_vs_15, val_23, norm_3
-               let {untuple_trns_476} =
-                 <comb_cert_29, zip_assert_33>
-                 mapT(fn {[real]} ([real] arg_385, [real] arg_422, real x_423,
-                                   [[real]] param_0_424, *[int] j_rep_425) =>
-                        let {untuple_461} =
-                          <comb_cert_29, zip_assert_33>
-                          mapT(fn {real} (real arg_429, int j_430, real arg_433,
-                                          [real] param_0_wasfree_435) =>
-                                 let val_437 = j_430 + 1 in
-                                 let {first_439, rest_441} = split(val_437,
-                                                                   param_0_wasfree_435) in
-                                 let {first_443, rest_444} = split(val_437,
-                                                                   norm_1[j_430]) in
-                                 let {untuple_456} =
-                                   redomapT(fn {real} (real x_445,
-                                                       real y_446) =>
-                                              let val_447 = x_445 + y_446 in
-                                              {val_447},
-                                            fn {real} (real x_449, real arg_450,
-                                                       real arg_452) =>
-                                              let val_453 = arg_450 * arg_452 in
-                                              let val_455 = x_449 + val_453 in
-                                              {val_455},
-                                            {0.0}, first_439, first_443) in
-                                 let val_459 = untuple_456 * arg_433 in
-                                 let val_460 = arg_429 + val_459 in
-                                 {val_460},
-                               arg_422, j_rep_425, arg_385, param_0_424) in
-                        // untuple_472 aliases untuple_461
-                        let {untuple_472} =
-                          <zip_assert_36>
-                          scanT(fn {real} (real arg_462, real param_0_466) =>
-                                  let val_468 = exp(param_0_466) in
-                                  let val_470 = arg_462 * val_468 in
-                                  {val_470},
-                                {x_423}, untuple_461) in
-                        {untuple_472},
-                      <zip_assert_36>transpose(norm_2),
-                      <zip_assert_36>transpose(tmp_lit_25), norm_3,
-                      <zip_assert_36>transpose(transpose(tmp_repl_383)),
-                      <zip_assert_36>transpose(tmp_repl_384)) in
-               let {untuple_491} =
-                 mapT(fn {real} ([real] xs_477) =>
-                        let val_478 = <zip_assert_38>xs_477[0] * 0.00026609544843735446 in
-                        let {untuple_490} =
+                        {bbrow_415},
+                      transpose(reshape((5, 3, 30), dir_vs_16))) in
+               let tmp_repl_441 = replicate(5, iota(3)) in
+               // tmp_repl_443 aliases dir_vs_16, untuple_440
+               let tmp_repl_443 = replicate(3, transpose(untuple_440)) in
+               // untuple_trns_477 aliases dir_vs_16, val_24, untuple_440, val_25, val_21, val_22, norm_2, val_26, tmp_lit_27, tmp_repl_443, norm_3
+               let {untuple_trns_477} =
+                 <comb_cert_31, zip_assert_35>
+                 mapT(fn {[real]} ([real] arg_446, real x_447, *[int] j_rep_448,
+                                   [real] arg_449, [[real]] param_0_450) =>
+                        let {untuple_471} =
+                          <comb_cert_31, zip_assert_35>
+                          mapT(fn {real} (real arg_451, int j_452, real arg_453,
+                                          [real] param_0_wasfree_454) =>
+                                 let val_455 = j_452 + 1 in
+                                 let {first_456, rest_457} = split(val_455,
+                                                                   param_0_wasfree_454) in
+                                 let {first_458, rest_459} = split(val_455,
+                                                                   norm_1[j_452]) in
+                                 let {untuple_468} =
+                                   redomapT(fn {real} (real x_460,
+                                                       real y_461) =>
+                                              let val_462 = x_460 + y_461 in
+                                              {val_462},
+                                            fn {real} (real x_463, real arg_464,
+                                                       real arg_465) =>
+                                              let val_466 = arg_464 * arg_465 in
+                                              let val_467 = x_463 + val_466 in
+                                              {val_467},
+                                            {0.0}, first_456, first_458) in
+                                 let val_469 = untuple_468 * arg_453 in
+                                 let val_470 = arg_451 + val_469 in
+                                 {val_470},
+                               arg_449, j_rep_448, arg_446, param_0_450) in
+                        // untuple_476 aliases untuple_471
+                        let {untuple_476} =
                           <zip_assert_38>
-                          redomapT(fn {real} (real x_479, real y_480) =>
-                                     let bop_481 = x_479 < y_480 in
-                                     let val_483 = if bop_481
-                                                   then x_479
-                                                   else y_480 in
+                          scanT(fn {real} (real arg_472, real param_0_473) =>
+                                  let val_474 = exp(param_0_473) in
+                                  let val_475 = arg_472 * val_474 in
+                                  {val_475},
+                                {x_447}, untuple_471) in
+                        {untuple_476},
+                      <zip_assert_38>transpose(norm_2), norm_3,
+                      <zip_assert_38>transpose(tmp_repl_441),
+                      <zip_assert_38>transpose(tmp_lit_27),
+                      <zip_assert_38>transpose(transpose(tmp_repl_443))) in
+               let {untuple_491} =
+                 mapT(fn {real} ([real] xs_478) =>
+                        let val_479 = <zip_assert_40>xs_478[0]
+                                      * 0.00026609544843735446 in
+                        let {untuple_490} =
+                          <zip_assert_40>
+                          redomapT(fn {real} (real x_480, real y_481) =>
+                                     let bop_482 = x_480 < y_481 in
+                                     let val_483 =
+                                       if bop_482
+                                       then x_480
+                                       else y_481 in
                                      {val_483},
                                    fn {real} (real x_484, real arg_485,
                                               real arg_486) =>
-                                     let val_487 = arg_486 * arg_485 in
+                                     let val_487 = arg_485 * arg_486 in
                                      let bop_488 = x_484 < val_487 in
-                                     let val_489 = if bop_488
-                                                   then x_484
-                                                   else val_487 in
+                                     let val_489 =
+                                       if bop_488
+                                       then x_484
+                                       else val_487 in
                                      {val_489},
-                                   {val_478}, divs_41, xs_477) in
+                                   {val_479}, xs_478, divs_43) in
                         {untuple_490},
-                      <zip_assert_36>transpose(untuple_trns_476)) in
+                      <zip_assert_38>transpose(untuple_trns_477)) in
                let bop_492 = 1.0 <= untuple_491[0] in
-               let val_500 = if bop_492
-                             then 1126.754229107682
-                             else let bop_493 = 1.0 <= untuple_491[1] in
-                                  if bop_493
-                                  then 1235.7473027229837
-                                  else let bop_494 = 1.0 <= untuple_491[2] in
-                                       if bop_494
-                                       then 1336.1201435873802
-                                       else let bop_495 = 1.0 <= untuple_491[3] in
-                                            if bop_495
-                                            then 1425.0708889426294
-                                            else let val_496 = 1000.0 * untuple_491[4] in
-                                                 let bop_497 = val_496 * 0.8588567633110704 in
-                                                 let bop_498 = 0.75 < untuple_491[4] in
-                                                 let bop_499 = 1.0 <= untuple_491[4] in
-                                                 if bop_499
-                                                 then 1502.9993357943733
-                                                 else if bop_498
-                                                      then 858.8567633110704
-                                                      else bop_497 in
-               let val_501 = x_45 + val_500 in
+               let val_500 =
+                 if bop_492
+                 then 1126.754229107682
+                 else let bop_493 = 1.0 <= untuple_491[1] in
+                      if bop_493
+                      then 1235.7473027229837
+                      else let bop_494 = 1.0 <= untuple_491[2] in
+                           if bop_494
+                           then 1336.1201435873802
+                           else let bop_495 = 1.0 <= untuple_491[3] in
+                                if bop_495
+                                then 1425.0708889426294
+                                else let val_496 = 1000.0 * untuple_491[4] in
+                                     let bop_497 = val_496
+                                                   * 0.8588567633110704 in
+                                     let bop_498 = 0.75 < untuple_491[4] in
+                                     let bop_499 = 1.0 <= untuple_491[4] in
+                                     if bop_499
+                                     then 1502.9993357943733
+                                     else if bop_498
+                                          then 858.8567633110704
+                                          else bop_497 in
+               let val_501 = x_47 + val_500 in
                {val_501},
              {0.0}, iota(1000)) in
   let bop_503 = untuple_502 / 1000.0 in

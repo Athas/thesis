@@ -1,0 +1,51 @@
+fun [[int]] main([[int]] x_0, [[int]] y_1) =
+  let tmp_size_2 = size(0, y_1) in
+  let tmp_size_3 = size(1, y_1) in
+  let N_4 = size(0, x_0) in
+  // untuple_15 aliases x_0
+  let {untuple_15} =
+    mapT(fn {[[int]]} ([int] param_0_9) =>
+           // tmp_repl_14 aliases param_0_9
+           let tmp_repl_14 = replicate(N_4, param_0_9) in
+           {tmp_repl_14},
+         x_0) in
+  let tmp_size_22 = size(1, untuple_15) in
+  let tmp_e_23 = tmp_size_22 = tmp_size_3 in
+  let zip_assert_24 = assert(tmp_e_23) in
+  let tmp_size_25 = size(2, untuple_15) in
+  let tmp_e_26 = tmp_size_25 = tmp_size_2 in
+  let zip_assert_27 = assert(tmp_e_26) in
+  // br_28 aliases y_1
+  let br_28 = replicate(N_4, transpose(y_1)) in
+  // untuple_38 aliases x_0, br_28, y_1, untuple_15
+  let {untuple_38} =
+    mapT(fn {[[int]]} ([[int]] arg_29, [[int]] arg_30) =>
+           // untuple_37 aliases arg_29, arg_30
+           let {untuple_37} =
+             <zip_assert_24>
+             mapT(fn {[int]} ([int] arg_31, [int] arg_32) =>
+                    let {untuple_36} =
+                      <zip_assert_27>
+                      mapT(fn {int} (int arg_33, int arg_34) =>
+                             let val_35 = arg_33 * arg_34 in
+                             {val_35},
+                           arg_31, arg_32) in
+                    {untuple_36},
+                  arg_29, arg_30) in
+           {untuple_37},
+         untuple_15, br_28) in
+  // untuple_46 aliases x_0, br_28, y_1, untuple_38, untuple_15
+  let {untuple_46} =
+    mapT(fn {[int]} ([[int]] param_0_39) =>
+           let {untuple_45} =
+             mapT(fn {int} ([int] param_0_40) =>
+                    let {untuple_44} =
+                      reduceT(fn {int} (int x_41, int y_42) =>
+                                let val_43 = x_41 + y_42 in
+                                {val_43},
+                              {0}, param_0_40) in
+                    {untuple_44},
+                  param_0_39) in
+           {untuple_45},
+         untuple_38) in
+  untuple_46

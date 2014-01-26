@@ -1,534 +1,560 @@
 fun [real] main() =
-  let norm_2 = [0.0] in
-  let {zip_cert_Dxxlow_6, Dxxlow_9, Dxxlow_16, Dxxlow_17} =
+  let norm_0 = [0.0] in
+  let {zip_cert_Dxxlow_1, Dxxlow_4, Dxxlow_6, Dxxlow_8} =
     {Checked,
      [0.0],
      [0.0],
      [0.0]} in
-  let {untuple_1145} =
-    mapT(fn {real} (int i_19) =>
-           let {untuple_60} =
-             mapT(fn {real} (int i_20) =>
-                    let tmp_call_22 = toReal(i_20) in
-                    let bop_58 = 5.0 * tmp_call_22 in
-                    let val_59 = bop_58 / 31.0 in
-                    {val_59},
+  let {untuple_851} =
+    mapT(fn {real} (int i_9) =>
+           let {untuple_20} =
+             mapT(fn {real} (int i_12) =>
+                    let tmp_call_14 = toReal(i_12) in
+                    let bop_17 = 5.0 * tmp_call_14 in
+                    let val_19 = bop_17 / 31.0 in
+                    {val_19},
                   iota(32)) in
-           let {untuple_130} =
-             mapT(fn {real} (int i_64) =>
-                    let tmp_call_65 = toReal(i_64) in
-                    let bop_125 = tmp_call_65 * 0.008385254915624212 in
-                    let bop_128 = bop_125 - 0.025155764746872637 in
-                    let val_129 = bop_128 + 0.03 in
-                    {val_129},
+           let {untuple_31} =
+             mapT(fn {real} (int i_21) =>
+                    let tmp_call_22 = toReal(i_21) in
+                    let bop_28 = tmp_call_22 * 0.008385254915624212 in
+                    let bop_29 = bop_28 - 0.025155764746872637 in
+                    let val_30 = bop_29 + 0.03 in
+                    {val_30},
                   iota(32)) in
-           let dxu_131 = untuple_130[1] - untuple_130[0] in
-           let bop_132 = 1.0 / dxu_131 in
-           let negate_133 = -bop_132 in
-           let norm_134 = [negate_133] in
-           let concat_x_136 = size(0, norm_134) in
-           let concat_sz_138 = concat_x_136 + 30 in
-           let norm_139 = [bop_132] in
-           let concat_x_143 = size(0, norm_139) in
-           let concat_sz_145 = concat_x_143 + 30 in
-           let concat_sz_146 = concat_sz_145 + 1 in
-           let tmp_e_147 = concat_sz_146 = 32 in
-           let zip_assert_148 = assert(tmp_e_147) in
-           let dxl_149 = untuple_130[31] - untuple_130[30] in
-           let bop_150 = 1.0 / dxl_149 in
-           let negate_151 = -bop_150 in
-           let norm_152 = [negate_151] in
-           let concat_y_156 = size(0, norm_152) in
-           let concat_sz_157 = 31 + concat_y_156 in
-           let norm_158 = [bop_150] in
-           let concat_y_163 = size(0, norm_158) in
-           let concat_sz_164 = concat_sz_138 + concat_y_163 in
-           let tmp_e_165 = concat_sz_157 = concat_sz_164 in
-           let zip_assert_166 = assert(tmp_e_165) in
-           let tmp_e_167 = concat_sz_164 = concat_sz_146 in
-           let zip_assert_168 = assert(tmp_e_167) in
-           let {soac_v_195, soac_v_196, soac_v_197} =
-             mapT(fn {real, real, real} (int y_169) =>
-                    let val_170 = 1 + y_169 in
-                    let bop_175 = val_170 + 1 in
-                    let bop_176 = val_170 - 1 in
-                    let dxl_177 = untuple_130[val_170] - untuple_130[bop_176] in
-                    let dxu_179 = untuple_130[bop_175] - untuple_130[val_170] in
-                    let bop_180 = dxu_179 / dxl_177 in
-                    let bop_182 = dxl_177 + dxu_179 in
-                    let bop_185 = bop_180 / bop_182 in
-                    let negate_186 = -bop_185 in
-                    let bop_187 = dxl_177 / dxu_179 in
-                    let bop_188 = bop_180 - bop_187 in
-                    let bop_189 = bop_188 / bop_182 in
-                    let bop_190 = bop_187 / bop_182 in
-                    {negate_186, bop_189, bop_190},
+           let dxu_32 = untuple_31[1] - untuple_31[0] in
+           let bop_33 = 1.0 / dxu_32 in
+           let negate_34 = -bop_33 in
+           let norm_35 = [negate_34] in
+           let concat_x_36 = size(0, norm_35) in
+           let concat_sz_37 = concat_x_36 + 30 in
+           let norm_38 = [bop_33] in
+           let concat_x_39 = size(0, norm_38) in
+           let concat_sz_40 = concat_x_39 + 30 in
+           let concat_sz_41 = concat_sz_40 + 1 in
+           let tmp_e_42 = concat_sz_41 = 32 in
+           let zip_assert_43 = assert(tmp_e_42) in
+           let dxl_44 = untuple_31[31] - untuple_31[30] in
+           let bop_45 = 1.0 / dxl_44 in
+           let negate_46 = -bop_45 in
+           let norm_47 = [negate_46] in
+           let concat_y_48 = size(0, norm_47) in
+           let concat_sz_49 = 31 + concat_y_48 in
+           let norm_50 = [bop_45] in
+           let concat_y_51 = size(0, norm_50) in
+           let concat_sz_52 = concat_sz_37 + concat_y_51 in
+           let tmp_e_53 = concat_sz_49 = concat_sz_52 in
+           let zip_assert_54 = assert(tmp_e_53) in
+           let tmp_e_55 = concat_sz_52 = concat_sz_41 in
+           let zip_assert_56 = assert(tmp_e_55) in
+           let {soac_v_71, soac_v_72, soac_v_73} =
+             mapT(fn {real, real, real} (int y_57) =>
+                    let val_58 = 1 + y_57 in
+                    let bop_59 = val_58 + 1 in
+                    let bop_60 = val_58 - 1 in
+                    let dxl_61 = untuple_31[val_58] - untuple_31[bop_60] in
+                    let dxu_62 = untuple_31[bop_59] - untuple_31[val_58] in
+                    let bop_63 = dxu_62 / dxl_61 in
+                    let bop_64 = dxl_61 + dxu_62 in
+                    let bop_65 = bop_63 / bop_64 in
+                    let negate_66 = -bop_65 in
+                    let bop_67 = dxl_61 / dxu_62 in
+                    let bop_68 = bop_63 - bop_67 in
+                    let bop_69 = bop_68 / bop_64 in
+                    let bop_70 = bop_67 / bop_64 in
+                    {negate_66, bop_69, bop_70},
                   iota(30)) in
-           // tmp_conc_198 aliases norm_2
-           let tmp_conc_198 = concat(norm_2, soac_v_195) in
-           // tmp_conc_199 aliases norm_2, tmp_conc_198
-           let tmp_conc_199 = concat(tmp_conc_198, norm_152) in
-           // tmp_conc_200 aliases norm_134
-           let tmp_conc_200 = concat(norm_134, soac_v_196) in
-           // tmp_conc_201 aliases tmp_conc_200, norm_134
-           let tmp_conc_201 = concat(tmp_conc_200, norm_158) in
-           // tmp_conc_202 aliases norm_139
-           let tmp_conc_202 = concat(norm_139, soac_v_197) in
-           // tmp_conc_203 aliases tmp_conc_202, norm_139
-           let tmp_conc_203 = concat(tmp_conc_202, norm_2) in
-           let {soac_v_224, soac_v_225, soac_v_228} =
-             mapT(fn {real, real, real} (int y_204) =>
-                    let val_205 = 1 + y_204 in
-                    let bop_206 = val_205 + 1 in
-                    let bop_207 = val_205 - 1 in
-                    let dxl_208 = untuple_130[val_205] - untuple_130[bop_207] in
-                    let bop_209 = 2.0 / dxl_208 in
-                    let bop_210 = 1.0 / dxl_208 in
-                    let dxu_211 = untuple_130[bop_206] - untuple_130[val_205] in
-                    let bop_212 = dxl_208 + dxu_211 in
-                    let bop_213 = bop_209 / bop_212 in
-                    let bop_214 = 1.0 / dxu_211 in
-                    let bop_215 = bop_210 + bop_214 in
-                    let bop_216 = 2.0 * bop_215 in
-                    let bop_220 = bop_216 / bop_212 in
-                    let negate_221 = -bop_220 in
-                    let bop_222 = 2.0 / dxu_211 in
-                    let bop_223 = bop_222 / bop_212 in
-                    {bop_213, negate_221, bop_223},
+           // tmp_conc_74 aliases norm_0
+           let tmp_conc_74 = concat(norm_0, soac_v_71) in
+           // tmp_conc_75 aliases norm_0, tmp_conc_74
+           let tmp_conc_75 = concat(tmp_conc_74, norm_47) in
+           // tmp_conc_76 aliases norm_35
+           let tmp_conc_76 = concat(norm_35, soac_v_72) in
+           // tmp_conc_77 aliases tmp_conc_76, norm_35
+           let tmp_conc_77 = concat(tmp_conc_76, norm_50) in
+           // tmp_conc_78 aliases norm_38
+           let tmp_conc_78 = concat(norm_38, soac_v_73) in
+           // tmp_conc_79 aliases norm_38, tmp_conc_78
+           let tmp_conc_79 = concat(tmp_conc_78, norm_0) in
+           let {soac_v_97, soac_v_98, soac_v_99} =
+             mapT(fn {real, real, real} (int y_80) =>
+                    let val_81 = 1 + y_80 in
+                    let bop_82 = val_81 + 1 in
+                    let bop_83 = val_81 - 1 in
+                    let dxl_84 = untuple_31[val_81] - untuple_31[bop_83] in
+                    let bop_85 = 2.0 / dxl_84 in
+                    let bop_86 = 1.0 / dxl_84 in
+                    let dxu_87 = untuple_31[bop_82] - untuple_31[val_81] in
+                    let bop_88 = dxl_84 + dxu_87 in
+                    let bop_89 = bop_85 / bop_88 in
+                    let bop_90 = 1.0 / dxu_87 in
+                    let bop_91 = bop_86 + bop_90 in
+                    let bop_92 = 2.0 * bop_91 in
+                    let bop_93 = bop_92 / bop_88 in
+                    let negate_94 = -bop_93 in
+                    let bop_95 = 2.0 / dxu_87 in
+                    let bop_96 = bop_95 / bop_88 in
+                    {bop_89, negate_94, bop_96},
                   iota(30)) in
-           // tmp_conc_229 aliases Dxxlow_9
-           let tmp_conc_229 = concat(Dxxlow_9, soac_v_224) in
-           // tmp_conc_230 aliases tmp_conc_229, Dxxlow_9
-           let tmp_conc_230 = concat(tmp_conc_229, Dxxlow_9) in
-           // tmp_conc_231 aliases Dxxlow_16
-           let tmp_conc_231 = concat(Dxxlow_16, soac_v_225) in
-           // tmp_conc_232 aliases Dxxlow_16, tmp_conc_231
-           let tmp_conc_232 = concat(tmp_conc_231, Dxxlow_16) in
-           // tmp_conc_233 aliases Dxxlow_17
-           let tmp_conc_233 = concat(Dxxlow_17, soac_v_228) in
-           // tmp_conc_234 aliases tmp_conc_233, Dxxlow_17
-           let tmp_conc_234 = concat(tmp_conc_233, Dxxlow_17) in
-           let {untuple_247} =
-             mapT(fn {real} (int i_235) =>
-                    let tmp_call_236 = toReal(i_235) in
-                    let bop_237 = tmp_call_236 * 0.8385254915624212 in
-                    let bop_238 = bop_237 - 6.708203932499369 in
-                    let val_244 = bop_238 + -1.6094379124341003 in
-                    {val_244},
+           // tmp_conc_100 aliases Dxxlow_4
+           let tmp_conc_100 = concat(Dxxlow_4, soac_v_97) in
+           // tmp_conc_101 aliases tmp_conc_100, Dxxlow_4
+           let tmp_conc_101 = concat(tmp_conc_100, Dxxlow_4) in
+           // tmp_conc_102 aliases Dxxlow_6
+           let tmp_conc_102 = concat(Dxxlow_6, soac_v_98) in
+           // tmp_conc_103 aliases tmp_conc_102, Dxxlow_6
+           let tmp_conc_103 = concat(tmp_conc_102, Dxxlow_6) in
+           // tmp_conc_104 aliases Dxxlow_8
+           let tmp_conc_104 = concat(Dxxlow_8, soac_v_99) in
+           // tmp_conc_105 aliases Dxxlow_8, tmp_conc_104
+           let tmp_conc_105 = concat(tmp_conc_104, Dxxlow_8) in
+           let {untuple_111} =
+             mapT(fn {real} (int i_106) =>
+                    let tmp_call_107 = toReal(i_106) in
+                    let bop_108 = tmp_call_107 * 0.8385254915624212 in
+                    let bop_109 = bop_108 - 6.708203932499369 in
+                    let val_110 = bop_109 + -1.6094379124341003 in
+                    {val_110},
                   iota(16)) in
-           let dxu_253 = untuple_247[1] - untuple_247[0] in
-           let bop_254 = 1.0 / dxu_253 in
-           let negate_255 = -bop_254 in
-           let norm_256 = [negate_255] in
-           let concat_x_257 = size(0, norm_256) in
-           let concat_sz_264 = concat_x_257 + 14 in
-           let norm_265 = [bop_254] in
-           let concat_x_273 = size(0, norm_265) in
-           let concat_sz_274 = concat_x_273 + 14 in
-           let concat_sz_286 = concat_sz_274 + 1 in
-           let tmp_e_287 = concat_sz_286 = 16 in
-           let zip_assert_288 = assert(tmp_e_287) in
-           let dxl_289 = untuple_247[15] - untuple_247[14] in
-           let bop_308 = 1.0 / dxl_289 in
-           let negate_310 = -bop_308 in
-           let norm_313 = [negate_310] in
-           let concat_y_329 = size(0, norm_313) in
-           let concat_sz_330 = 15 + concat_y_329 in
-           let norm_339 = [bop_308] in
-           let concat_y_340 = size(0, norm_339) in
-           let concat_sz_341 = concat_sz_264 + concat_y_340 in
-           let tmp_e_342 = concat_sz_330 = concat_sz_341 in
-           let zip_assert_343 = assert(tmp_e_342) in
-           let tmp_e_344 = concat_sz_341 = concat_sz_286 in
-           let zip_assert_345 = assert(tmp_e_344) in
-           let {soac_v_360, soac_v_361, soac_v_362} =
-             mapT(fn {real, real, real} (int y_346) =>
-                    let val_347 = 1 + y_346 in
-                    let bop_348 = val_347 + 1 in
-                    let bop_349 = val_347 - 1 in
-                    let dxl_350 = untuple_247[val_347] - untuple_247[bop_349] in
-                    let dxu_351 = untuple_247[bop_348] - untuple_247[val_347] in
-                    let bop_352 = dxu_351 / dxl_350 in
-                    let bop_353 = dxl_350 + dxu_351 in
-                    let bop_354 = bop_352 / bop_353 in
-                    let negate_355 = -bop_354 in
-                    let bop_356 = dxl_350 / dxu_351 in
-                    let bop_357 = bop_352 - bop_356 in
-                    let bop_358 = bop_357 / bop_353 in
-                    let bop_359 = bop_356 / bop_353 in
-                    {negate_355, bop_358, bop_359},
+           let dxu_112 = untuple_111[1] - untuple_111[0] in
+           let bop_113 = 1.0 / dxu_112 in
+           let negate_114 = -bop_113 in
+           let norm_115 = [negate_114] in
+           let concat_x_116 = size(0, norm_115) in
+           let concat_sz_117 = concat_x_116 + 14 in
+           let norm_118 = [bop_113] in
+           let concat_x_119 = size(0, norm_118) in
+           let concat_sz_120 = concat_x_119 + 14 in
+           let concat_sz_121 = concat_sz_120 + 1 in
+           let tmp_e_122 = concat_sz_121 = 16 in
+           let zip_assert_123 = assert(tmp_e_122) in
+           let dxl_124 = untuple_111[15] - untuple_111[14] in
+           let bop_125 = 1.0 / dxl_124 in
+           let negate_126 = -bop_125 in
+           let norm_127 = [negate_126] in
+           let concat_y_128 = size(0, norm_127) in
+           let concat_sz_129 = 15 + concat_y_128 in
+           let norm_130 = [bop_125] in
+           let concat_y_131 = size(0, norm_130) in
+           let concat_sz_132 = concat_sz_117 + concat_y_131 in
+           let tmp_e_133 = concat_sz_129 = concat_sz_132 in
+           let zip_assert_134 = assert(tmp_e_133) in
+           let tmp_e_135 = concat_sz_132 = concat_sz_121 in
+           let zip_assert_136 = assert(tmp_e_135) in
+           let {soac_v_151, soac_v_152, soac_v_153} =
+             mapT(fn {real, real, real} (int y_137) =>
+                    let val_138 = 1 + y_137 in
+                    let bop_139 = val_138 + 1 in
+                    let bop_140 = val_138 - 1 in
+                    let dxl_141 = untuple_111[val_138] - untuple_111[bop_140] in
+                    let dxu_142 = untuple_111[bop_139] - untuple_111[val_138] in
+                    let bop_143 = dxu_142 / dxl_141 in
+                    let bop_144 = dxl_141 + dxu_142 in
+                    let bop_145 = bop_143 / bop_144 in
+                    let negate_146 = -bop_145 in
+                    let bop_147 = dxl_141 / dxu_142 in
+                    let bop_148 = bop_143 - bop_147 in
+                    let bop_149 = bop_148 / bop_144 in
+                    let bop_150 = bop_147 / bop_144 in
+                    {negate_146, bop_149, bop_150},
                   iota(14)) in
-           // tmp_conc_363 aliases norm_2, tmp_conc_198, tmp_conc_199
-           let tmp_conc_363 = concat(norm_2, soac_v_360) in
-           // tmp_conc_364 aliases norm_2, tmp_conc_198, tmp_conc_199, tmp_conc_363
-           let tmp_conc_364 = concat(tmp_conc_363, norm_313) in
-           // tmp_conc_365 aliases norm_256
-           let tmp_conc_365 = concat(norm_256, soac_v_361) in
-           // tmp_conc_366 aliases norm_256, tmp_conc_365
-           let tmp_conc_366 = concat(tmp_conc_365, norm_339) in
-           // tmp_conc_367 aliases norm_265
-           let tmp_conc_367 = concat(norm_265, soac_v_362) in
-           // tmp_conc_368 aliases norm_265, tmp_conc_367
-           let tmp_conc_368 = concat(tmp_conc_367, norm_2) in
-           let {soac_v_403, soac_v_404, soac_v_405} =
-             mapT(fn {real, real, real} (int y_372) =>
-                    let val_373 = 1 + y_372 in
-                    let bop_381 = val_373 + 1 in
-                    let bop_382 = val_373 - 1 in
-                    let dxl_390 = untuple_247[val_373] - untuple_247[bop_382] in
-                    let bop_391 = 2.0 / dxl_390 in
-                    let bop_392 = 1.0 / dxl_390 in
-                    let dxu_393 = untuple_247[bop_381] - untuple_247[val_373] in
-                    let bop_394 = dxl_390 + dxu_393 in
-                    let bop_395 = bop_391 / bop_394 in
-                    let bop_396 = 1.0 / dxu_393 in
-                    let bop_397 = bop_392 + bop_396 in
-                    let bop_398 = 2.0 * bop_397 in
-                    let bop_399 = bop_398 / bop_394 in
-                    let negate_400 = -bop_399 in
-                    let bop_401 = 2.0 / dxu_393 in
-                    let bop_402 = bop_401 / bop_394 in
-                    {bop_395, negate_400, bop_402},
+           // tmp_conc_154 aliases norm_0, tmp_conc_74, tmp_conc_75
+           let tmp_conc_154 = concat(norm_0, soac_v_151) in
+           // tmp_conc_155 aliases norm_0, tmp_conc_74, tmp_conc_154, tmp_conc_75
+           let tmp_conc_155 = concat(tmp_conc_154, norm_127) in
+           // tmp_conc_156 aliases norm_115
+           let tmp_conc_156 = concat(norm_115, soac_v_152) in
+           // tmp_conc_157 aliases tmp_conc_156, norm_115
+           let tmp_conc_157 = concat(tmp_conc_156, norm_130) in
+           // tmp_conc_158 aliases norm_118
+           let tmp_conc_158 = concat(norm_118, soac_v_153) in
+           // tmp_conc_159 aliases tmp_conc_158, norm_118
+           let tmp_conc_159 = concat(tmp_conc_158, norm_0) in
+           let {soac_v_177, soac_v_178, soac_v_179} =
+             mapT(fn {real, real, real} (int y_160) =>
+                    let val_161 = 1 + y_160 in
+                    let bop_162 = val_161 + 1 in
+                    let bop_163 = val_161 - 1 in
+                    let dxl_164 = untuple_111[val_161] - untuple_111[bop_163] in
+                    let bop_165 = 2.0 / dxl_164 in
+                    let bop_166 = 1.0 / dxl_164 in
+                    let dxu_167 = untuple_111[bop_162] - untuple_111[val_161] in
+                    let bop_168 = dxl_164 + dxu_167 in
+                    let bop_169 = bop_165 / bop_168 in
+                    let bop_170 = 1.0 / dxu_167 in
+                    let bop_171 = bop_166 + bop_170 in
+                    let bop_172 = 2.0 * bop_171 in
+                    let bop_173 = bop_172 / bop_168 in
+                    let negate_174 = -bop_173 in
+                    let bop_175 = 2.0 / dxu_167 in
+                    let bop_176 = bop_175 / bop_168 in
+                    {bop_169, negate_174, bop_176},
                   iota(14)) in
-           // tmp_conc_406 aliases tmp_conc_229, Dxxlow_9, tmp_conc_230
-           let tmp_conc_406 = concat(Dxxlow_9, soac_v_403) in
-           // tmp_conc_407 aliases tmp_conc_229, Dxxlow_9, tmp_conc_406, tmp_conc_230
-           let tmp_conc_407 = concat(tmp_conc_406, Dxxlow_9) in
-           // tmp_conc_408 aliases Dxxlow_16, tmp_conc_232, tmp_conc_231
-           let tmp_conc_408 = concat(Dxxlow_16, soac_v_404) in
-           // tmp_conc_409 aliases Dxxlow_16, tmp_conc_408, tmp_conc_232, tmp_conc_231
-           let tmp_conc_409 = concat(tmp_conc_408, Dxxlow_16) in
-           // tmp_conc_410 aliases tmp_conc_233, Dxxlow_17, tmp_conc_234
-           let tmp_conc_410 = concat(Dxxlow_17, soac_v_405) in
-           // tmp_conc_411 aliases tmp_conc_233, Dxxlow_17, tmp_conc_410, tmp_conc_234
-           let tmp_conc_411 = concat(tmp_conc_410, Dxxlow_17) in
-           let tmp_repl_412 = replicate(16, 0.0) in
-           // xXy_413 aliases tmp_repl_412
-           let xXy_413 = replicate(32, tmp_repl_412) in
-           let tmp_call_414 = toReal(i_19) in
-           let val_415 = 0.001 * tmp_call_414 in
-           let {untuple_425} =
-             mapT(fn {*[real]} (real xi_416) =>
-                    let val_417 = xi_416 - val_415 in
-                    let bop_418 = 0.0 < val_417 in
-                    let tmp_arr_419 = if bop_418
-                                      then val_417
-                                      else 0.0 in
-                    let val_421 = replicate(16, tmp_arr_419) in
-                    {val_421},
-                  untuple_130) in
-           // myResult_428 aliases untuple_425
-           // myMuX_435 aliases tmp_repl_412, xXy_413
-           // myVarX_436 aliases tmp_repl_412, xXy_413
-           // myMuY_437 aliases tmp_repl_412, xXy_413
-           // myVarY_458 aliases tmp_repl_412, xXy_413
-           loop ({myResult_428, myMuX_435, myVarX_436, myMuY_437,
-                  myVarY_458} = {untuple_425, xXy_413, xXy_413, xXy_413,
-                                 xXy_413}) = for i_468 < 31 do
-             let i_472 = 30 - i_468 in
-             let bop_476 = i_472 + 1 in
-             let bop_477 = 0.18 * untuple_60[i_472] in
-             let {soac_v_510, soac_v_511, soac_v_512, soac_v_514} =
-               mapT(fn {*[real], *[real], *[real], *[real]} (real xi_481) =>
-                      let tmp_call_488 = log(xi_481) in
-                      let bop_493 = 0.5 * tmp_call_488 in
-                      let {soac_v_506, soac_v_507, soac_v_508, soac_v_509} =
-                        mapT(fn {real, real, real, real} (real yj_495) =>
-                               let bop_496 = bop_493 + yj_495 in
-                               let bop_498 = bop_496 - bop_477 in
-                               let val_504 = 2.0 * bop_498 in
-                               let tmp_call_505 = exp(val_504) in
-                               {0.0, tmp_call_505, 0.0, 0.36},
-                             untuple_247) in
-                      {soac_v_506, soac_v_507, soac_v_508, soac_v_509},
-                    untuple_130) in
-             let tmp_size_515 = size(1, soac_v_510) in
-             let tmp_e_516 = 16 = tmp_size_515 in
-             let zip_assert_517 = assert(tmp_e_516) in
-             let tmp_e_518 = tmp_size_515 = 16 in
-             let zip_assert_519 = assert(tmp_e_518) in
-             let tmp_size_520 = size(1, soac_v_511) in
-             let tmp_e_521 = tmp_size_515 = tmp_size_520 in
-             let zip_assert_522 = assert(tmp_e_521) in
-             let comb_cert_523 = conjoin(zip_assert_517, zip_assert_522) in
-             let comb_cert_524 = conjoin(zip_assert_148, zip_assert_166,
-                                         zip_assert_168, zip_assert_517,
-                                         zip_assert_522) in
-             let bop_526 = untuple_60[bop_476] - untuple_60[i_472] in
-             let dtInv_528 = 1.0 / bop_526 in
-             let tmp_size_532 = size(1, soac_v_511) in
-             let tmp_repl_533 = replicate(tmp_size_532, iota(32)) in
-             let tmp_size_534 = size(0, soac_v_511) in
-             let tmp_repl_535 = replicate(tmp_size_534, iota(16)) in
-             // untuple_905 aliases soac_v_510, soac_v_511
-             let {untuple_905} =
-               <comb_cert_523>
-               mapT(fn {[real]} ([real] arg_536, [real] arg_538, *[int] i_540,
-                                 *[int] j_rep_541, int repl_x_544) =>
-                      let {untuple_635} =
-                        mapT(fn {real} (int i_wasfree_548, int i_549,
-                                        int j_550) =>
-                               let bop_556 = soac_v_512[i_wasfree_548,
-                                                        j_550] * tmp_conc_366[j_550] in
-                               let bop_557 = 0.5 * soac_v_514[i_wasfree_548,
-                                                              j_550] in
-                               let bop_558 = bop_557 * tmp_conc_409[j_550] in
-                               let bop_564 = bop_556 + bop_558 in
-                               let bop_565 = bop_564 * myResult_428[i_wasfree_548,
-                                                                    j_550] in
-                               let bop_566 = j_550 = 0 in
-                               let bop_567 = j_550 - 1 in
-                               let tmp_bop_575 = if bop_566
-                                                 then 0.0
-                                                 else let bop_570 = soac_v_512[i_wasfree_548,
-                                                                               j_550] * tmp_conc_364[j_550] in
-                                                      let bop_571 = bop_557 * tmp_conc_407[j_550] in
-                                                      let bop_572 = bop_570 + bop_571 in
-                                                      let bop_574 = bop_572 * myResult_428[i_wasfree_548,
-                                                                                           bop_567] in
-                                                      bop_574 in
-                               let res_576 = tmp_bop_575 + bop_565 in
-                               let bop_578 = j_550 = 15 in
-                               let bop_579 = j_550 + 1 in
-                               let tmp_bop_589 = if bop_578
-                                                 then 0.0
-                                                 else let bop_580 = soac_v_512[i_wasfree_548,
-                                                                               j_550] * tmp_conc_368[j_550] in
-                                                      let bop_581 = bop_557 * tmp_conc_411[j_550] in
-                                                      let bop_583 = bop_580 + bop_581 in
-                                                      let bop_584 = bop_583 * myResult_428[i_wasfree_548,
-                                                                                           bop_579] in
-                                                      bop_584 in
-                               let res_591 = res_576 + tmp_bop_589 in
-                               let res_592 = dtInv_528 * myResult_428[i_549,
-                                                                      repl_x_544] in
-                               let bop_593 = soac_v_510[i_549,
-                                                        repl_x_544] * tmp_conc_201[i_549] in
-                               let bop_594 = 0.5 * soac_v_511[i_549,
-                                                              repl_x_544] in
-                               let bop_595 = bop_594 * tmp_conc_232[i_549] in
-                               let bop_596 = bop_593 + bop_595 in
-                               let bop_601 = 0.5 * bop_596 in
-                               let bop_603 = bop_601 * myResult_428[i_549,
-                                                                    repl_x_544] in
-                               let bop_604 = i_549 = 0 in
-                               let bop_610 = i_549 - 1 in
-                               let tmp_bop_619 = if bop_604
-                                                 then 0.0
-                                                 else let bop_611 = soac_v_510[i_549,
-                                                                               repl_x_544] * tmp_conc_199[i_549] in
-                                                      let bop_612 = bop_594 * tmp_conc_230[i_549] in
-                                                      let bop_615 = bop_611 + bop_612 in
-                                                      let bop_617 = 0.5 * bop_615 in
-                                                      let bop_618 = bop_617 * myResult_428[bop_610,
-                                                                                           repl_x_544] in
-                                                      bop_618 in
-                               let res_620 = res_592 + tmp_bop_619 in
-                               let res_621 = res_620 + bop_603 in
-                               let bop_622 = i_549 = 31 in
-                               let bop_624 = i_549 + 1 in
-                               let tmp_bop_631 = if bop_622
-                                                 then 0.0
-                                                 else let bop_626 = soac_v_510[i_549,
-                                                                               repl_x_544] * tmp_conc_203[i_549] in
-                                                      let bop_627 = bop_594 * tmp_conc_234[i_549] in
-                                                      let bop_628 = bop_626 + bop_627 in
-                                                      let bop_629 = 0.5 * bop_628 in
-                                                      let bop_630 = bop_629 * myResult_428[bop_624,
-                                                                                           repl_x_544] in
-                                                      bop_630 in
-                               let res_632 = res_621 + tmp_bop_631 in
-                               let val_634 = res_632 + res_591 in
-                               {val_634},
-                             i_540, iota(32), j_rep_541) in
-                      let tmp_repl_636 = replicate(32, 0.0) in
-                      let tmp_repl_637 = replicate(32, 0.0) in
-                      // u_638 aliases tmp_repl_636
-                      // uu_639 aliases tmp_repl_637
-                      let {u_638, uu_639} = {tmp_repl_636, tmp_repl_637} in
-                      let bop_678 = 0.5 * <comb_cert_524>arg_536[0] in
-                      let bop_684 = bop_678 * <comb_cert_524>tmp_conc_232[0] in
-                      let bop_686 = <comb_cert_524>arg_538[0] * <comb_cert_524>tmp_conc_201[0] in
-                      let bop_687 = bop_686 + bop_684 in
-                      let bop_688 = 0.5 * bop_687 in
-                      let bop_689 = dtInv_528 - bop_688 in
-                      let bet_697 = 1.0 / bop_689 in
-                      let val_698 = untuple_635[0] * bet_697 in
-                      let letwith_dst_1 = u_638 with [0] <- val_698 in
-                      // u_700 aliases letwith_dst_1
-                      // uu_701 aliases tmp_repl_637, uu_639
-                      loop ({u_700, uu_701, bet_702} = {letwith_dst_1,
-                                                        tmp_repl_637,
-                                                        bet_697}) = for j_710 < 31 do
-                        let j_711 = j_710 + 1 in
-                        let bop_712 = j_711 - 1 in
-                        let bop_722 = 0.5 * <comb_cert_524>arg_536[bop_712] in
-                        let bop_728 = bop_722 * <comb_cert_524>tmp_conc_234[bop_712] in
-                        let bop_733 = <comb_cert_524>arg_538[bop_712] * <comb_cert_524>tmp_conc_203[bop_712] in
-                        let bop_734 = bop_733 + bop_728 in
-                        let bop_735 = 0.5 * bop_734 in
-                        let negate_736 = -bop_735 in
-                        let val_740 = negate_736 * bet_702 in
-                        let bop_749 = <comb_cert_524>arg_538[j_711] * <comb_cert_524>tmp_conc_199[j_711] in
-                        let bop_750 = 0.5 * <comb_cert_524>arg_536[j_711] in
-                        let bop_751 = bop_750 * <comb_cert_524>tmp_conc_230[j_711] in
-                        let bop_752 = bop_749 + bop_751 in
-                        let bop_753 = 0.5 * bop_752 in
-                        let negate_754 = -bop_753 in
-                        let bop_768 = negate_754 * u_700[bop_712] in
-                        let bop_769 = untuple_635[j_711] - bop_768 in
-                        let letwith_dst_5 = uu_701 with [j_711] <- val_740 in
-                        let bop_779 = <comb_cert_524>arg_538[j_711] * <comb_cert_524>tmp_conc_199[j_711] in
-                        let bop_780 = 0.5 * <comb_cert_524>arg_536[j_711] in
-                        let bop_781 = bop_780 * <comb_cert_524>tmp_conc_230[j_711] in
-                        let bop_782 = bop_779 + bop_781 in
-                        let bop_783 = 0.5 * bop_782 in
-                        let negate_784 = -bop_783 in
-                        let bop_798 = negate_784 * letwith_dst_5[j_711] in
-                        let bop_809 = 0.5 * <comb_cert_524>arg_536[j_711] in
-                        let bop_814 = bop_809 * <comb_cert_524>tmp_conc_232[j_711] in
-                        let bop_816 = <comb_cert_524>arg_538[j_711] * <comb_cert_524>tmp_conc_201[j_711] in
-                        let bop_818 = bop_816 + bop_814 in
-                        let bop_819 = 0.5 * bop_818 in
-                        let bop_820 = dtInv_528 - bop_819 in
-                        let bop_830 = bop_820 - bop_798 in
-                        let bet_831 = 1.0 / bop_830 in
-                        let val_888 = bop_769 * bet_831 in
-                        let letwith_dst_10 = u_700 with [j_711] <- val_888 in
-                        {letwith_dst_10, letwith_dst_5, bet_831} in
-                      // u_703 aliases u_700
-                      loop (u_703 = u_700) = for j_704 < 31 do
-                        let j_705 = 30 - j_704 in
-                        let bop_706 = j_705 + 1 in
-                        let bop_707 = uu_701[bop_706] * u_703[bop_706] in
-                        let val_708 = u_703[j_705] - bop_707 in
-                        let letwith_dst_15 = u_703 with [j_705] <- val_708 in
-                        letwith_dst_15 in
-                      {u_703},
-                    transpose(soac_v_511), transpose(soac_v_510),
-                    transpose(transpose(tmp_repl_533)), transpose(tmp_repl_535),
-                    iota(16)) in
-             let tmp_size_910 = size(1, untuple_905) in
-             let tmp_e_913 = tmp_size_910 = 32 in
-             let zip_assert_914 = assert(tmp_e_913) in
-             let tmp_size_915 = <zip_assert_914>size(1, soac_v_512) in
-             let tmp_e_916 = 16 = tmp_size_915 in
-             let zip_assert_917 = assert(tmp_e_916) in
-             let tmp_size_918 = <zip_assert_914>size(1, soac_v_514) in
-             let tmp_e_919 = tmp_size_915 = tmp_size_918 in
-             let zip_assert_920 = assert(tmp_e_919) in
-             let comb_cert_921 = conjoin(zip_assert_288, zip_assert_343,
-                                         zip_assert_345, zip_assert_914,
-                                         zip_assert_917, zip_assert_920) in
-             let {untuple_1144} =
-               <zip_assert_914>
-               mapT(fn {*[real]} ([real] arg_922, int i_923, [real] arg_924,
-                                  [real] arg_925) =>
-                      let tmp_repl_926 = replicate(16, 0.0) in
-                      let tmp_repl_927 = replicate(16, 0.0) in
-                      // u_928 aliases tmp_repl_926
-                      // uu_929 aliases tmp_repl_927
-                      let {u_928, uu_929} = {tmp_repl_926, tmp_repl_927} in
-                      let {untuple_956} =
-                        <zip_assert_519>
-                        mapT(fn {real} (real arg_930, int j_931) =>
-                               let bop_932 = soac_v_512[i_923,
-                                                        j_931] * tmp_conc_366[j_931] in
-                               let bop_933 = 0.5 * soac_v_514[i_923, j_931] in
-                               let bop_934 = bop_933 * tmp_conc_409[j_931] in
-                               let bop_935 = bop_932 + bop_934 in
-                               let bop_936 = bop_935 * myResult_428[i_923,
-                                                                    j_931] in
-                               let bop_937 = j_931 = 0 in
-                               let bop_938 = j_931 - 1 in
-                               let tmp_bop_943 = if bop_937
-                                                 then 0.0
-                                                 else let bop_939 = soac_v_512[i_923,
-                                                                               j_931] * tmp_conc_364[j_931] in
-                                                      let bop_940 = bop_933 * tmp_conc_407[j_931] in
-                                                      let bop_941 = bop_939 + bop_940 in
-                                                      let bop_942 = bop_941 * myResult_428[i_923,
-                                                                                           bop_938] in
-                                                      bop_942 in
-                               let res_944 = tmp_bop_943 + bop_936 in
-                               let bop_945 = j_931 = 15 in
-                               let bop_946 = j_931 + 1 in
-                               let tmp_bop_951 = if bop_945
-                                                 then 0.0
-                                                 else let bop_947 = soac_v_512[i_923,
-                                                                               j_931] * tmp_conc_368[j_931] in
-                                                      let bop_948 = bop_933 * tmp_conc_411[j_931] in
-                                                      let bop_949 = bop_947 + bop_948 in
-                                                      let bop_950 = bop_949 * myResult_428[i_923,
-                                                                                           bop_946] in
-                                                      bop_950 in
-                               let res_952 = res_944 + tmp_bop_951 in
-                               let bop_953 = dtInv_528 * arg_930 in
-                               let bop_954 = 0.5 * res_952 in
-                               let val_955 = bop_953 - bop_954 in
-                               {val_955},
-                             arg_924, iota(16)) in
-                      let bop_993 = 0.5 * <comb_cert_921>arg_922[0] in
-                      let bop_998 = bop_993 * <comb_cert_921>tmp_conc_409[0] in
-                      let bop_1000 = <comb_cert_921>arg_925[0] * <comb_cert_921>tmp_conc_366[0] in
-                      let bop_1001 = bop_1000 + bop_998 in
-                      let bop_1002 = 0.5 * bop_1001 in
-                      let bop_1003 = dtInv_528 - bop_1002 in
-                      let bet_1011 = 1.0 / bop_1003 in
-                      let val_1012 = untuple_956[0] * bet_1011 in
-                      let letwith_dst_18 = u_928 with [0] <- val_1012 in
-                      // u_1014 aliases letwith_dst_18
-                      // uu_1015 aliases uu_929, tmp_repl_927
-                      loop ({u_1014, uu_1015, bet_1016} = {letwith_dst_18,
-                                                           tmp_repl_927,
-                                                           bet_1011}) = for j_1024 < 15 do
-                        let j_1025 = j_1024 + 1 in
-                        let bop_1026 = j_1025 - 1 in
-                        let bop_1036 = 0.5 * <comb_cert_921>arg_922[bop_1026] in
-                        let bop_1042 = bop_1036 * <comb_cert_921>tmp_conc_411[bop_1026] in
-                        let bop_1047 = <comb_cert_921>arg_925[bop_1026] * <comb_cert_921>tmp_conc_368[bop_1026] in
-                        let bop_1048 = bop_1047 + bop_1042 in
-                        let bop_1049 = 0.5 * bop_1048 in
-                        let negate_1050 = -bop_1049 in
-                        let val_1054 = negate_1050 * bet_1016 in
-                        let bop_1063 = <comb_cert_921>arg_925[j_1025] * <comb_cert_921>tmp_conc_364[j_1025] in
-                        let bop_1064 = 0.5 * <comb_cert_921>arg_922[j_1025] in
-                        let bop_1065 = bop_1064 * <comb_cert_921>tmp_conc_407[j_1025] in
-                        let bop_1066 = bop_1063 + bop_1065 in
-                        let bop_1067 = 0.5 * bop_1066 in
-                        let negate_1068 = -bop_1067 in
-                        let bop_1082 = negate_1068 * u_1014[bop_1026] in
-                        let bop_1083 = untuple_956[j_1025] - bop_1082 in
-                        let letwith_dst_26 = uu_1015 with [j_1025] <- val_1054 in
-                        let bop_1093 = <comb_cert_921>arg_925[j_1025] * <comb_cert_921>tmp_conc_364[j_1025] in
-                        let bop_1094 = 0.5 * <comb_cert_921>arg_922[j_1025] in
-                        let bop_1095 = bop_1094 * <comb_cert_921>tmp_conc_407[j_1025] in
-                        let bop_1096 = bop_1093 + bop_1095 in
-                        let bop_1097 = 0.5 * bop_1096 in
-                        let negate_1098 = -bop_1097 in
-                        let bop_1112 = negate_1098 * letwith_dst_26[j_1025] in
-                        let bop_1122 = 0.5 * <comb_cert_921>arg_922[j_1025] in
-                        let bop_1127 = bop_1122 * <comb_cert_921>tmp_conc_409[j_1025] in
-                        let bop_1129 = <comb_cert_921>arg_925[j_1025] * <comb_cert_921>tmp_conc_366[j_1025] in
-                        let bop_1130 = bop_1129 + bop_1127 in
-                        let bop_1131 = 0.5 * bop_1130 in
-                        let bop_1132 = dtInv_528 - bop_1131 in
-                        let bop_1140 = bop_1132 - bop_1112 in
-                        let bet_1141 = 1.0 / bop_1140 in
-                        let val_1142 = bop_1083 * bet_1141 in
-                        let letwith_dst_27 = u_1014 with [j_1025] <- val_1142 in
-                        {letwith_dst_27, letwith_dst_26, bet_1141} in
-                      // u_1017 aliases u_1014
-                      loop (u_1017 = u_1014) = for j_1018 < 15 do
-                        let j_1019 = 14 - j_1018 in
-                        let bop_1020 = j_1019 + 1 in
-                        let bop_1021 = uu_1015[bop_1020] * u_1017[bop_1020] in
-                        let val_1022 = u_1017[j_1019] - bop_1021 in
-                        let letwith_dst_28 = u_1017 with [j_1019] <- val_1022 in
-                        letwith_dst_28 in
-                      {u_1017},
-                    soac_v_514, iota(32), transpose(untuple_905), soac_v_512) in
-             {untuple_1144, soac_v_510, soac_v_511, soac_v_512, soac_v_514} in
-           {myResult_428[3, 8]},
+           // tmp_conc_180 aliases tmp_conc_100, Dxxlow_4, tmp_conc_101
+           let tmp_conc_180 = concat(Dxxlow_4, soac_v_177) in
+           // tmp_conc_181 aliases tmp_conc_100, tmp_conc_180, Dxxlow_4, tmp_conc_101
+           let tmp_conc_181 = concat(tmp_conc_180, Dxxlow_4) in
+           // tmp_conc_182 aliases tmp_conc_102, Dxxlow_6, tmp_conc_103
+           let tmp_conc_182 = concat(Dxxlow_6, soac_v_178) in
+           // tmp_conc_183 aliases tmp_conc_102, tmp_conc_182, Dxxlow_6, tmp_conc_103
+           let tmp_conc_183 = concat(tmp_conc_182, Dxxlow_6) in
+           // tmp_conc_184 aliases Dxxlow_8, tmp_conc_104, tmp_conc_105
+           let tmp_conc_184 = concat(Dxxlow_8, soac_v_179) in
+           // tmp_conc_185 aliases Dxxlow_8, tmp_conc_104, tmp_conc_184, tmp_conc_105
+           let tmp_conc_185 = concat(tmp_conc_184, Dxxlow_8) in
+           let tmp_repl_186 = replicate(16, 0.0) in
+           // xXy_187 aliases tmp_repl_186
+           let xXy_187 = replicate(32, tmp_repl_186) in
+           let tmp_call_188 = toReal(i_9) in
+           let val_189 = 0.001 * tmp_call_188 in
+           let {untuple_195} =
+             mapT(fn {*[real]} (real xi_190) =>
+                    let val_191 = xi_190 - val_189 in
+                    let bop_192 = 0.0 < val_191 in
+                    let tmp_arr_193 =
+                      if bop_192
+                      then val_191
+                      else 0.0 in
+                    let val_194 = replicate(16, tmp_arr_193) in
+                    {val_194},
+                  untuple_31) in
+           // myResult_196 aliases untuple_195
+           // myMuX_197 aliases tmp_repl_186, xXy_187
+           // myVarX_198 aliases tmp_repl_186, xXy_187
+           // myMuY_199 aliases tmp_repl_186, xXy_187
+           // myVarY_200 aliases tmp_repl_186, xXy_187
+           loop ({myResult_196, myMuX_197, myVarX_198, myMuY_199,
+                  myVarY_200} = {untuple_195, xXy_187, xXy_187, xXy_187,
+                                 xXy_187}) = for i_201 < 31 do
+             let i_202 = 30 - i_201 in
+             let bop_203 = i_202 + 1 in
+             let bop_207 = 0.18 * untuple_20[i_202] in
+             let {soac_v_223, soac_v_224, soac_v_225, soac_v_226} =
+               mapT(fn {*[real], *[real], *[real], *[real]} (real xi_208) =>
+                      let tmp_call_209 = log(xi_208) in
+                      let bop_210 = 0.5 * tmp_call_209 in
+                      let {soac_v_217, soac_v_219, soac_v_220, soac_v_222} =
+                        mapT(fn {real, real, real, real} (real yj_211) =>
+                               let bop_212 = bop_210 + yj_211 in
+                               let bop_213 = bop_212 - bop_207 in
+                               let val_215 = 2.0 * bop_213 in
+                               let tmp_call_216 = exp(val_215) in
+                               {0.0, tmp_call_216, 0.0, 0.36},
+                             untuple_111) in
+                      {soac_v_217, soac_v_219, soac_v_220, soac_v_222},
+                    untuple_31) in
+             let tmp_size_248 = size(1, soac_v_223) in
+             let tmp_e_262 = 16 = tmp_size_248 in
+             let zip_assert_263 = assert(tmp_e_262) in
+             let tmp_size_264 = size(1, soac_v_224) in
+             let tmp_e_265 = tmp_size_248 = tmp_size_264 in
+             let zip_assert_266 = assert(tmp_e_265) in
+             let comb_cert_268 = conjoin(zip_assert_263, zip_assert_266) in
+             let comb_cert_273 = conjoin(zip_assert_43, zip_assert_54,
+                                         zip_assert_56, zip_assert_263,
+                                         zip_assert_266) in
+             let bop_277 = untuple_20[bop_203] - untuple_20[i_202] in
+             let dtInv_287 = 1.0 / bop_277 in
+             let tmp_repl_288 = replicate(16, iota(32)) in
+             let tmp_repl_289 = replicate(32, iota(16)) in
+             // untuple_612 aliases soac_v_224, soac_v_223
+             let {untuple_612} =
+               <comb_cert_268>
+               mapT(fn {[real]} (int repl_x_290, *[int] i_291, [real] arg_315,
+                                 [real] arg_316, *[int] j_rep_317) =>
+                      let {untuple_398} =
+                        mapT(fn {real} (int j_318, int i_wasfree_339) =>
+                               let bop_341 = soac_v_225[i_wasfree_339, j_318]
+                                             * tmp_conc_157[j_318] in
+                               let bop_343 = 0.5 * soac_v_226[i_wasfree_339,
+                                                              j_318] in
+                               let bop_344 = bop_343 * tmp_conc_183[j_318] in
+                               let bop_345 = bop_341 + bop_344 in
+                               let bop_346 = bop_345
+                                             * myResult_196[i_wasfree_339,
+                                                            j_318] in
+                               let bop_347 = j_318 = 0 in
+                               let bop_348 = j_318 - 1 in
+                               let tmp_bop_359 =
+                                 if bop_347
+                                 then 0.0
+                                 else let bop_349 = soac_v_225[i_wasfree_339,
+                                                               j_318]
+                                                    * tmp_conc_155[j_318] in
+                                      let bop_350 = bop_343
+                                                    * tmp_conc_181[j_318] in
+                                      let bop_351 = bop_349 + bop_350 in
+                                      let bop_358 = bop_351
+                                                    * myResult_196[i_wasfree_339,
+                                                                   bop_348] in
+                                      bop_358 in
+                               let res_365 = tmp_bop_359 + bop_346 in
+                               let bop_369 = j_318 = 15 in
+                               let bop_374 = j_318 + 1 in
+                               let tmp_bop_387 =
+                                 if bop_369
+                                 then 0.0
+                                 else let bop_375 = soac_v_225[i_wasfree_339,
+                                                               j_318]
+                                                    * tmp_conc_159[j_318] in
+                                      let bop_381 = bop_343
+                                                    * tmp_conc_185[j_318] in
+                                      let bop_383 = bop_375 + bop_381 in
+                                      let bop_386 = bop_383
+                                                    * myResult_196[i_wasfree_339,
+                                                                   bop_374] in
+                                      bop_386 in
+                               let res_389 = res_365 + tmp_bop_387 in
+                               {res_389},
+                             j_rep_317, i_291) in
+                      let bop_399 = <comb_cert_273>arg_316[0]
+                                    * <comb_cert_273>tmp_conc_77[0] in
+                      let bop_400 = 0.5 * <comb_cert_273>arg_315[0] in
+                      let bop_401 = bop_400 * <comb_cert_273>tmp_conc_103[0] in
+                      let bop_417 = bop_399 + bop_401 in
+                      let bop_420 = 0.5 * bop_417 in
+                      let bop_423 = dtInv_287 - bop_420 in
+                      let bet_428 = 1.0 / bop_423 in
+                      let {untuple_524} =
+                        mapT(fn {real} (int i_429) =>
+                               let res_430 = dtInv_287 * myResult_196[i_429,
+                                                                      repl_x_290] in
+                               let bop_431 = soac_v_223[i_429, repl_x_290]
+                                             * tmp_conc_77[i_429] in
+                               let bop_455 = 0.5 * soac_v_224[i_429,
+                                                              repl_x_290] in
+                               let bop_456 = bop_455 * tmp_conc_103[i_429] in
+                               let bop_457 = bop_431 + bop_456 in
+                               let bop_458 = 0.5 * bop_457 in
+                               let bop_464 = bop_458 * myResult_196[i_429,
+                                                                    repl_x_290] in
+                               let bop_475 = i_429 = 0 in
+                               let bop_479 = i_429 - 1 in
+                               let tmp_bop_508 =
+                                 if bop_475
+                                 then 0.0
+                                 else let bop_480 = soac_v_223[i_429,
+                                                               repl_x_290]
+                                                    * tmp_conc_75[i_429] in
+                                      let bop_498 = bop_455
+                                                    * tmp_conc_101[i_429] in
+                                      let bop_499 = bop_480 + bop_498 in
+                                      let bop_501 = 0.5 * bop_499 in
+                                      let bop_505 = bop_501
+                                                    * myResult_196[bop_479,
+                                                                   repl_x_290] in
+                                      bop_505 in
+                               let res_510 = res_430 + tmp_bop_508 in
+                               let res_511 = res_510 + bop_464 in
+                               let bop_512 = i_429 = 31 in
+                               let bop_513 = i_429 + 1 in
+                               let tmp_bop_522 =
+                                 if bop_512
+                                 then 0.0
+                                 else let bop_514 = soac_v_223[i_429,
+                                                               repl_x_290]
+                                                    * tmp_conc_79[i_429] in
+                                      let bop_515 = bop_455
+                                                    * tmp_conc_105[i_429] in
+                                      let bop_518 = bop_514 + bop_515 in
+                                      let bop_519 = 0.5 * bop_518 in
+                                      let bop_520 = bop_519
+                                                    * myResult_196[bop_513,
+                                                                   repl_x_290] in
+                                      bop_520 in
+                               let res_523 = res_511 + tmp_bop_522 in
+                               {res_523},
+                             iota(32)) in
+                      let val_525 = untuple_524[0] + untuple_398[0] in
+                      let val_527 = val_525 * bet_428 in
+                      let tmp_repl_528 = replicate(32, 0.0) in
+                      let tmp_repl_531 = replicate(32, 0.0) in
+                      // u_532 aliases tmp_repl_528
+                      // uu_533 aliases tmp_repl_531
+                      let {u_532, uu_533} = {tmp_repl_528, tmp_repl_531} in
+                      let letwith_dst_5 = u_532 with [0] <- val_527 in
+                      // u_540 aliases letwith_dst_5
+                      // uu_541 aliases uu_533, tmp_repl_531
+                      loop ({u_540, uu_541, bet_542} = {letwith_dst_5,
+                                                        tmp_repl_531,
+                                                        bet_428}) = for j_554 < 31 do
+                        let j_556 = j_554 + 1 in
+                        let bop_564 = j_556 - 1 in
+                        let bop_565 = 0.5 * <comb_cert_273>arg_315[bop_564] in
+                        let bop_566 = bop_565
+                                      * <comb_cert_273>tmp_conc_105[bop_564] in
+                        let bop_570 = <comb_cert_273>arg_316[bop_564]
+                                      * <comb_cert_273>tmp_conc_79[bop_564] in
+                        let bop_572 = bop_570 + bop_566 in
+                        let bop_574 = 0.5 * bop_572 in
+                        let negate_575 = -bop_574 in
+                        let val_576 = negate_575 * bet_542 in
+                        let val_579 = untuple_524[j_556] + untuple_398[j_556] in
+                        let bop_580 = 0.5 * <comb_cert_273>arg_315[j_556] in
+                        let bop_581 = bop_580
+                                      * <comb_cert_273>tmp_conc_101[j_556] in
+                        let bop_583 = bop_580
+                                      * <comb_cert_273>tmp_conc_103[j_556] in
+                        let bop_587 = <comb_cert_273>arg_316[j_556]
+                                      * <comb_cert_273>tmp_conc_77[j_556] in
+                        let bop_588 = bop_587 + bop_583 in
+                        let bop_589 = 0.5 * bop_588 in
+                        let bop_590 = dtInv_287 - bop_589 in
+                        let bop_591 = <comb_cert_273>arg_316[j_556]
+                                      * <comb_cert_273>tmp_conc_75[j_556] in
+                        let bop_592 = bop_591 + bop_581 in
+                        let bop_593 = 0.5 * bop_592 in
+                        let negate_595 = -bop_593 in
+                        let bop_597 = negate_595 * u_540[bop_564] in
+                        let bop_598 = val_579 - bop_597 in
+                        let letwith_dst_11 = uu_541 with [j_556] <- val_576 in
+                        let bop_603 = negate_595 * letwith_dst_11[j_556] in
+                        let bop_605 = bop_590 - bop_603 in
+                        let bet_606 = 1.0 / bop_605 in
+                        let val_607 = bop_598 * bet_606 in
+                        let letwith_dst_16 = u_540 with [j_556] <- val_607 in
+                        {letwith_dst_16, letwith_dst_11, bet_606} in
+                      // u_544 aliases u_540
+                      loop (u_544 = u_540) = for j_545 < 31 do
+                        let j_546 = 30 - j_545 in
+                        let bop_548 = j_546 + 1 in
+                        let bop_549 = uu_541[bop_548] * u_544[bop_548] in
+                        let val_551 = u_544[j_546] - bop_549 in
+                        let letwith_dst_205 = u_544 with [j_546] <- val_551 in
+                        letwith_dst_205 in
+                      {u_544},
+                    iota(16), transpose(transpose(tmp_repl_288)),
+                    transpose(soac_v_224), transpose(soac_v_223),
+                    transpose(tmp_repl_289)) in
+             let tmp_size_614 = size(1, untuple_612) in
+             let tmp_e_616 = tmp_size_614 = 32 in
+             let zip_assert_618 = assert(tmp_e_616) in
+             let tmp_size_619 = <zip_assert_618>size(1, soac_v_225) in
+             let tmp_e_621 = 16 = tmp_size_619 in
+             let zip_assert_622 = assert(tmp_e_621) in
+             let tmp_size_623 = <zip_assert_618>size(1, soac_v_226) in
+             let tmp_e_626 = tmp_size_619 = tmp_size_623 in
+             let zip_assert_627 = assert(tmp_e_626) in
+             let comb_cert_628 = conjoin(zip_assert_123, zip_assert_134,
+                                         zip_assert_136, zip_assert_618,
+                                         zip_assert_622, zip_assert_627) in
+             let {untuple_850} =
+               <zip_assert_618>
+               mapT(fn {*[real]} (int i_629, [real] arg_632, [real] arg_633,
+                                  [real] arg_634) =>
+                      let {untuple_664} =
+                        mapT(fn {real} (int j_636) =>
+                               let bop_637 = soac_v_225[i_629, j_636]
+                                             * tmp_conc_157[j_636] in
+                               let bop_639 = 0.5 * soac_v_226[i_629, j_636] in
+                               let bop_640 = bop_639 * tmp_conc_183[j_636] in
+                               let bop_641 = bop_637 + bop_640 in
+                               let bop_644 = bop_641 * myResult_196[i_629,
+                                                                    j_636] in
+                               let bop_645 = j_636 = 0 in
+                               let bop_646 = j_636 - 1 in
+                               let tmp_bop_651 =
+                                 if bop_645
+                                 then 0.0
+                                 else let bop_647 = soac_v_225[i_629, j_636]
+                                                    * tmp_conc_155[j_636] in
+                                      let bop_648 = bop_639
+                                                    * tmp_conc_181[j_636] in
+                                      let bop_649 = bop_647 + bop_648 in
+                                      let bop_650 = bop_649
+                                                    * myResult_196[i_629,
+                                                                   bop_646] in
+                                      bop_650 in
+                               let res_653 = tmp_bop_651 + bop_644 in
+                               let bop_654 = j_636 = 15 in
+                               let bop_655 = j_636 + 1 in
+                               let tmp_bop_662 =
+                                 if bop_654
+                                 then 0.0
+                                 else let bop_657 = soac_v_225[i_629, j_636]
+                                                    * tmp_conc_159[j_636] in
+                                      let bop_658 = bop_639
+                                                    * tmp_conc_185[j_636] in
+                                      let bop_659 = bop_657 + bop_658 in
+                                      let bop_660 = bop_659
+                                                    * myResult_196[i_629,
+                                                                   bop_655] in
+                                      bop_660 in
+                               let res_663 = res_653 + tmp_bop_662 in
+                               {res_663},
+                             iota(16)) in
+                      let bop_665 = 0.5 * untuple_664[0] in
+                      let bop_666 = dtInv_287 * arg_633[0] in
+                      let val_668 = bop_666 - bop_665 in
+                      let bop_669 = <comb_cert_628>arg_634[0]
+                                    * <comb_cert_628>tmp_conc_157[0] in
+                      let bop_670 = 0.5 * <comb_cert_628>arg_632[0] in
+                      let bop_671 = bop_670 * <comb_cert_628>tmp_conc_183[0] in
+                      let bop_673 = bop_669 + bop_671 in
+                      let bop_674 = 0.5 * bop_673 in
+                      let bop_675 = dtInv_287 - bop_674 in
+                      let bet_676 = 1.0 / bop_675 in
+                      let val_682 = val_668 * bet_676 in
+                      let tmp_repl_683 = replicate(16, 0.0) in
+                      let tmp_repl_684 = replicate(16, 0.0) in
+                      // u_709 aliases tmp_repl_683
+                      // uu_710 aliases tmp_repl_684
+                      let {u_709, uu_710} = {tmp_repl_683, tmp_repl_684} in
+                      let letwith_dst_206 = u_709 with [0] <- val_682 in
+                      // u_735 aliases letwith_dst_206
+                      // uu_740 aliases tmp_repl_684, uu_710
+                      loop ({u_735, uu_740, bet_752} = {letwith_dst_206,
+                                                        tmp_repl_684,
+                                                        bet_676}) = for j_816 < 15 do
+                        let j_818 = j_816 + 1 in
+                        let bop_819 = j_818 - 1 in
+                        let bop_820 = 0.5 * <comb_cert_628>arg_632[bop_819] in
+                        let bop_821 = bop_820
+                                      * <comb_cert_628>tmp_conc_185[bop_819] in
+                        let bop_822 = <comb_cert_628>arg_634[bop_819]
+                                      * <comb_cert_628>tmp_conc_159[bop_819] in
+                        let bop_823 = bop_822 + bop_821 in
+                        let bop_824 = 0.5 * bop_823 in
+                        let negate_825 = -bop_824 in
+                        let val_826 = negate_825 * bet_752 in
+                        let bop_827 = dtInv_287 * arg_633[j_818] in
+                        let bop_828 = 0.5 * untuple_664[j_818] in
+                        let val_829 = bop_827 - bop_828 in
+                        let bop_830 = 0.5 * <comb_cert_628>arg_632[j_818] in
+                        let bop_831 = bop_830
+                                      * <comb_cert_628>tmp_conc_181[j_818] in
+                        let bop_832 = bop_830
+                                      * <comb_cert_628>tmp_conc_183[j_818] in
+                        let bop_833 = <comb_cert_628>arg_634[j_818]
+                                      * <comb_cert_628>tmp_conc_157[j_818] in
+                        let bop_834 = bop_833 + bop_832 in
+                        let bop_835 = 0.5 * bop_834 in
+                        let bop_836 = dtInv_287 - bop_835 in
+                        let bop_837 = <comb_cert_628>arg_634[j_818]
+                                      * <comb_cert_628>tmp_conc_155[j_818] in
+                        let bop_838 = bop_837 + bop_831 in
+                        let bop_839 = 0.5 * bop_838 in
+                        let negate_840 = -bop_839 in
+                        let bop_841 = negate_840 * u_735[bop_819] in
+                        let bop_842 = val_829 - bop_841 in
+                        let letwith_dst_214 = uu_740 with [j_818] <- val_826 in
+                        let bop_845 = negate_840 * letwith_dst_214[j_818] in
+                        let bop_846 = bop_836 - bop_845 in
+                        let bet_847 = 1.0 / bop_846 in
+                        let val_848 = bop_842 * bet_847 in
+                        let letwith_dst_218 = u_735 with [j_818] <- val_848 in
+                        {letwith_dst_218, letwith_dst_214, bet_847} in
+                      // u_771 aliases u_735
+                      loop (u_771 = u_735) = for j_773 < 15 do
+                        let j_781 = 14 - j_773 in
+                        let bop_784 = j_781 + 1 in
+                        let bop_808 = uu_740[bop_784] * u_771[bop_784] in
+                        let val_812 = u_771[j_781] - bop_808 in
+                        let letwith_dst_221 = u_771 with [j_781] <- val_812 in
+                        letwith_dst_221 in
+                      {u_771},
+                    iota(32), soac_v_226, transpose(untuple_612), soac_v_225) in
+             {untuple_850, soac_v_223, soac_v_224, soac_v_225, soac_v_226} in
+           {myResult_196[3, 8]},
          iota(8)) in
-  untuple_1145
+  untuple_851

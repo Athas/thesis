@@ -1,0 +1,108 @@
+fun [real] main() =
+  let {untuple_60} =
+    mapT(fn {int} (int y_0) =>
+           let val_1 = 1 + y_0 in
+           {val_1},
+         iota(1825)) in
+  let {untuple_63} =
+    mapT(fn {real} (int param_0_61) =>
+           let val_62 = toReal(param_0_61) in
+           {val_62},
+         untuple_60) in
+  let {soac_v_69, soac_v_70, soac_v_75, soac_v_76} =
+    mapT(fn {bool, real, real, real} (real x_64) =>
+           let bop_65 = 4.0 * x_64 in
+           let bop_66 = bop_65 / 1825.0 in
+           let bop_67 = 58.0 + bop_66 in
+           let bop_68 = x_64 / 365.0 in
+           {True, bop_67, 65.0, bop_68},
+         untuple_63) in
+  let {untuple_171} =
+    mapT(fn {real} (bool arg_77, real arg_78, real arg_79, real arg_80) =>
+           let tmp_call_81 = sqrt(arg_80) in
+           let v_sqrtT_82 = 0.3 * tmp_call_81 in
+           let bop_83 = 0.125 * arg_80 in
+           let bop_84 = 0.08 * arg_80 in
+           let val_85 = -bop_84 in
+           let tmp_call_86 = exp(val_85) in
+           let x_expRT_87 = arg_79 * tmp_call_86 in
+           let val_88 = arg_78 / arg_79 in
+           let tmp_call_90 = log(val_88) in
+           let bop_91 = tmp_call_90 + bop_83 in
+           let d1_94 = bop_91 / v_sqrtT_82 in
+           let bop_96 = d1_94 < 0.0 in
+           let negate_97 = -d1_94 in
+           let bop_103 = 0.5 * d1_94 in
+           let bop_108 = bop_103 * d1_94 in
+           let val_109 = -bop_108 in
+           let tmp_call_110 = exp(val_109) in
+           let bop_111 = 0.3989422804014327 * tmp_call_110 in
+           let bop_112 = 0.0 < d1_94 in
+           let tmp_bop_113 =
+             if bop_96
+             then negate_97
+             else d1_94 in
+           let bop_114 = 0.2316419 * tmp_bop_113 in
+           let bop_115 = 1.0 + bop_114 in
+           let k_116 = 1.0 / bop_115 in
+           let bop_117 = k_116 * 1.330274429 in
+           let bop_118 = -1.821255978 + bop_117 in
+           let bop_119 = k_116 * bop_118 in
+           let bop_120 = 1.781477937 + bop_119 in
+           let bop_121 = k_116 * bop_120 in
+           let bop_122 = -0.356563782 + bop_121 in
+           let bop_123 = k_116 * bop_122 in
+           let bop_124 = 0.31938153 + bop_123 in
+           let p_125 = k_116 * bop_124 in
+           let c_126 = bop_111 * p_125 in
+           let bop_127 = 1.0 - c_126 in
+           let cndD1_128 =
+             if bop_112
+             then bop_127
+             else c_126 in
+           let bop_129 = arg_78 * cndD1_128 in
+           let bop_130 = 1.0 - cndD1_128 in
+           let bop_131 = arg_78 * bop_130 in
+           let d2_132 = d1_94 - v_sqrtT_82 in
+           let bop_133 = d2_132 < 0.0 in
+           let negate_134 = -d2_132 in
+           let bop_135 = 0.5 * d2_132 in
+           let bop_136 = bop_135 * d2_132 in
+           let val_137 = -bop_136 in
+           let tmp_call_138 = exp(val_137) in
+           let bop_139 = 0.3989422804014327 * tmp_call_138 in
+           let bop_140 = 0.0 < d2_132 in
+           let tmp_bop_141 =
+             if bop_133
+             then negate_134
+             else d2_132 in
+           let bop_142 = 0.2316419 * tmp_bop_141 in
+           let bop_143 = 1.0 + bop_142 in
+           let k_148 = 1.0 / bop_143 in
+           let bop_149 = k_148 * 1.330274429 in
+           let bop_150 = -1.821255978 + bop_149 in
+           let bop_151 = k_148 * bop_150 in
+           let bop_152 = 1.781477937 + bop_151 in
+           let bop_153 = k_148 * bop_152 in
+           let bop_154 = -0.356563782 + bop_153 in
+           let bop_155 = k_148 * bop_154 in
+           let bop_156 = 0.31938153 + bop_155 in
+           let p_157 = k_148 * bop_156 in
+           let c_158 = bop_139 * p_157 in
+           let bop_159 = 1.0 - c_158 in
+           let cndD2_160 =
+             if bop_140
+             then bop_159
+             else c_158 in
+           let bop_161 = 1.0 - cndD2_160 in
+           let bop_162 = x_expRT_87 * bop_161 in
+           let bop_163 = bop_162 - bop_131 in
+           let bop_164 = x_expRT_87 * cndD2_160 in
+           let bop_165 = bop_129 - bop_164 in
+           let val_170 =
+             if arg_77
+             then bop_165
+             else bop_163 in
+           {val_170},
+         soac_v_69, soac_v_70, soac_v_75, soac_v_76) in
+  untuple_171

@@ -11,6 +11,7 @@ for x in "$@"; do
     cfile=$(basename "$x"|sed 's/l0$/c/')
     binfile=$(basename "$x"|sed 's/l0$/bin/')
 
+    echo "Compiling $x"
     l0c -u --compile-sequential "$x" > "$cfile"
 
     gcc "$cfile" -o "$binfile" -lm -O3

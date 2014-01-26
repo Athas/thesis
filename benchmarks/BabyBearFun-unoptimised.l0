@@ -1,0 +1,156 @@
+fun int MIN(int a_0, int b_1) =
+  if a_0 < b_1
+  then a_0
+  else b_1
+
+fun [int] min1([int] a_2, [int] b_3) =
+  // tup_arr_elem_41 aliases a_2
+  // tup_arr_elem_42 aliases b_3
+  let {tup_arr_cert_40, tup_arr_elem_41, tup_arr_elem_42} =
+    let zip_assert_39 = assert(size(0, a_2) = size(0, b_3)) in
+    {zip_assert_39, a_2, b_3} in
+  let {untuple_48} =
+    <tup_arr_cert_40>
+    mapT(fn {int} (int arg_45, int arg_46) =>
+           let {x_43, x_44} = {arg_45, arg_46} in
+           let val_47 =
+             let {param_0_5, param_1_6} = {x_43, x_44} in
+             MIN(param_0_5, param_1_6) in
+           {val_47},
+         tup_arr_elem_41, tup_arr_elem_42) in
+  untuple_48
+
+fun int redmin1([int] a_7) =
+  let val_49 = 1200 in
+  let {untuple_51} =
+    reduceT(fn {int} (int param_0_8, int param_1_9) =>
+              let val_50 = MIN(param_0_8, param_1_9) in
+              {val_50},
+            {val_49}, a_7) in
+  untuple_51
+
+fun [int] redmin2([[int]] a_10) =
+  let {untuple_53} =
+    mapT(fn {int} ([int] param_0_11) =>
+           let val_52 = redmin1(param_0_11) in
+           {val_52},
+         a_10) in
+  untuple_53
+
+fun [int] plus1([int] a_12, [int] b_13) =
+  // tup_arr_elem_56 aliases a_12
+  // tup_arr_elem_57 aliases b_13
+  let {tup_arr_cert_55, tup_arr_elem_56, tup_arr_elem_57} =
+    let zip_assert_54 = assert(size(0, a_12) = size(0, b_13)) in
+    {zip_assert_54, a_12, b_13} in
+  let {untuple_63} =
+    <tup_arr_cert_55>
+    mapT(fn {int} (int arg_60, int arg_61) =>
+           let {tup_shim_58, tup_shim_59} = {arg_60, arg_61} in
+           let val_62 =
+             let {x_15, y_16} = {tup_shim_58, tup_shim_59} in
+             x_15 + y_16 in
+           {val_62},
+         tup_arr_elem_56, tup_arr_elem_57) in
+  untuple_63
+
+fun [[int]] plus2([[int]] a_17, [[int]] b_18) =
+  // tup_arr_elem_66 aliases a_17
+  // tup_arr_elem_67 aliases b_18
+  let {tup_arr_cert_65, tup_arr_elem_66, tup_arr_elem_67} =
+    let zip_assert_64 = assert(size(0, a_17) = size(0, b_18)) in
+    {zip_assert_64, a_17, b_18} in
+  // untuple_73 aliases a_17, tup_arr_elem_66, b_18, tup_arr_elem_67
+  let {untuple_73} =
+    <tup_arr_cert_65>
+    mapT(fn {[int]} ([int] arg_70, [int] arg_71) =>
+           // x_68 aliases arg_70
+           // x_69 aliases arg_71
+           let {x_68, x_69} = {arg_70, arg_71} in
+           // val_72 aliases x_68, param_0_20, x_69, param_1_21, arg_70, arg_71
+           let val_72 =
+             // param_0_20 aliases x_68, arg_70
+             // param_1_21 aliases x_69, arg_71
+             let {param_0_20, param_1_21} = {x_68, x_69} in
+             plus1(param_0_20, param_1_21) in
+           {val_72},
+         tup_arr_elem_66, tup_arr_elem_67) in
+  untuple_73
+
+fun [[int]] replin(int len_22, [int] a_23) =
+  replicate(len_22, a_23)
+
+fun [[int]] floydSbsFun(int N_24, [[int]] D_25) =
+  // D3_26 aliases D_25
+  let D3_26 = replicate(N_24, transpose(D_25)) in
+  // D2_28 aliases D_25, D3_26, untuple_75
+  let D2_28 =
+    // untuple_75 aliases D_25, D3_26
+    let {untuple_75} =
+      mapT(fn {[[int]]} ([int] param_0_27) =>
+             // val_74 aliases param_0_27
+             let val_74 = replin(N_24, param_0_27) in
+             {val_74},
+           D_25) in
+    untuple_75 in
+  // abr_32 aliases D2_28, D_25, untuple_85, D3_26, tup_arr_elem_78, untuple_75, tup_arr_elem_79
+  let abr_32 =
+    // tup_arr_elem_78 aliases D2_28, D_25, D3_26
+    // tup_arr_elem_79 aliases D2_28, D_25, D3_26, untuple_75
+    let {tup_arr_cert_77, tup_arr_elem_78, tup_arr_elem_79} =
+      let zip_assert_76 = assert(size(0, D3_26) = size(0, D2_28)) in
+      {zip_assert_76, D3_26, D2_28} in
+    // untuple_85 aliases D2_28, D_25, D3_26, tup_arr_elem_78, untuple_75, tup_arr_elem_79
+    let {untuple_85} =
+      <tup_arr_cert_77>
+      mapT(fn {[[int]]} ([[int]] arg_82, [[int]] arg_83) =>
+             // x_80 aliases arg_82
+             // x_81 aliases arg_83
+             let {x_80, x_81} = {arg_82, arg_83} in
+             // val_84 aliases x_80, x_81, param_0_30, arg_82, arg_83, param_1_31
+             let val_84 =
+               // param_0_30 aliases x_80, arg_82
+               // param_1_31 aliases x_81, arg_83
+               let {param_0_30, param_1_31} = {x_80, x_81} in
+               plus2(param_0_30, param_1_31) in
+             {val_84},
+           tup_arr_elem_78, tup_arr_elem_79) in
+    untuple_85 in
+  // partial_34 aliases abr_32, D2_28, D_25, untuple_85, D3_26, tup_arr_elem_78, untuple_75, tup_arr_elem_79, untuple_87
+  let partial_34 =
+    // untuple_87 aliases abr_32, D2_28, D_25, untuple_85, D3_26, tup_arr_elem_78, untuple_75, tup_arr_elem_79
+    let {untuple_87} =
+      mapT(fn {[int]} ([[int]] param_0_33) =>
+             // val_86 aliases param_0_33
+             let val_86 = redmin2(param_0_33) in
+             {val_86},
+           abr_32) in
+    untuple_87 in
+  // tup_arr_elem_90 aliases abr_32, D2_28, D_25, untuple_85, D3_26, partial_34, tup_arr_elem_78, untuple_75, tup_arr_elem_79, untuple_87
+  // tup_arr_elem_91 aliases abr_32, D2_28, D_25, D3_26, partial_34
+  let {tup_arr_cert_89, tup_arr_elem_90, tup_arr_elem_91} =
+    let zip_assert_88 = assert(size(0, partial_34) = size(0, D_25)) in
+    {zip_assert_88, partial_34, D_25} in
+  // untuple_97 aliases abr_32, D2_28, D_25, untuple_85, D3_26, tup_arr_elem_90, partial_34, tup_arr_elem_78, untuple_75, tup_arr_elem_91, tup_arr_elem_79, untuple_87
+  let {untuple_97} =
+    <tup_arr_cert_89>
+    mapT(fn {[int]} ([int] arg_94, [int] arg_95) =>
+           // x_92 aliases arg_94
+           // x_93 aliases arg_95
+           let {x_92, x_93} = {arg_94, arg_95} in
+           // val_96 aliases param_0_36, x_92, x_93, param_1_37, arg_94, arg_95
+           let val_96 =
+             // param_0_36 aliases x_92, arg_94
+             // param_1_37 aliases x_93, arg_95
+             let {param_0_36, param_1_37} = {x_92, x_93} in
+             min1(param_0_36, param_1_37) in
+           {val_96},
+         tup_arr_elem_90, tup_arr_elem_91) in
+  untuple_97
+
+fun [[int]] main() =
+  let arr_38 = [[2, 4, 5],
+                [1, 1000, 3],
+                [3, 7, 1]] in
+  let val_98 = 3 in
+  floydSbsFun(val_98, arr_38)

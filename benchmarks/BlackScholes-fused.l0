@@ -1,44 +1,87 @@
 fun [real] main() =
-  let {untuple_76} =
-    mapT(fn {real} (int y_34) =>
-           let val_35 = 1 + y_34 in
-           let tmp_call_37 = toReal(val_35) in
-           let {tup_elem_39, tup_elem_41, tup_elem_42, tup_elem_43} = {True,
-                                                                       58.0 + 4.0 * tmp_call_37 / 1825.0,
-                                                                       65.0,
-                                                                       tmp_call_37 / 365.0} in
-           let tmp_call_44 = sqrt(tup_elem_43) in
-           let v_sqrtT_45 = 0.3 * tmp_call_44 in
-           let val_46 = tup_elem_41 / 65.0 in
-           let tmp_call_47 = log(val_46) in
-           let d1_48 = (tmp_call_47 + 0.125 * tup_elem_43) / v_sqrtT_45 in
-           let d2_49 = d1_48 - v_sqrtT_45 in
-           let tmp_bop_50 = if d1_48 < 0.0
-                            then -d1_48
-                            else d1_48 in
-           let k_54 = 1.0 / (1.0 + 0.2316419 * tmp_bop_50) in
-           let p_55 = k_54 * (0.31938153 + k_54 * (-0.356563782 + k_54 * (1.781477937 + k_54 * (-1.821255978 + k_54 * 1.330274429)))) in
-           let val_56 = -(0.5 * d1_48 * d1_48) in
-           let tmp_call_58 = exp(val_56) in
-           let c_59 = 0.3989422804014327 * tmp_call_58 * p_55 in
-           let cndD1_60 = if 0.0 < d1_48
-                          then 1.0 - c_59
-                          else c_59 in
-           let tmp_bop_61 = if d2_49 < 0.0
-                            then -d2_49
-                            else d2_49 in
-           let k_62 = 1.0 / (1.0 + 0.2316419 * tmp_bop_61) in
-           let p_63 = k_62 * (0.31938153 + k_62 * (-0.356563782 + k_62 * (1.781477937 + k_62 * (-1.821255978 + k_62 * 1.330274429)))) in
-           let val_65 = -(0.5 * d2_49 * d2_49) in
-           let tmp_call_68 = exp(val_65) in
-           let c_69 = 0.3989422804014327 * tmp_call_68 * p_63 in
-           let cndD2_70 = if 0.0 < d2_49
-                          then 1.0 - c_69
-                          else c_69 in
-           let val_72 = -(0.08 * tup_elem_43) in
-           let tmp_call_73 = exp(val_72) in
-           let x_expRT_74 = 65.0 * tmp_call_73 in
-           let val_75 = tup_elem_41 * cndD1_60 - (x_expRT_74 * cndD2_70) in
-           {val_75},
+  let {untuple_141} =
+    mapT(fn {real} (int y_0) =>
+           let val_1 = 1 + y_0 in
+           let val_2 = toReal(val_1) in
+           let bop_9 = val_2 / 365.0 in
+           let bop_10 = 0.08 * bop_9 in
+           let val_11 = -bop_10 in
+           let tmp_call_12 = exp(val_11) in
+           let x_expRT_13 = 65.0 * tmp_call_12 in
+           let bop_14 = 0.125 * bop_9 in
+           let tmp_call_15 = sqrt(bop_9) in
+           let v_sqrtT_16 = 0.3 * tmp_call_15 in
+           let bop_17 = 4.0 * val_2 in
+           let bop_60 = bop_17 / 1825.0 in
+           let bop_61 = 58.0 + bop_60 in
+           let val_62 = bop_61 / 65.0 in
+           let tmp_call_63 = log(val_62) in
+           let bop_64 = tmp_call_63 + bop_14 in
+           let d1_65 = bop_64 / v_sqrtT_16 in
+           let bop_66 = d1_65 < 0.0 in
+           let negate_67 = -d1_65 in
+           let bop_68 = 0.5 * d1_65 in
+           let bop_69 = bop_68 * d1_65 in
+           let val_70 = -bop_69 in
+           let tmp_call_75 = exp(val_70) in
+           let bop_76 = 0.3989422804014327 * tmp_call_75 in
+           let bop_77 = 0.0 < d1_65 in
+           let d2_78 = d1_65 - v_sqrtT_16 in
+           let bop_83 = d2_78 < 0.0 in
+           let negate_84 = -d2_78 in
+           let bop_85 = 0.5 * d2_78 in
+           let bop_86 = bop_85 * d2_78 in
+           let val_87 = -bop_86 in
+           let tmp_call_88 = exp(val_87) in
+           let bop_90 = 0.3989422804014327 * tmp_call_88 in
+           let bop_91 = 0.0 < d2_78 in
+           let tmp_bop_94 =
+             if bop_83
+             then negate_84
+             else d2_78 in
+           let bop_96 = 0.2316419 * tmp_bop_94 in
+           let bop_97 = 1.0 + bop_96 in
+           let k_103 = 1.0 / bop_97 in
+           let bop_108 = k_103 * 1.330274429 in
+           let bop_109 = -1.821255978 + bop_108 in
+           let bop_110 = k_103 * bop_109 in
+           let bop_111 = 1.781477937 + bop_110 in
+           let bop_112 = k_103 * bop_111 in
+           let bop_113 = -0.356563782 + bop_112 in
+           let bop_114 = k_103 * bop_113 in
+           let bop_115 = 0.31938153 + bop_114 in
+           let p_116 = k_103 * bop_115 in
+           let c_117 = bop_90 * p_116 in
+           let bop_118 = 1.0 - c_117 in
+           let cndD2_119 =
+             if bop_91
+             then bop_118
+             else c_117 in
+           let bop_120 = x_expRT_13 * cndD2_119 in
+           let tmp_bop_121 =
+             if bop_66
+             then negate_67
+             else d1_65 in
+           let bop_124 = 0.2316419 * tmp_bop_121 in
+           let bop_125 = 1.0 + bop_124 in
+           let k_126 = 1.0 / bop_125 in
+           let bop_127 = k_126 * 1.330274429 in
+           let bop_128 = -1.821255978 + bop_127 in
+           let bop_129 = k_126 * bop_128 in
+           let bop_130 = 1.781477937 + bop_129 in
+           let bop_131 = k_126 * bop_130 in
+           let bop_132 = -0.356563782 + bop_131 in
+           let bop_133 = k_126 * bop_132 in
+           let bop_134 = 0.31938153 + bop_133 in
+           let p_135 = k_126 * bop_134 in
+           let c_136 = bop_76 * p_135 in
+           let bop_137 = 1.0 - c_136 in
+           let cndD1_138 =
+             if bop_77
+             then bop_137
+             else c_136 in
+           let bop_139 = bop_61 * cndD1_138 in
+           let bop_140 = bop_139 - bop_120 in
+           {bop_140},
          iota(1825)) in
-  untuple_76
+  untuple_141

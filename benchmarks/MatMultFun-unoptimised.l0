@@ -1,0 +1,108 @@
+fun int redplus1([int] a_0) =
+  let val_30 = 0 in
+  let {untuple_32} =
+    reduceT(fn {int} (int x_1, int y_2) =>
+              let val_31 = x_1 + y_2 in
+              {val_31},
+            {val_30}, a_0) in
+  untuple_32
+
+fun [int] redplus2([[int]] a_3) =
+  let {untuple_34} =
+    mapT(fn {int} ([int] param_0_4) =>
+           let val_33 = redplus1(param_0_4) in
+           {val_33},
+         a_3) in
+  untuple_34
+
+fun [int] mul1([int] a_5, [int] b_6) =
+  // tup_arr_elem_37 aliases a_5
+  // tup_arr_elem_38 aliases b_6
+  let {tup_arr_cert_36, tup_arr_elem_37, tup_arr_elem_38} =
+    let zip_assert_35 = assert(size(0, a_5) = size(0, b_6)) in
+    {zip_assert_35, a_5, b_6} in
+  let {untuple_44} =
+    <tup_arr_cert_36>
+    mapT(fn {int} (int arg_41, int arg_42) =>
+           let {tup_shim_39, tup_shim_40} = {arg_41, arg_42} in
+           let val_43 =
+             let {x_8, y_9} = {tup_shim_39, tup_shim_40} in
+             x_8 * y_9 in
+           {val_43},
+         tup_arr_elem_37, tup_arr_elem_38) in
+  untuple_44
+
+fun [[int]] mul2([[int]] a_10, [[int]] b_11) =
+  // tup_arr_elem_47 aliases a_10
+  // tup_arr_elem_48 aliases b_11
+  let {tup_arr_cert_46, tup_arr_elem_47, tup_arr_elem_48} =
+    let zip_assert_45 = assert(size(0, a_10) = size(0, b_11)) in
+    {zip_assert_45, a_10, b_11} in
+  // untuple_54 aliases tup_arr_elem_48, a_10, b_11, tup_arr_elem_47
+  let {untuple_54} =
+    <tup_arr_cert_46>
+    mapT(fn {[int]} ([int] arg_51, [int] arg_52) =>
+           // x_49 aliases arg_51
+           // x_50 aliases arg_52
+           let {x_49, x_50} = {arg_51, arg_52} in
+           // val_53 aliases arg_52, param_0_13, x_49, x_50, param_1_14, arg_51
+           let val_53 =
+             // param_0_13 aliases x_49, arg_51
+             // param_1_14 aliases arg_52, x_50
+             let {param_0_13, param_1_14} = {x_49, x_50} in
+             mul1(param_0_13, param_1_14) in
+           {val_53},
+         tup_arr_elem_47, tup_arr_elem_48) in
+  untuple_54
+
+fun [[int]] replin(int N_15, [int] a_16) =
+  replicate(N_15, a_16)
+
+fun [[int]] matmultFun([[int]] a_17, [[int]] b_18) =
+  let N_19 = size(0, a_17) in
+  // br_20 aliases b_18
+  let br_20 = replicate(N_19, transpose(b_18)) in
+  // ar_22 aliases untuple_56, a_17
+  let ar_22 =
+    // untuple_56 aliases a_17
+    let {untuple_56} =
+      mapT(fn {[[int]]} ([int] param_0_21) =>
+             // val_55 aliases param_0_21
+             let val_55 = replin(N_19, param_0_21) in
+             {val_55},
+           a_17) in
+    untuple_56 in
+  // abr_26 aliases tup_arr_elem_60, br_20, untuple_56, a_17, ar_22, untuple_66, b_18, tup_arr_elem_59
+  let abr_26 =
+    // tup_arr_elem_59 aliases untuple_56, a_17, ar_22
+    // tup_arr_elem_60 aliases br_20, b_18
+    let {tup_arr_cert_58, tup_arr_elem_59, tup_arr_elem_60} =
+      let zip_assert_57 = assert(size(0, ar_22) = size(0, br_20)) in
+      {zip_assert_57, ar_22, br_20} in
+    // untuple_66 aliases tup_arr_elem_60, br_20, untuple_56, a_17, ar_22, b_18, tup_arr_elem_59
+    let {untuple_66} =
+      <tup_arr_cert_58>
+      mapT(fn {[[int]]} ([[int]] arg_63, [[int]] arg_64) =>
+             // x_61 aliases arg_63
+             // x_62 aliases arg_64
+             let {x_61, x_62} = {arg_63, arg_64} in
+             // val_65 aliases arg_64, param_0_24, param_1_25, x_61, x_62, arg_63
+             let val_65 =
+               // param_0_24 aliases x_61, arg_63
+               // param_1_25 aliases arg_64, x_62
+               let {param_0_24, param_1_25} = {x_61, x_62} in
+               mul2(param_0_24, param_1_25) in
+             {val_65},
+           tup_arr_elem_59, tup_arr_elem_60) in
+    untuple_66 in
+  // untuple_68 aliases tup_arr_elem_60, br_20, untuple_56, a_17, ar_22, untuple_66, b_18, abr_26, tup_arr_elem_59
+  let {untuple_68} =
+    mapT(fn {[int]} ([[int]] param_0_27) =>
+           // val_67 aliases param_0_27
+           let val_67 = redplus2(param_0_27) in
+           {val_67},
+         abr_26) in
+  untuple_68
+
+fun [[int]] main([[int]] x_28, [[int]] y_29) =
+  matmultFun(x_28, y_29)
