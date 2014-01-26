@@ -4,8 +4,12 @@
 As a data-parallel programming language, most of the interesting
 optimisations for \LO{} naturally revolve around SOACs.  Yet,
 classical optimisations such as copy propagation, constant folding,
-hoisting and common-subexpression elimination remain important.  This
+hoisting and common subexpression elimination remain important.  This
 chapter will cover their implementation for \LO{}.
+
+It turns out that hoisting and common subexpression elimination can be
+unified in a single framework, which in the \LO{} compiler is termed
+the \textit{Rebinder}.  It is described in \cref{sec:rebinder}.
 
 \section{Inlining}
 
@@ -281,10 +285,51 @@ processed as follows:
     \end{description}
 \end{description}
 
-
 \section{Hoisting}
 
+In the compiler literature, \textit{hoisting} (also called
+\textit{loop-invariant code motion} by those textbook authors paid per
+page) is the movement of loop-invariant expressions out of a loop.
+This has a clear benefit: rather than executing once per iteration of
+the loop, the expression is executed once before the loop begins.
+When compiling an imperative language, we must be careful not to move
+any code with side effects, but in a pure language such as \LO{}, we
+can hoist freely (with a few restrictions that I'll get to in
+\cref{sec:when-not-to-hoist}).  A simple example of hoisting in action
+is shown on \cref{fig:simple-hoisting}.
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+map(fn int (int x) =>
+      let k = y + z in
+      x + k,
+    a)
+\end{bcolorcode}
+\hspace{1cm}
+\adjustbox{valign=t}{
+\(\Rightarrow\)
+}%
+\hspace{1cm}
+\begin{bcolorcode}
+let k = y + z in
+map(fn int (int x) =>
+      x + k,
+    a)
+\end{bcolorcode}
+\end{center}
+
+\caption{Hoisting in action}
+\label{fig:simple-hoisting}
+\end{figure}
+
+\subsection{When not to hoist}
+\label{sec:when-not-to-hoist}
+
 \section{Common Subexpression Elimination}
+
+\section{The Rebinder}
+\label{sec:rebinder}
 
 %%% Local Variables: 
 %%% mode: latex
