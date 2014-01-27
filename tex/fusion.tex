@@ -31,7 +31,7 @@ a fusion is formed with $c_{1}$ as the producer and $c_{2}$ as the
 consumer.  Therefore, the previous example would be
 ``\texttt{map}-\texttt{map}''-fusion.
 
-The rules by which we combine SOACs through fusion is called out
+The rules by which we combine SOACs through fusion is called our
 \textit{fusion algebra}.  We aim at preserving the parallelism of the
 resulting expressions.
 
@@ -190,7 +190,7 @@ reduceT(fn int (int acc, int x, int y) => acc + x + y,
 The solution is to first rewrite \texttt{reduceT($f$,$x$,$a$)} to
 \texttt{redomapT($f$,$f$,$x$,$a$)}, since we can always fuse
 \texttt{map} with \texttt{redomap}:
-
+\fixme{Look at the rest}
 \begin{center}
 \begin{bcolorcode}
 let \{x1, x2\} = mapT(f, a1)
@@ -405,6 +405,11 @@ complex \texttt{mapT}s that may take input from several sources, where
 only some may be fusable.  Hence, a more detailed elaboration is
 necessary.
 
+This section will describe different ways of combining the functions
+used in SOACs, as appropriate for different cases of fusion.  In
+\cref{sec:fusion-rules}, we will describe the rules used for fusion of
+full SOAC expressions.
+
 In this section, we will assume that each output of a producer is used
 exactly once in every relevant \texttt{redomap}- and
 \texttt{map}-consumer.  This assumption can be provided through
@@ -446,7 +451,8 @@ functions as
 }.
 \]
 This judgement is said to \textit{hold} if the preconditions specified
-for the judgement are upheld.
+for the judgement are upheld.  The preconditions for a given
+judgement, if any, will be listed when the judgement is defined below.
 
 \subsection{\texttt{map}-\texttt{map} composition}
 \label{sec:map-map-composition}
@@ -507,6 +513,10 @@ I will refer to this entire operation as
 
 \subsection{\texttt{filter}-\texttt{filter} composition}
 
+We do not have \texttt{fold} per se in \LO{}, but this method of
+composition is used for both \texttt{reduce} and the
+\texttt{fold}-like semantics of \texttt{redomap}, hence the name.
+
 We are given two functions:
 \[
 l_{a}\equiv\texttt{fn \{bool\} ($p_{a_{1}}$, \ldots, $p_{a_{n}}$) => $e_{a}$}
@@ -518,10 +528,11 @@ l_{b}\equiv\texttt{fn \{bool\} ($p_{b_{1}}$, \ldots, $p_{b_{n}}$) => $e_{b}$},
 \]
 whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$}.
 
-Every input $e_{b_{i}}$ must correspond to some output $o_{j}$, and
-every output $o_{i}$ must correspond to some input $e_{b_{i}}$.  That
-is, the producer set of $l_{a}$ is equal to the input set of $l_{b}$.
-Or to put it another way, $l_{b}$ takes input from no other source.
+\textbf{Precondition:} Every input $e_{b_{i}}$ must correspond to some
+output $o_{j}$, and every output $o_{i}$ must correspond to some input
+$e_{b_{i}}$.  That is, the producer set of $l_{a}$ is equal to the
+input set of $l_{b}$.  Or to put it another way, $l_{b}$ takes input
+from no other source.
 
 The goal is to compute a function
 \[
@@ -561,12 +572,14 @@ outputs are \texttt{$o_1$,\ldots,$o_k$}; and
 \[
 l_{b}\equiv\texttt{fn $t_{b_{r}}$ ($u_{b_{1}}$, \ldots, $u_{b_{m}}$, $p_{b_{1}}$, \ldots, $p_{b_{n}}$) => $e_{b}$},
 \]
-whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$} and every
-input $e_{b_{i}}$ corresponds to some output $o_{j}$, and every output
-$o_{i}$ corresponds to some input $e_{b_{i}}$.  That is, the producer
-set of $l_{a}$ is equal to the input set of $l_{b}$.  Or to put it
-another way, $l_{b}$ takes input from no other source.  The $u_{b}$s
-are accumulator parameters that do not correspond to an array input.
+whose inputs are \texttt{$e_{b_{1}}$,\ldots,$e_{b_{n}}$}.
+
+\textbf{Precondition:} Every input $e_{b_{i}}$ corresponds to some
+output $o_{j}$, and every output $o_{i}$ corresponds to some input
+$e_{b_{i}}$.  That is, the producer set of $l_{a}$ is equal to the
+input set of $l_{b}$.  Or to put it another way, $l_{b}$ takes input
+from no other source.  The $u_{b}$s are accumulator parameters that do
+not correspond to an array input.
 
 The goal is to compute a function
 \[
@@ -641,7 +654,7 @@ which should mostly be intuitive.
     {\texttt{mapT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{scanT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{scanT($l_{r}$,\{$\overline{us}$\},$\overline{es_r}$)}}
-  } \quad \mbox{($\overline{es_{a}}$ and $\overline{es_{b}}$ match)}
+  } \quad \mbox{($\overline{es_{a}}$ = $\overline{es_{b}}$)}
   \tagsc{Fuse-Map-Scan}
 \end{align*}
 
@@ -664,7 +677,7 @@ fuse to \texttt{reduce}.
     {\texttt{filterT($l_{a}$,$\overline{es_a}$)}}
     {\texttt{reduceT($l_{b}$,\{$\overline{us}$\},$\overline{es_b}$)}}
     {\texttt{reduceT($l_{r}$,\{$\overline{us}$\},$\overline{es_a}$)}}
-  } (\textrm{types of $os = $ types of $\overline{es_{r}}$})
+  } \quad (\overline{es_{b}} \subseteq \overline{os})
   \tagsc{Fuse-Filter-Reduce-1}
 \end{align*}
 
@@ -800,11 +813,12 @@ We will track the following pieces of information.\fxnote{All of this
   can be done in one pass - explain how and why.}
 
 \begin{description}
-\item[$\soacs : Exp \rightarrow Label \times Pat \times Exp$.] The set
-  of all SOAC expressions in an expression, modelled as a mapping from
-  a (unique) identifier to a pair of a SOAC expression and its output
-  pattern.  We shall say $\soacs(e)$ to refer to this mapping, and
-  $\soacs(e)[l]$ to refer to the SOAC with label $l$.  For example,
+\item[$\soacs : Exp \rightarrow (Label \times Pat \times Exp) Set$.]
+  The set of all SOAC expressions that appears in an expression,
+  modelled as a mapping from a (unique) label to a pair of a SOAC
+  expression and its output pattern.  We shall say $\soacs(e)$ to
+  refer to this mapping, and $\soacs(e)[l]$ to refer to the SOAC with
+  label $l$.  For example,
   \begin{align*}
   & \soacs(\texttt{let \{$a$,$b$,$c$\} = mapT($f$,$x$,$y$,$z$) in \{$a$,$b$,$c$\}}) =\\
   & \quad \{ (\ell, \texttt{\{$a$,$b$,$c$\}},\texttt{mapT($f$,$x$,$y$,$z$)}) \},
@@ -815,13 +829,14 @@ We will track the following pieces of information.\fxnote{All of this
   the fusion transformation is strictly intraprocedural, this is
   sufficient for our needs.
 
-\item[$\unfusable : Exp \rightarrow Names$.] The \textit{unfusable
-    set}, which is key to preventing unwanted fusion, as it indicates
-  which SOACs should never be fused.  The unfusable set prevents both
-  undesired and invalid fusion, as outlined in sections
-  \cref{sec:whentofuse,sec:invalidfusion} respectively.  Given an
-  \LO{} expression $e$, we shall say $\unfusable(e)$ to refer to the
-  unfusable set produced by $e$.  For example:
+\item[$\unfusable : Exp \rightarrow Name Set$.] The \textit{unfusable
+    set}, a set of variable names, is key to preventing unwanted
+  fusion, as it indicates which SOACs should never be fused.  The
+  unfusable set prevents both undesired and invalid fusion, as
+  outlined in sections \cref{sec:whentofuse,sec:invalidfusion}
+  respectively.  Given an \LO{} expression $e$, we shall say
+  $\unfusable(e)$ to refer to the unfusable set produced by $e$.  For
+  example:
   \begin{align*}
   \unfusable(&\texttt{let x = mapT(f,a) in}\\
   &\texttt{let y = mapT(g,a) in \{x,y\}}) = \{a\},
@@ -842,11 +857,12 @@ We will track the following pieces of information.\fxnote{All of this
   where $\ell$ is the label of the \texttt{mapT}-SOAC.
 
   We define an associative and commutative operation $\sqcup$ to
-  combine input mappings by taking the union of values of
-  corresponding keys, as follows.
+  combine input mappings by taking the union of values (sets of
+  labels, $s$) of corresponding keys (variable names, $v$), as
+  follows.
   \begin{align*}
   &\{(v_{1},s_{1}),\ldots,(v_{n},s_{n})\} \sqcup \{(v_{n+1},s_{n+1}),\ldots,(v_{n+m},s_{n+m})\} =\\
-  &\quad \{(v_{i}, \bigcup_{(v_{i},s_{i}),n+m \leq i \leq n+m} s_{i})\},
+  &\quad \{(v_{i}, \bigcup_{(v_{i},s_{j}),0 \leq j \leq n+m} s_{j})\},
   \end{align*}
 
   Intuitively, $x \sqcup y$ is a mapping that contains the union of
@@ -858,7 +874,7 @@ We will track the following pieces of information.\fxnote{All of this
   taking the intersection of values.
 \begin{align*}
   &\{(v_{1},s_{1}),\ldots,(v_{n},s_{n})\} \sqcap \{(v_{n+1},s_{n+1}),\ldots,(v_{n+m},s_{n+m})\} =\\
-  &\quad \{(v_{i}, \bigcap_{(v_{i},s_{i}),n+m \leq i \leq n+m} s_{i})\},
+  &\quad \{(v_{i}, \bigcap_{(v_{i},s_{j}),0 \leq j \leq n+m} s_{j})\},
   \end{align*}
 \end{description}
 
@@ -880,7 +896,7 @@ Where $\childExps{e}$ are the \textit{immediate} children of $e$, e.g.
 Now for specific rules, based on the shape of the given expression.
 
 \begin{description}[style=nextline]
-\item[Case $e \equiv v$]
+\item[Case $e \equiv v$ ($v$ is a variable)]
 
   This rule is only applied when $v$ is not an array input to a SOAC.
   This implies that the producer of $v$ cannot be fused, as its output
@@ -899,7 +915,9 @@ Now for specific rules, based on the shape of the given expression.
   operation by an inlined copy of the \texttt{map} function, and let
   the original \texttt{map} be fused.  Duplicating computation of a
   single element is likely acceptable, but not done by the current
-  implementation. \fxnote{We actually do this in limited cases.}
+  implementation, and it is hard to determine the optimal choice as
+  long as \LO{} does not have a defined cost model. \fxnote{We
+    actually do this in limited cases.}
   \begin{align*}
   & \unfusable(e) = \{v\} \cup \bigcup_{1\leq i \leq n}\unfusable(e_{i}) \\
 \end{align*}
@@ -910,7 +928,10 @@ Now for specific rules, based on the shape of the given expression.
   \unfusable{} sets of its branches, plus any SOAC outputs that may be
   used multiple times.  Note that an output can be used in both the
   true and the false branch, and it will still only have been
-  considered to be used once.
+  considered to be used once, becase only one of the true and false
+  branch will be executed, never both.
+
+\fixme{ArrInputs stuff not clear.}
 
 \begin{align*}
   & \inputs(e) =\\
