@@ -29,7 +29,7 @@ $k$ & $::=$ & $n$ & (Integer)\\
 & $|$ & \texttt{[$v_{1},\ldots,v_{n}$]} & (Array) \\
 \\
 $p$ & $::=$ & \texttt{\textbf{id}} & (Name pattern)\\
-& $|$ & \texttt{($p_{1}$, \ldots, $p_{n}$)} & (Tuple pattern) \\
+& $|$ & \texttt{\{$p_{1}$, \ldots, $p_{n}$\}} & (Tuple pattern) \\
 \end{tabular}
 \caption{\LO{} syntax}
 \label{fig:fo-syntax}
@@ -39,8 +39,8 @@ $p$ & $::=$ & \texttt{\textbf{id}} & (Name pattern)\\
 \begin{tabular}{lrll}
 $e$ & $::=$ & $k$ & (Constant)\\
 & $|$ & $v$ & (Variable)\\
-& $|$ & \texttt{($e_{1}$,\ldots,$e_{n}$)} & (Tuple expression) \\
-& $|$ & \texttt{\{$e_{1}$,\ldots,$e_{n}$\}} & (Array expression) \\
+& $|$ & \texttt{\{$e_{1}$,\ldots,$e_{n}$\}} & (Tuple expression) \\
+& $|$ & \texttt{[$e_{1}$,\ldots,$e_{n}$]} & (Array expression) \\
 & $|$ & $e_{1} \odot{} e_{2}$ & (Binary operator) \\
 & $|$ & \texttt{-$e$} & (Prefix minus) \\
 & $|$ & \texttt{not $e$} & (Logical negation) \\
@@ -90,7 +90,7 @@ An \LO{} program consists of a sequence of \emph{function
   fun \textit{return-type} \textit{name}(\textit{params...}) = \textit{body}
 \end{colorcode}
 
-A function must declare both its return type and the types of all
+A function must declare both its return type and the types of all its
 parameters.  All functions (except for inline anonymous functions; see
 below) are defined globally.  \LO{} does not use type inference.
 Symbolic constants are not supported, although 0-ary functions can be
@@ -122,7 +122,7 @@ example, all rows of a two-dimensional array must have the same number
 of elements.
 \begin{colorcode}
   [[1, 2], [3]]      // Compile-time error.
-  [iota(1), iota(2)] // Run-time error.
+  [iota(1), iota(2)] // Likely a run-time error.
 \end{colorcode}
 Arrays are indexed using the common row-major notation, e.g.,
 \texttt{a[i1, i2, i3...]}.  An indexing is said to be \textit{full} if
@@ -203,7 +203,8 @@ in \cref{fig:loop-recursion} has the semantics of a call to the
 tail-recursive function on the right-hand side.
 
 \begin{figure}
-\begin{minipage}{0.35\columnwidth}
+\begin{center}
+\begin{minipage}{0.3\columnwidth}
 \begin{colorcode}
 loop (x = a) =
   for i < n do
@@ -214,7 +215,7 @@ in body
 \begin{minipage}{0.05\columnwidth}
 $\Rightarrow$
 \end{minipage}
-\begin{minipage}{0.6\columnwidth}
+\begin{minipage}{0.4\columnwidth}
 \begin{colorcode}
 fun t f(int i, int n, t x) =
   if i >= n then x
@@ -224,7 +225,8 @@ let x = f(i, n, a)
 in body
 \end{colorcode}
 \end{minipage}
-\caption{Loop to recursive function}
+\end{center}
+\caption{Equivalence between loops and recursive functions}
 \label{fig:loop-recursion}
 \end{figure}
 
@@ -253,12 +255,10 @@ Whenever $\textit{dest} = \textit{src}$, we can write
   let \textit{dest}[\textit{indexes}] = \textit{value} in \textit{body}
 \end{colorcode}
 as a shortcut.  Note that this has no special semantic meaning, but is
-simply a case of normal name shadowing.  Let-with has some unusual
-restrictions to permit in-place modification of the \textit{src}
-array, as described in \cref{chap:uniqueness-types}.
+simply a case of normal name shadowing.
 
 For example, the loop given below implements the ``imperative''
-version of matrix multiplication of two $M\times M$ matrices.
+version of matrix multiplication of two $N\times N$ matrices.
 
 \begin{colorcode}
 fun *[[int]] matmultImp(int N, [[int]] a, [[int]] b) =
@@ -275,6 +275,15 @@ fun *[[int]] matmultImp(int N, [[int]] a, [[int]] b) =
         in res
     in res
 \end{colorcode}
+
+\texttt{Let-with} has some unusual restrictions to permit in-place
+modification of the \textit{src} array, as described in
+\cref{chap:uniqueness-types}, specifically we track that \textit{src}
+is never used again.  The consequence is that we can guarantee that
+the execution of a \texttt{let-with} expression does not involve any
+copying of the source array in order to create the newly bound array.
+We can think of it as similar to array modification in an imperative
+language.
 
 \section{SOACs}
 \label{sec:soacs}
@@ -317,7 +326,7 @@ be typed in \LO{} itself.
 \begin{align*}
 \texttt{ filter}
 & :: (\alpha\rightarrow\texttt{bool})\rightarrow[\alpha]\rightarrow[\alpha] \\
-\texttt{ filter($f$,a)} & \equiv \texttt{\{$a$[i] | $f$($a$[i]) = \texttt{True }\}}
+\texttt{ filter($f$,$a$)} & \equiv \texttt{\{$a$[i] | $f$($a$[i]) = \texttt{True }\}}
 \end{align*}
 \begin{align*}
 \texttt{ reduce}
@@ -327,14 +336,15 @@ be typed in \LO{} itself.
 \begin{align*}
 \texttt{ scan}
 & :: (\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow\alpha\rightarrow[\alpha]\rightarrow[\alpha] \\
-\texttt{ scan($f$,$x$,a)} & \equiv \texttt{\{$f$($x$,$a$[0]), $f$($f$($x$,$a$[0]),$v$[1]),\ldots\}}
+\texttt{ scan($f$,$x$,$a$)} & \equiv \texttt{\{$f$($x$,$a$[0]), $f$($f$($x$,$a$[0]),$a$[1]),\ldots\}}
 \end{align*}
 
-In particular, note that \texttt{scan} and \texttt{reduce} require
-binary associative operators and \texttt{scan} is an inclusive prefix
-scan.  The value given as the initial value of the accumulator must be
-the neutral element for the function.  These properties are not
-checked by the \LO{} compiler, and are the responsibility of the
+\texttt{scan} is an inclusive prefix scan, meaning that it returns an
+array of the same outer size as the original array.  The functions
+given to \texttt{reduce} and \texttt{scan} must be binary associative
+operators, and the value given as the initial value of the accumulator
+must be the neutral element for the function.  These properties are
+not checked by the \LO{} compiler, and are the responsibility of the
 programmer.
 
 \texttt{redomap} is a special case -- it is not intended for use by
@@ -404,10 +414,14 @@ the language.
     i.e., bitwise xor, and, or, and arithmetic shift right and left.
 
   \item[\texttt{\textit{x} \&\& \textit{y}}]\hfill\\
-    Short-circuiting conjunction, both operands must be of type \boolt.
+    Logical conjunction; both operands must be of type \boolt.  Not
+    short-circuiting, as this complicates program transformation.  If
+    short-circuiting behaviour is desired, the programmer can use
+    \texttt{if} explicitly.
 
   \item[\texttt{\textit{x} || \textit{y}}]\hfill\\
-    Short-circuiting disjunction, both operands must be of type \boolt.
+    Logical disjunction; both operands must be of type \boolt.  As
+    with \texttt{\&\&}, not short-circuiting.
 
   \item[\texttt{not \textit{x}}]\hfill\\
     Logical negation of \textit{x}, which must be of type \boolt.
@@ -465,15 +479,19 @@ the language.
 
   \item[\texttt{transpose(k,n,a)}]\hfill\\
     Return the generalised transpose of \textit{a}.  If
-    \texttt{b=transpose(k,n,a)}, then
+    \texttt{$b$=transpose($k$,$n$,$a$)}, then
     \[
-    \texttt{a}[i_1, ..., i_k, i_{k+1}, ..., i_{k+n}, ..., i_q ]
+    \texttt{a}[i_1, \ldots, i_k, i_{k+1}, \ldots, i_{k+n}, \ldots, i_q ]
     =
-    \texttt{b}[i_1 ,.., i_{k+1} , ..., i_{k+n}, i_k, ..., i_q ].
+    \texttt{b}[i_1 , \ldots, i_{k+1} , \ldots, i_{k+n}, i_k, \ldots, i_q ].
     \]
 
     Thus, \texttt{transpose(0,1,a)} is the common two-dimensional
     transpose.
+
+    Note that $k$ and $n$ must be static integer literals, and $k+n$
+    must be non-negative and smaller than the rank of \texttt{a}, or
+    it is a type error.
 
   \item[\texttt{let \textit{pat} = \textit{e} in \textit{body}}]\hfill\\
     While evaluating \textit{body}, bind the names mentioned in

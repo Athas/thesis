@@ -3,20 +3,52 @@
 
 While \LO{} is through and through a pure functional language, it may
 occasionally prove useful to express certain algorithms in an
-imperative style.  In such cases, we may also want to update arrays
-\textit{in-place}, that is, with a static guarantee that the operation
-will not require any additional memory allocation, such as copying the
-array.  In order to perform such updates without violating referential
-transparency, we need to know that no other references to the array
-exist, or at least that they will not be used.  In LO{}, this is done
-through a type system feature known as \textit{uniqueness types},
-similar to, although simpler, than the one found in
+imperative style.  Consider a function for computing the $n$ first
+Fibonacci numbers:
+
+\begin{colorcode}
+fun [int] fib(int n) =
+  // Create "empty" array.
+  let arr = iota(n) in
+  // Fill array with Fibonacci numbers.
+  loop (arr) = for i < n-2 do
+                 let arr[i+2] = arr[i] + arr[i+1]
+                 in arr
+  in arr
+\end{colorcode}
+
+If the array \texttt{arr} is copied for each iteration of the loop, we
+are going to put enormous pressure on memory, and spend a lot of time
+moving around data, even though it is clear in this case that the
+``old'' value of \texttt{arr} will never be used again.  Precisely,
+what should be an algorithm with complexity $O(n)$ becomes $O(n^2)$,
+due to copying the size $n$ array (an $O(n)$ operation) for each of
+the $n$ iterations of the loop.
+
+To prevent this, we want want to update the array \textit{in-place},
+that is, with a static guarantee that the operation will not require
+any additional memory allocation, such as copying the array.  With an
+in-place modification, a \texttt{let-with} can modify the array in
+time proportional to the slice being updated ($O(1)$ in the case of
+the Fibonacci function), rather than time proportional to the size of
+the final array, as is the case if we perform a copy.  In order to
+perform the update without violating referential transparency, we need
+to know that no other references to the array exists, or at least that
+such references will not be used on any execution path following the
+in-place update.
+
+In \LO{}, this is done through a type system feature I call
+\textit{uniqueness types}, similar to, although simpler, than the
+uniqueness types of
 Clean~\cite{clean-uniqueness-types}\cite{barendsen1996uniqueness}.
 Alongside a (relatively) simple aliasing analysis in the type checker,
-this is sufficient to determine a compile time whether an in-place
-modification is safe.
+this is sufficient to determine at compile time whether an in-place
+modification is safe, and signal a compile time error if
+\texttt{let-with} is used in way where safety cannot be guaranteed.
+This means that \texttt{let-with} must \textit{always} be efficient,
+and its use is not permitted otherwise.
 
-The simplest way to introduce uniqueness types are through examples.
+The simplest way to introduce uniqueness types is through examples.
 To that end, let us consider the following function definition.
 
 \begin{colorcode}
@@ -25,32 +57,33 @@ fun \emp{*}[int] modify(\emp{*}[int] a, int i, int x) =
   b
 \end{colorcode}
 
-The function \texttt{modify(a,i,x)} returns \texttt{a}, but where the
-element at index \texttt{i} has been increased by \texttt{x}.  Note
-the \emp{asterisks}: In the parameter declaration \texttt{*[int] a},
-this means that the function \texttt{modify} has been given
-``ownership'' of the array \texttt{a}, meaning that it can do whatever
-it wants with its contents - the caller will never reference it again.
-In particular, it can modify the element at index \texttt{i} without
-first copying the array.  Furthermore, the return value of
-\texttt{modify} is also unique - this means that there are no other
-references to the underlying memory, and the caller can use it as it
-sees fit.
+The function call \texttt{modify($a$,$i$,$x$)} returns $a$, but where
+the element at index \texttt{i} has been increased by $x$.  Note the
+\emp{asterisks}: in the parameter declaration \texttt{*[int] a}, this
+means that the function \texttt{modify} has been given ``ownership''
+of the array $a$, meaning that any caller of \texttt{modify} will
+never reference array $a$ after the call again.  In particular,
+\texttt{modify} can change the element at index \texttt{i} without
+first copying the array, i.e. \texttt{modify} is free to do an
+in-place modification.  Furthermore, the return value of
+\texttt{modify} is also unique - this means that the result of the
+call to \texttt{modify} does not share elements with any other visible
+variables.
 
 Let us consider a call to \texttt{modify}, which might look as
 follows.
 
 \begin{colorcode}
-let b = modify(a, i, x) in
+let \(b\) = modify(\(a\), \(i\), \(x\)) in
 ...
 \end{colorcode}
 
 Under which circumstances is this call valid?  Two things must hold:
 \begin{enumerate}
-\item The type of \texttt{a} must be \texttt{*[int]}, of course.
+\item The type of \texttt{$a$} must be \texttt{*[int]}, of course.
 
-\item Neither \texttt{a} or any variable that \textit{aliases}
-  \texttt{a} may be used on any execution path following the call to
+\item Neither \texttt{$a$} or any variable that \textit{aliases}
+  \texttt{$a$} may be used on any execution path following the call to
   \texttt{modify}.
 \end{enumerate}
 
@@ -63,12 +96,17 @@ argument declaration that must be unique - it is permissible to pass a
 unique-typed variable as a non-unique argument (that is, a unique type
 is a subtype of the corresponding nonunique type).
 
-A variable aliases \texttt{a} if it may share the same memory.  As the
-most trivial case, after evaluating the binding \texttt{let b = a},
-the variable \texttt{b} will alias \texttt{a}.  As another example, if
-we extract a row from a two-dimensional array, the row will alias its
-source.  \Cref{sec:l0-sharing} will cover sharing and sharing analysis
-in greater detail.
+A variable $v$ aliases $a$ if they may share some elements,
+i.e. overlap in memory.  As the most trivial case, after evaluating
+the binding \texttt{let b = a}, the variable \texttt{b} will alias
+\texttt{$a$}.  As another example, if we extract a row from a
+two-dimensional array, the row will alias its source:
+\begin{colorcode}
+let b = a[0] in
+... // b is aliased to a (assuming a is not one-dimensional)
+\end{colorcode}
+\Cref{sec:l0-sharing} will cover sharing and sharing analysis in
+greater detail.
 
 Let us consider the definition of a function returning a unique array:
 
@@ -76,8 +114,8 @@ Let us consider the definition of a function returning a unique array:
 fun *[int] f([int] a) = \(e\)
 \end{colorcode}
 
-Note that the argument, \texttt{a}, is non-unique, and hence we cannot
-modify it.  But there is another restriction: \texttt{a} must not be
+Note that the argument, \texttt{$a$}, is non-unique, and hence we cannot
+modify it.  But there is another restriction: \texttt{$a$} must not be
 aliased to our return value, as the uniqueness contract requires us to
 ensure that there are no other references to the unique return value.
 This requirement would be violated if we permitted the return value in
@@ -90,22 +128,49 @@ We can crystallise these observations as three principal rules:
   unique parameter in a function call, or used as the source in a
   \texttt{let-with} expression, neither that value, nor any value that
   aliases it, may be used on any execution path following the function
-  call.
+  call.  A violation of this rule is illustrated on
+  \cref{fig:uniqueness-rule-1-violation}.
 
 \item[Uniqueness Rule 2] If a function definition is declared to
   return a unique value, the return value (that is, the result of the
   body of the function) must not share memory with any non-unique
-  arguments to the function.
+  arguments to the function.  As a consequence, at the time of
+  execution, the result of a call to the function is the only
+  reference to that value.  A violation of this rule is illustrated on
+  \cref{fig:uniqueness-rule-2-violation}.
 
-\item[Uniqueness Rule 3] If a function call yields a unique
-  return value, the caller has exclusive access to that value.  The
-  value may not share memory with any variable used in any execution
-  path following the function call.
+\item[Uniqueness Rule 3] If a function call yields a unique return
+  value, the caller has exclusive access to that value.  At
+  \textit{the point the call returns}, the return value may not share
+  memory with any variable used in any execution path following the
+  function call.  This rule is particularly subtle, but can be
+  considered a rephrasing of Uniqueness Rule 2 from the ``calling
+  side''.
 \end{description}
 
-Finally, it is worth noting that everything in this chapter is used as
-part of a static analysis.  \textit{All} violations of uniqueness
-constraints will be discovered at compile-time (in fact, during
+\begin{figure}
+\centering
+\begin{colorcode}
+let b = a with [i] <- 2 in
+f(b,a) // \emp{Error:} a used after being source in a let-with
+\end{colorcode}
+\caption{Violation of Uniqueness Rule 1}
+\label{fig:uniqueness-rule-1-violation}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{colorcode}
+fun *[int] broken([[int]] a, int i) =
+  a[i] // Return value aliased with 'a'.
+\end{colorcode}
+\caption{Violation of Uniqueness Rule 2}
+\label{fig:uniqueness-rule-2-violation}
+\end{figure}
+
+Finally, it is worth emphasising that everything in this chapter is
+used as part of a static analysis.  \textit{All} violations of the
+uniqueness rules will be discovered at compile-time (in fact, during
 type-checking), thus leaving the code generator and runtime system at
 liberty to exploit them for low-level optimisation.
 
@@ -117,12 +182,14 @@ are \textit{aliased}, or that \textit{sharing} is present.  As an
 example, if you have a two-dimensional array \texttt{a} and extract
 its first row as the one-dimensional array \texttt{b}, we say that
 \texttt{a} and \texttt{b} are aliased.  While the \LO{} compiler may
-do a deep copy if it wishes, it is not required, and this operation
-thus holds the potential for sharing memory.  Sharing analysis is
-necessarily conservative, and merely imposes an upper bound on the
-amount of sharing happening at runtime.  The sharing analysis in \LO{}
-has been carefully designed to make the bound as tight as possible,
-but still easily computable.
+do a deep copy if it wishes\footnote{At some point, a proper cost
+  model for \LO{} will be developed, and it is very likely that we
+  require such indexing to be $O(1)$.}, it is not required, and this
+operation thus holds the potential for sharing memory.  Sharing
+analysis is necessarily conservative, and merely imposes an upper
+bound on the amount of sharing happening at runtime.  The sharing
+analysis in \LO{} has been carefully designed to make the bound as
+tight as possible, but still easily computable.
 
 In \LO{}, the only values that can have any sharing are arrays -
 everything else is considered ``primitive''.  Tuples are special, in
@@ -137,11 +204,13 @@ $\aliases{e}$, can take one of two forms:
 \begin{enumerate}
 \item $l$, where $l$ is a subset of the variables in scope at $e$.
   This means that $e$ may share data with some of the variables in
-  $l$.
+  $l$.  This is the sharing information when the type of $e$ is not a
+  tuple.
 
-\item $\langle s_{1}, \ldots, s_{n} \rangle$, which requires that the
+\item $\langle l_{1}, \ldots, l_{n} \rangle$, which requires that the
   type of $e$ is a tuple $\{t_{1}, \ldots, t_{n}\}$, and denotes that
-  the sharing of the $i$th component is $s_{i}$.
+  the sharing of the $i$th component is $s_{i}$.  This is the shape of
+  the sharing information when the type of $e$ is a tuple.
 \end{enumerate}
 
 We need a way to combine sharing information.  The typical case is for
@@ -154,30 +223,28 @@ equation.
 
 \begin{align*}
   l_{1} \oplus l_{2} &= l_{1} \cup l_{2} \\
-  l \oplus \langle s_{1}, \ldots, s_{n} \rangle &= \langle l \oplus s_1, \ldots, l \oplus s_n \rangle \\
-   \langle s_{1}, \ldots, s_{n} \rangle \oplus l &= \langle l \oplus s_1, \ldots, l \oplus s_n \rangle \\
-  \langle s_{1}, \ldots, s_{n} \rangle \oplus \langle s_{n+1}, \ldots, s_{2n} \rangle &= \langle s_{1} \oplus s_{n+1}, \ldots, s_{n} \oplus s_{2n} \rangle \\
+  \langle l_{1}, \ldots, l_{n} \rangle \oplus \langle l_{n+1}, \ldots, l_{2n} \rangle &= \langle l_{1} \oplus l_{n+1}, \ldots, l_{n} \oplus l_{2n} \rangle \\
 \end{align*}
 
 Now we can define
 \[
 \aliases{\texttt{if c then e1 else e2}} = \aliases{\texttt{e1}} \oplus \aliases{\texttt{e2}}.
 \]
-Note that $(\oplus, \emptyset)$ constitutes a monoid - this is
-exploited in the \LO{} compiler.  We will often treat sharing
-information as a set and write things such as $\forall
-v\in\aliases{e}.p(v)$ -- in these cases, the set elements are all
-variables contained anywhere in the sharing information.
 
-Aliasing is transitive -- if $v\in\aliases{e}$, then
-$v'\in\aliases{e}\Rightarrow v\in\aliases{v'}$.  Aliasing is mostly
-intuitive, but here's a few rules describing how sharing is propagated
-by various expressions.
+We will often treat sharing information as a set and write things such
+as $\forall v\in\aliases{e}.p(v)$ -- in these cases, the set elements
+are all variables contained anywhere in the sharing information.
+
+Aliasing is transitive -- if $v\in\aliases{e}$ and $v'\in\aliases{e}$,
+then $v\in\aliases{v'}$.  Aliasing is mostly intuitive, but here's a
+few rules describing how sharing is propagated by various expressions.
 
 \begin{align*}
-  \aliases{\texttt{\textit{e}}} &= \emptyset & (\text{Whenever $e$ has a basic type}) \\
-  \aliases{\texttt{copy(\textit{e})}} &= \emptyset \\
-  \aliases{\texttt{if \textit{c} then ${e}_{1}$ else ${e}_{2}$}} &= \aliases{e_{1}} \oplus \aliases{e_{2}} \\
+  \aliases{\texttt{$e$}} &= \emptyset\ (\text{Whenever $e$ has a basic type}) \\
+  \aliases{\texttt{$v$}} &= \{v\} \cup \{\textrm{Any variable in scope that aliases \(v\)}\} \\
+  \aliases{\texttt{$a$[i]}} &= \aliases{a} \\
+  \aliases{\texttt{copy($e$)}} &= \emptyset \\
+  \aliases{\texttt{if $c$ then ${e}_{1}$ else ${e}_{2}$}} &= \aliases{e_{1}} \oplus \aliases{e_{2}} \\
 \end{align*}
 
 The rule for function application is more complicated.  To begin with,
@@ -189,12 +256,20 @@ return value of a function call aliases all of its arguments.
 \end{align*}
 
 However, it turns out that this is far too restrictive.  Consider a
-call \texttt{f1(a)} to the function \texttt{f1} whose type is shown on
-\cref{fig:unique-arguments} - if the return value aliased the argument
-\texttt{a}, then we could never use the return value at all, as it
+call \texttt{f1($a$)} to the function \texttt{f1} whose type is shown
+on \cref{fig:unique-arguments} - if the return value aliased the
+argument $a$, then we could never use the return value at all, as it
 would alias something that has been consumed, namely the parameter
-\texttt{a}.  Hence, a first elaboration is that the return value
-should only alias those function arguments that are not consumed:
+$a$:
+
+\begin{colorcode}
+let x = f1(a) in // Now 'x' would alias 'a'.
+x                // Violates Uniqueness Rule 1,
+                 // as something aliasing 'a' is accessed
+\end{colorcode}
+
+Hence, a first elaboration is that the return value should only alias
+those function arguments that are not consumed:
 
 \begin{align*}
   \aliases{\textit{f}(e_{1}, \ldots, e_{n})} &= \bigcup_{1 \leq i \leq n, \text{$e_{i}$ is not consumed}} \aliases{e_{i}}  & \textit{(--Still too restrictive!)}
@@ -206,9 +281,9 @@ to record it, as that argument will never be accessed elsewhere.
 
 Unfortunately, the above rule is still too restrictive, as can be
 illustrated by function \texttt{f2} from \cref{fig:unique-arguments}.
-Consider a call \texttt{f2(a)} - by the above rule, the return value
-would be aliased to \texttt{a}, which would violate Uniqueness Rule 3,
-as \texttt{a} may be used again.
+Consider a call \texttt{f2($a$)} - by the above rule, the return value
+would be aliased to $a$, which would violate Uniqueness Rule 3, as $a$
+may be used again.
 
 Hence, we add another elaboration, wherein the alias set is empty if
 the return value is unique.
@@ -216,7 +291,7 @@ the return value is unique.
 \begin{align*}
   \aliases{f(e_{1}, \ldots, e_{n})} &=
   \begin{cases}
-    \emptyset & \mbox{If $f$ returns a unique value}\\
+    \emptyset & \mbox{If $f$ returns an unique value}\\
     \bigcup_{\overset{1 \leq i \leq n}{\text{$e_{i}$ is not consumed}}} \aliases{e_{i}} & \mbox{Otherwise}
   \end{cases}
 \end{align*}
@@ -255,23 +330,30 @@ definition that the return value will only index the \texttt{src}
 parameter.
 
 This problem is not solvable merely through refinement of the aliasing
-rules - the user must either annotate each function with information
+rules - either the user must annotate each function with information
 about which of the parameters may be aliased by the return value, or
-the compiler can possibly deduce it using some sharing inference
-algorithm.  As the latter would add a great deal of complexity, and
-the former require a language change, I have postponed tackling this
-problem until it becomes a problem in practice.
+the compiler could deduce it using some sharing inference algorithm.
+As the latter would add a great deal of complexity, and the former
+require a language change, we have postponed tackling this problem
+until it becomes a problem in practice.
 
 \section{Tracking uniqueness}
 \label{subsec:l0-tracking-uniqueness}
 
-If the type of an array parameter is preceded by a single asterisk, it
-denotes that the array is unique - that it will never be reused
-outside of the current function.  The source operand to a let-with
-\textit{must} be unique.  If it is not, it is reported as a type
-error.  Let-with and function calls are the only places in which
-variable consumption can happen.  As a first example, let us consider
-a function that replaces the value at a given position in an integer
+Let us summarise:
+
+\begin{itemize}
+\item If the type of an array parameter is preceded by a single
+  asterisk, it denotes that the array is unique, i.e., that it will
+  never be reused outside of the current function.
+
+\item The source operand to a \texttt{let-with} \textit{must} be
+  unique.  If it is not, it is reported as a type error.
+\end{itemize}
+
+Let-with and function calls are the only places in which variable
+consumption can happen.  As a first example, let us consider a
+function that replaces the value at a given position in an integer
 array.
 
 \begin{colorcode}
@@ -295,7 +377,7 @@ typed.
 Checking that uniqueness invariants are being upheld is far subtler
 than normal type checking.  In particular, detailed sharing analysis
 has to be performed, in order to ensure that after an array $a$ is
-modified, it becomes an error to use any value that may refer to
+consumed, it becomes an error to use any value that may refer to
 (parts of) the old value of the array.  Whenever we consume a variable
 $a$, we mark as inaccessible all of its aliases.
 
@@ -307,7 +389,7 @@ $a$, we mark as inaccessible all of its aliases.
 
 A key principle is that of \textit{sequence points} that lexically
 checkpoint the use of variables.  As an exampe, assume that we are
-given a function \texttt{f} of type \texttt{*[int] -> int}.  That is,
+given a function \texttt{f} of type \texttt{*[int]~->~int}.  That is,
 \texttt{f} consumes an array and returns an integer.  The expression
 \begin{colorcode}
   f(a) + a[i]
@@ -318,7 +400,7 @@ to contain multiple observations of the same variable, but if a
 variable is consumed, that must be the only occurence of the variable
 (or any of its aliases) within the sequence.  Binding constructs
 (lets, let-withs and loops) create sequence points that delimit
-sequences.  If we rewrite the expression to cordon the consumption
+sequences.  If we rewrite the expression to coordinate the consumption
 into its own sequence, all will be well.
 \begin{colorcode}
   let c = a[i] // Since a[i] is of primitive type,
@@ -329,7 +411,34 @@ into its own sequence, all will be well.
 The reason for this rule is to enable simpler code generation, as any
 necessary order of operations is evident in the code.  It does require
 a certain amount of care when doing program transformations, as for
-example copy propagation may result in invalid programs.
+example expression reordering may result in an invalid program, as
+shown on \cref{fig:reordering-uniqueness-violation} and discussed in
+further detail in \cref{chap:fusion}.
+
+\begin{figure}
+\centering
+\begin{minipage}{0.25\columnwidth}
+\begin{colorcode}
+let x = a[0] in
+let b = a with
+  [i] <- y in
+x + b[1]
+\end{colorcode}
+\end{minipage}
+\begin{minipage}{0.05\columnwidth}
+$\Rightarrow$
+\end{minipage}
+\begin{minipage}{0.6\columnwidth}
+\begin{colorcode}
+let b = a with [i] <- y in
+let x = a[0] in // \emp{Error}:
+                // violates Uniqueness Rule 1
+x + b[1]
+\end{colorcode}
+\end{minipage}
+\caption{Expression reordering causing violation of uniqueness rules}
+\label{fig:reordering-uniqueness-violation}
+\end{figure}
 
 In the previous examples, function arguments that were consumed were
 all simple variables, making it easy to describe what was being
@@ -363,10 +472,10 @@ If we have a function such as
   fun int f(*[int] a, int x) = x
 \end{colorcode}
 then it is not valid to curry it in such a way that we provide values
-for the consumed parameters.  For example, \texttt{map(f (a), b)}
-would be an error.  The reason for this is that \texttt{t} may be
-called an arbitrary number of times during the mapping, but \texttt{a}
-can only be consumed once.
+for the consumed parameters.  For example, \texttt{map(f ($a$), b)}
+would be an error.  The reason for this is that \texttt{f} may be
+called an arbitrary number of times during the mapping, but $a$ can
+only be consumed once.
 
 %%% Local Variables: 
 %%% mode: latex

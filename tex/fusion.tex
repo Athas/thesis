@@ -24,11 +24,22 @@ and get
 \texttt{map~$(f~\circ~g)$},
 \]
 thus removing the need to construct an intermediary array for the
-result of \texttt{map~$g$}, and in the context of GPGPU, reducely the
-likelyhood of global memory accesses.  We will write ``$c_{1}$-$c_{2}$
-fusion'' for the case where a fusion is formed with $c_{1}$ as the
-producer and $c_{2}$ as the consumer.  Therefore, the previous example
-would be ``\texttt{map}-\texttt{map}''-fusion.
+result of \texttt{map~$g$}, and in the context of GPGPU, reducing the
+likelyhood of global memory accesses, which exhibit high memory
+latency.  We will write ``$c_{1}$-$c_{2}$ fusion'' for the case where
+a fusion is formed with $c_{1}$ as the producer and $c_{2}$ as the
+consumer.  Therefore, the previous example would be
+``\texttt{map}-\texttt{map}''-fusion.
+
+The rules by which we combine SOACs through fusion is called out
+\textit{fusion algebra}.  We aim at preserving the parallelism of the
+resulting expressions.
+
+\Cref{sec:fusionalgebra} describes superficially which
+producer-consumer pairs can be fused, as well as the form of the
+resulting SOAC.  \Cref{sec:invalidfusion} goes into greater detail on
+invalid fusion, and \cref{sec:whentofuse} covers cases in which fusion
+may actually be detrimental to performance.
 
 \section{Fusion in \LO{}}
 \label{sec:fusion-in-l0}
@@ -37,7 +48,10 @@ The language used to describe the fusion algorithm in this chapter is
 \texttt{let}-normalised, internal \LO{}, as described in
 \cref{chap:internal,sec:let-normalisation}.  We will also assume that
 all instances of \texttt{replicate(n,x)} have been rewritten as
-\texttt{map(fn~t~(int~i)~=>~x,~iota(n))}.  For clarity, expository
+\texttt{map(fn~t~(int~i)~=>~x,~iota(n))}\footnote{In the actual
+  implementation, we convert these back into \texttt{replicate}
+  expressions if they are not fused, but for clarity the bookkeeping
+  necessary is elided in this presentation.}.  For clarity, expository
 examples will use the external \LO{}.
 
 \begin{figure}
@@ -58,11 +72,11 @@ examples will use the external \LO{}.
 \Cref{fig:producers-consumers} lists which \LO{} SOACs are producers,
 which are consumers, and which are both.  In particular, note that
 even if we have a \texttt{reduce}-expression returning an array, this
-does not mean that the \texttt{reduce}-expression is a producer - it
-can under no circumstances be fused into another SOAC-expression.  The
-reason is that the output of the reduction is only fully known after
-the final input array element has been processed.  Consider the
-following program:
+does not mean that the \texttt{reduce}-expression is a producer -
+because, in our algebra, it cannot be fused into another SOAC
+expression.  The reason is that the output of the reduction is only
+fully known after the final input array element has been processed.
+Consider the following program:
 
 \begin{colorcode}
 let b = reduce(fn [int] ([int] acc, int x) =>
@@ -87,18 +101,10 @@ a classic case of data-parallelism.
 Even if we have a producer-consumer-pair, not all such pairs
 \textit{can} be fused, and not all are \textit{desirable} to fuse.
 For instance, \texttt{filter}-\texttt{map} fusion is not possible,
-although \texttt{filter}-\texttt{reduce} is.  The reason is that the
-size of the \texttt{map}-output is the same as the size of its input,
-yet the size of the output of \texttt{filter} cannot be known in
-advance, which preclude an efficient fused form.
-
-The \textit{fusion algebra} in \cref{sec:fusionalgebra} describes
-superficially which producer-consumer pairs can be fused, as well as
-the form of the resulting SOAC.
-
-\Cref{sec:invalidfusion} goes into greater detail on invalid fusion,
-and \cref{sec:whentofuse} covers cases in which fusion may actually be
-detrimental to performance.
+although \texttt{filter}-\texttt{reduce} is.  The reason is that, with
+the former, the size of the \texttt{map}-output is the same as the
+size of its input, yet the size of the output of \texttt{filter}
+cannot be known in advance, which preclude an efficient fused form.
 
 \subsection{Fusion algebra}
 \label{sec:fusionalgebra}
@@ -108,7 +114,7 @@ can be fused, as well as the form of the result.  In order to preserve
 clarity, I will not go into great detail in this section.
 
 The quintessential example of fusion is composing two consecutive
-\texttt{map} operations into a single \texttt{map}, as follows.
+\texttt{map} operations into a single \texttt{map}, as follows:
 
 \begin{center}
 \begin{bcolorcode}
@@ -163,13 +169,17 @@ to the input of the \texttt{reduce} may violate this requirement, as
 demonstrated on \cref{fig:map-reduce-error}.
 
 \begin{figure}
+\centering
+\begin{bcolorcode}
+let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\},
+                 a, b) in
+reduceT(op +, 0, c)
+\end{bcolorcode}
+
+\(\emphh{\Downarrow}\)
 
 \begin{bcolorcode}
-let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\}, a, b) in
-reduceT(op +, 0, c)
-    \emphh{\mymath{\Downarrow}}
-reduceT(fn int (int acc, int x, int y) =>
-          acc + x + y,
+reduceT(fn int (int acc, int x, int y) => acc + x + y,
         0, a, b) \emp{// Type error}
 \end{bcolorcode}
 
@@ -177,7 +187,9 @@ reduceT(fn int (int acc, int x, int y) =>
 \label{fig:map-reduce-error}
 \end{figure}
 
-We can always fuse \texttt{map} with \texttt{redomap}.
+The solution is to first rewrite \texttt{reduceT($f$,$x$,$a$)} to
+\texttt{redomapT($f$,$f$,$x$,$a$)}, since we can always fuse
+\texttt{map} with \texttt{redomap}:
 
 \begin{center}
 \begin{bcolorcode}
@@ -258,8 +270,8 @@ redomapT(\mymath{\oplus}
 \subsection{Invalid fusion}
 \label{sec:invalidfusion}
 
-We must be careful not to run afoul of uniqueness constraints when
-doing fusion.  For example, consider the following program.
+We must be careful not to violate the uniqueness rules when performing
+fusion.  For example, consider the following program.
 
 \begin{colorcode}
 let b = map(f, a) in
@@ -334,12 +346,12 @@ computation is in many cases preferable.
   \textit{loop fission}).  This step is necessary in any case, as it
   can be used to improve the degree of parallelism, compared to the
   original program.  \Cref{fig:loop-distribution} demonstrates a fully
-  fused \texttt{map} where the degree of parallelism is can be
-  improved by distributing the inner reductions out of the loop.  In
-  the original program, the inner map had to wait for the two
-  reductions to finish computing \texttt{x} and \texttt{y} before
-  executing its inner loop, whereas the distributed program consists
-  of three parallel loop nests.
+  fused \texttt{map} where the degree of parallelism can be improved
+  by distributing the inner reductions out of the loop.  In the
+  original program, the inner map had to wait for the two reductions
+  to finish computing \texttt{x} and \texttt{y} before executing its
+  inner loop, whereas the distributed program consists of three
+  parallel loop nests.
 \end{description}
 
 The fusion algorithm is currently designed to fuse as much as

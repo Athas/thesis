@@ -57,20 +57,51 @@ resulting from optimisation, but are summarised here:
   use of \texttt{loop} and \texttt{let-with}).  13 SLOC.
 
 % data/benchmarks/BabyBear.l0
-\item[P2] BabyBear - a tiny ursine.  27 SLOC.
+\item[P2] Shortest path algorithm written in a functional style.  27
+  SLOC.
 \end{description}
 
-And the real world benchmarks:
+The real world benchmarks are as follows.
 
 \begin{description}
 % data/benchmarks/PricingLexiFi.l0
-\item[R0] Pricing program.  344 SLOC.
+\item[R0] A stochastic option pricing engine. The optimisation of this
+  program has previously been studied in the
+  literature\cite{LexiFiPricing}.  344 SLOC.
 
 % data/benchmarks/HiperfitEgCos.l0
-\item[R1] Some C++ mess we got from Nordea.  172 SLOC.
+\item[R1] A program for doing stochastic volatility calibration, i.e.,
+  given a set of (observed) prices of contracts, we identify the
+  parameters of a model of such prices, as a function of volatility
+  (unknown), time and strikes (known), and unobserved parameters like
+  alpha, beta, nu, etc.
+
+  In this program, the volatility is modelled as a system of
+  continuous partial differential equations, which are solved via
+  Crank-Nicolson's finite differences
+  method\cite{crank-nicolson-method}.
+
+  %The model seems to be a variation of SABR.
+  172 SLOC.
 
 % data/benchmarks/CalibLexiFi.l0
-\item[R2] Parameter calibration program.  798 SLOC.
+\item[R2] A dynamic evolution model method, i.e., genetic algorithm,
+  for calibrating the interest rate based on a known history of
+  swaption prices.
+
+  Briefly, the interest rate is modelled as a sum of two stochastic
+  processes, which gives four unknown (real) parameters, and in
+  addition the two processes are assumed correlated as well, i.e., a
+  fifth parameter.
+
+  These five (unknown) parameters appear in the formula that computes
+  the swaption's price, i.e., numerical integration via
+  hermitian-polynomials approximation.
+
+  The genetic algorithm is used to find the five parameters that best
+  fit the (known) history of swaption prices.
+
+  798 SLOC.
 
 \end{description}
 
