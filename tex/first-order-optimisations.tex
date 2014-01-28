@@ -134,7 +134,7 @@ tandem directly on the syntax tree of an \LO{} program.
 The central idea is that we consider some expressions to be
 \textit{inlineable}.  Whenever the expression in the bindee position
 of a \texttt{let}-expression is inlineable, we substitute any
-occurences of the name bound by the binding within the body of the
+occurrences of the name bound by the binding within the body of the
 \texttt{let}-expression by the bindee expression (we ignore bindings
 where the pattern is a tuple-pattern for now).  For example, consider
 this expression:
@@ -154,7 +154,7 @@ Incidentally, this by itself provides copy- and constant-propagation.
 
 As for other expressions, we note that \texttt{reshape} and
 \texttt{transpose} operations are entirely index-space
-transformations, and can thus be handled at compile-time whereever the
+transformations, and can thus be handled at compile-time wherever the
 result of the operation is used.  Although uninplemented in the
 current \LO{} compiler, it is envisioned that a transformation similar
 to the one on \cref{fig:removing-reshape-transpose} will be used by
@@ -192,7 +192,7 @@ a[i*m+j] // Assuming 'a' has rank 1.
 \end{figure}
 
 However, even if an expression is in principle inlineable, there are
-still two cases that prevent inlining:
+still three cases that prevent inlining:
 
 \begin{itemize}
 \item If an array-typed variable is indexed, we need to keep it in the
@@ -211,7 +211,7 @@ still two cases that prevent inlining:
 
 Apart from substituting variables, we also look at other expressions
 to determine whether constant folding is possible. This is done by a
-bottoms-up traversal of the syntax tree, where each expression is
+bottom-up traversal of the syntax tree, where each expression is
 processed as follows:
 
 \begin{description}

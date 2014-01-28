@@ -17,19 +17,19 @@ possible to transform the intermediate language to the external
 language, at least not without losing much of the structure of the
 original program.  In comparison, the transformation from external to
 internal \LO{} is comparatively simple and reversible (with some loss
-in information; see \cref{sec:internal-to-external}).
+of information; see \cref{sec:internal-to-external}).
 
 \section{Tuple transformation}
 \label{sec:tuple-transformation}
 
 The principal difference between external and internal \LO{} is the
-total absense of arrays of tuples in the latter.  There are several
-reasons for this - \cref{chap:fusion} will describe how this
-benefits the fusion algorithm, and when generating the final machine
-code, we will also not be able to conveniently represent arrays of
-tuples in memory.
+total absence of arrays of tuples in the latter.  There are several
+reasons for this - \cref{chap:fusion} will describe how this benefits
+the fusion algorithm, and when generating the final machine code, we
+will also not be able to conveniently represent arrays of tuples in
+memory.
 
-An array-of-tuples type is converted to a tuple containing arrays of
+An array of tuples type is converted to a tuple containing arrays of
 the original tuple components, for which the process is then repeated
 recursively.  Futhermore, tuples are flattened.  All other types are
 left unchanged.  A few examples:
@@ -47,7 +47,7 @@ transformation between representations that is not necessary in
 internal \LO{}, although \texttt{zip} has some additional
 complications that I discuss in \cref{sec:assertions}.
 
-Most expressions operating on arrays-of-tuples have to be modified to
+Most expressions operating on arrays of tuples have to be modified to
 operate on the components of the replacement tuples-of-arrays instead,
 but the transformation is relatively trivial and not very interesting,
 so I will not describe it in detail.
@@ -67,7 +67,7 @@ let \{x1,x2\} = \{f(a), g(b)\} in
 \subsection{Tupleless SOACs}
 
 As internal \LO{} does not permit tuples of arrays, we need to find a
-way to convert an expression such as
+way to convert an expression such as:
 \begin{colorcode}
 map(fn int ({int,int} t) =>
       let {x,y} = t in
@@ -76,7 +76,7 @@ map(fn int ({int,int} t) =>
 \end{colorcode}
 The solution is tupleless SOACs: variants of the normal SOACs in which
 several arrays are traversed in parallel.  For example, the previous
-expression will be converted to
+expression will be converted to:
 \begin{colorcode}
 mapT(fn \{int\} (int x, int y) =>
        f(x,y),
@@ -129,7 +129,7 @@ How should this be transformed?  There is an obvious solution:
 \end{colorcode}
 But it is of course wrong - there is no checking that \texttt{a} and
 \texttt{b} are of the same length, hence the original expression may
-fail, while the transformed expression may evaluate succesfully.  The
+fail, while the transformed expression may evaluate successfully.  The
 solution is to \textit{predicate} the expression on the fact that
 \texttt{a} and \texttt{b} must match.
 \begin{colorcode}
@@ -138,12 +138,12 @@ then \{a[0], b[0]\}
 else \textit{fail}
 \end{colorcode}
 Using branches to accomplish this somewhat complicates further
-transformation and optimisation, however, so an approach based on
+transformation and optimisation however, so an approach based on
 \textit{assertions} was chosen.  First, we introduce a new type,
 \texttt{cert}, which is inhabited by only one value \texttt{Checked}.
 The idea is that a value of type \texttt{cert} acts as a
 \textit{certificate}, certifying that some property has been checked.
-We then add tree new language constructs:
+We then add three new language constructs:
 
 \begin{description}
 \item[\texttt{assert($e$)}]\hfill\\
@@ -181,20 +181,20 @@ therefore not necessary to handle \texttt{assert} specially in the
 various transformations.  It is, however, necessary to maintain the
 list of certificates when transforming a predicated expression, but it
 turns out that this is simple in practice.  Essentially, the rule is
-that every expression derived from a predicated expression must be
-predicated likewise.
+that every expression derived one or more predicated expressions must
+be predicated likewise.
 
 The assertion design also has the particularly nice property that even
 if later transformations pick apart the tuple literal, the individual
 components will still be predicated on the original property.  Even
-more importantly, the condition \texttt{size(0,a) = size(0,b)} is
-seen as a perfectly ordinary expression by the rest of the compiler,
-and can be simplified (or removed altogether) by size analysis, copy
-propagation, constant folding, common-subexpression elemination and
+more importantly, the condition \texttt{size(0,a) = size(0,b)} is seen
+as a perfectly ordinary expression by the rest of the compiler, and
+can be simplified (or removed altogether) by size analysis, copy
+propagation, constant folding, common-subexpression elimination and
 other standard optimisations.
 
-One thing is worth noting: the assertion itself, or the value that it
-computes, has no recognisable meaning by itself.  It is not a
+One thing is worth noting: The assertion expression, or the value that
+it computes, has no recognisable meaning by itself.  It is not a
 proposition in the sense of formal logics, and we can only determine
 which property it guarantees by the way in which it is used.  This
 limits what kinds of information the compiler can deduce from an
@@ -209,7 +209,7 @@ purpose well.
 
 Having introduced an assertion mechanism to solve the problem of
 tupleless SOACs, it is of course worth to consider whether it can be
-used for other purposes as well.  And as it turns out, we can use
+used for other purposes as well.  As it turns out, we can use
 assertions to express bounds-checking (using a somewhat ugly syntax):
 
 \begin{minipage}{0.1\columnwidth}
@@ -301,8 +301,8 @@ even removed as dead code!  This is bad.  A possible solution would be
 to make the inliner smarter, and modify the inlined function body such
 that every leaf of its syntax tree is predicated on the same
 certificates as the original function call.  This is a rather clumsy
-solution, however, and may cause unnecessary predication on branches
-of the function that do not depend on the precondition, which would
+solution however, and may cause unnecessary predication on branches of
+the function that do not depend on the precondition, which would
 inhibit some transformations, like hoisting.  A more fine-grained
 solution is needed.
 
@@ -381,13 +381,13 @@ in principle:
 \item Remove all \texttt{assert}s.
 \end{enumerate}
 
-The problem is that we cannot reconstruct the original
-arrays-of-tuples from the tuples-of-arrays of internal \LO{}.  We
-cannot know whether any tuple-of-arrays we encounter was originally an
-array-of-tuples or not.  However, as long as the entry point of the
-program, the \texttt{main} function, does not use arrays of tuples as
-argument or return value, there should be no observable difference.
-If necessary, we could handle \texttt{main} on an ad-hoc basis to
+The problem is that we cannot reconstruct the original arrays of
+tuples from the tuples of arrays of internal \LO{}.  We cannot know
+whether any tuple of arrays we encounter was originally an array of
+tuples or not.  However, as long as the entry point of the program,
+the \texttt{main} function, does not use arrays of tuples as argument
+or return value, there should be no observable difference.  If
+necessary, we could handle \texttt{main} on an ad-hoc basis to
 preserve its original type.
 
 %%% Local Variables: 

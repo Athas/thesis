@@ -22,10 +22,11 @@ rule applies.
 In many cases, such rewriting of a producer-consumer pair is necessary
 before the simple fusion rules can apply.  Indeed, one might consider
 the \textsc{Fuse-Map-Redomap} rule a particularly simple example of
-such a rewriting.  Fortunately, the these rewritings can be fit into
-the existing fusion framework simply by considering them as additional
-inference rules.  The above rewriting specifically can be defined as
-follows (using the nested map notation from \cref{fig:nested-maps}).
+such a rewriting.  Fortunately, these rewriting schemes can be
+incorporated into the existing fusion framework simply by considering
+them as additional inference rules.  The above rewriting specifically
+can be defined as follows (using the nested map notation from
+\cref{fig:nested-maps}):
 
 \begin{align*}
   \nfrac{
@@ -112,7 +113,7 @@ it can never be fused as a producer.  In some cases, however, we can
 rewrite \texttt{scanT} to expose producer-fusability.  Specifically,
 when the body of a \texttt{scanT} operation consists of a nested
 \texttt{mapT}, we can interchange the two loops and transpose both
-input and output.  A simple example is as follows.
+input and output.  A simple example is as follows:
 
 \begin{colorcode}
 scanT(fn [real] ([real] x, [real] y) =>

@@ -114,12 +114,13 @@ Let us consider the definition of a function returning a unique array:
 fun *[int] f([int] a) = \(e\)
 \end{colorcode}
 
-Note that the argument, \texttt{$a$}, is non-unique, and hence we cannot
-modify it.  But there is another restriction: \texttt{$a$} must not be
-aliased to our return value, as the uniqueness contract requires us to
-ensure that there are no other references to the unique return value.
-This requirement would be violated if we permitted the return value in
-a unique-returning function to alias its (non-unique) parameters.
+Note that the argument, \texttt{$a$}, is non-unique, and hence we
+cannot modify it.  There is another restriction as well: \texttt{$a$}
+must not be aliased to our return value, as the uniqueness contract
+requires us to ensure that there are no other references to the unique
+return value.  This requirement would be violated if we permitted the
+return value in a unique-returning function to alias its (non-unique)
+parameters.
 
 We can crystallise these observations as three principal rules:
 
@@ -170,7 +171,7 @@ fun *[int] broken([[int]] a, int i) =
 
 Finally, it is worth emphasising that everything in this chapter is
 used as part of a static analysis.  \textit{All} violations of the
-uniqueness rules will be discovered at compile-time (in fact, during
+uniqueness rules will be discovered at compile time (in fact, during
 type-checking), thus leaving the code generator and runtime system at
 liberty to exploit them for low-level optimisation.
 
@@ -213,7 +214,7 @@ $\aliases{e}$, can take one of two forms:
   the sharing information when the type of $e$ is a tuple.
 \end{enumerate}
 
-We need a way to combine sharing information.  The typical case is for
+We need a way to combine sharing information.  The typical case is
 computing sharing information for the expression \texttt{if c then e1
   else e2}, where the sharing of the resulting value is the
 ``combination'' of the sharing in both \texttt{e1} and \texttt{e2}.
@@ -388,7 +389,7 @@ $a$, we mark as inaccessible all of its aliases.
 \end{colorcode}
 
 A key principle is that of \textit{sequence points} that lexically
-checkpoint the use of variables.  As an exampe, assume that we are
+checkpoint the use of variables.  As an example, assume that we are
 given a function \texttt{f} of type \texttt{*[int]~->~int}.  That is,
 \texttt{f} consumes an array and returns an integer.  The expression
 \begin{colorcode}
@@ -397,7 +398,7 @@ given a function \texttt{f} of type \texttt{*[int]~->~int}.  That is,
 is invalid because a consumption and observation of the same variable
 happens within the same \textit{sequence}.  It is valid for a sequence
 to contain multiple observations of the same variable, but if a
-variable is consumed, that must be the only occurence of the variable
+variable is consumed, that must be the only occurrence of the variable
 (or any of its aliases) within the sequence.  Binding constructs
 (lets, let-withs and loops) create sequence points that delimit
 sequences.  If we rewrite the expression to coordinate the consumption

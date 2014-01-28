@@ -9,7 +9,7 @@ difficulties:
   fuse too aggressively (as outlined in \cref{sec:whentofuse}), and
   are too conservative about duplicating trivial computation.
 
-\item There is not yet a way to execute \LO{} code in a performant
+\item There is not yet a way to execute \LO{} code in an efficient
   manner.  The \LO{} compiler has an interpreter, but its performance
   characteristics are very different from parallel hardware -- for
   example, variable bindings carry great overhead.
@@ -30,7 +30,7 @@ difficulties:
 
 Nevertheless, I will make an attempt at evaluating the impact of the
 fusion optimisation.  This will primarily be in the form of manual
-inspection of program structure befor and after optimisation, with
+inspection of program structure before and after optimisation, with
 comments on the quality of the result.  The reader can be assured that
 said inspection of hundreds of lines of machine-generated code was
 enormously tedious.
@@ -39,9 +39,9 @@ Six programs will be used for evaluation: three relatively simple,
 artificial benchmarks, and three real-world financial programs that
 have been manually translated from C++ to what we consider
 ``idiomatic'' \LO{}\footnote{Or at least as much as it makes sense to
-  talk about an ``idiomatic'' style for a language whose soly users
-  are also its designers.}.  I present runtimes for these programs in
-\cref{sec:runtime-results}.
+  talk about an ``idiomatic'' style for a language whose sole users
+  are also its designers.}.  I present run-time statistics for these
+programs in \cref{sec:runtime-results}.
 
 The code for the artificial benchmarks can be found in
 \cref{app:artificial-benchmark-programs}, as well as the programs
@@ -153,8 +153,8 @@ analyser, for which I will outline a potential approach in
 again the main loop is nicely fused.
 
 When illustrating the dataflow for the real-world benchmarks, I
-performed some minor simplications.  Specifically, I removed prologue
-and epilogue code, in order to emphasise the main loop.
+performed some minor simplifications.  Specifically, I removed
+prologue and epilogue code, in order to emphasise the main loop.
 
 \begin{figure}
 \begin{center}
@@ -172,7 +172,7 @@ program is turned into a big \texttt{redomapT} that runs over an array
 of a thousand elements.  The body of the \texttt{redomapT} runs three
 loops in sequence.  The two first could in principle be fused, but we
 are again foiled by limitations of the size analyser.  In this case,
-the use of an explitit \texttt{loop} prevents the size analyser from
+the use of an explicit \texttt{loop} prevents the size analyser from
 determining the column size of the two-dimensional array returned by
 the \texttt{mapT}.
 
