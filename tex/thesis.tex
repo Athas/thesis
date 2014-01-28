@@ -2,6 +2,17 @@
 
 \input{defaultprelude.tex}
 
+\usepackage[titelside, en, nat]{ku-forside}
+
+\titel{Exploiting functional invariants}
+\undertitel{to optimise parallelism: a dataflow approach}
+\forfatter{Troels Henriksen -- \texttt{athas@sigkill.dk}}
+\forfatterET{}
+\forfatterTO{}
+\opgave{Master's Thesis} % Findes kun under 'titelside'
+\dato{February 2014}
+\vejleder{Supervisors: Cosmin Eugen Oancea and Fritz Henglein}
+
 \newcommand\boolt[0]{\texttt{bool}}
 \newcommand\realt[0]{\texttt{real}}
 \newcommand\chart[0]{\texttt{char}}
@@ -28,19 +39,10 @@
 % Write "Part II" etc. in TOC instead of just "II"
 \renewcommand*{\cftpartname}{Part\space}
 
-\title{Exploiting functional invariants to optimise parallelism:\\a dataflow approach}
-\author{
-  Troels Henriksen -- \texttt{athas@sigkill.dk} \\
-University of Copenhagen, DIKU}
-
-\date{February 2014}
-
 \bibliography{bibliography}
 
 \begin{document}
 \frontmatter
-
-% \includepdf{coverpage/coverpage}
 
  \clearpage
 
@@ -48,7 +50,30 @@ University of Copenhagen, DIKU}
 ~
 \vspace{3cm}
   \begin{abstract}
-    What a nice abstract.
+    We present a pure functional data-parallel programming language
+    supporting nested parallelism on regular data.  Our language is
+    aimed at execution on massively parallel SIMD hardware, such as
+    modern graphics-programming units.  The language contains novel
+    features for performing in-place modification of arrays without
+    violating functional purity.
+
+    Furthermore, our language includes an assertion system that can be
+    used to express dynamic checks such as bounds checks directly in
+    the language, potentially facilitating their removal from inner
+    loops through standard optimisations.
+
+    We discuss the design and implementation of several optimisations,
+    notably an advanced hoister, and loop fusion based on a structural
+    transformation, which is capable of fusing operations where the
+    output is used in multiple places, when possible without
+    duplicating computation.  This is an unusual feature among fusion
+    transformations.
+
+    The benefit of our optimisations are demonstrated on three
+    real-world benchmarks translated to our programming language.  We
+    argue that always refusing to duplicate computation is too
+    conservative on parallel hardware, and discuss potential
+    directions for further improvement.
   \end{abstract}
 
 % \clearpage
