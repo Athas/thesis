@@ -36,7 +36,34 @@ vocally about the lack of syntactical niceties in the language.
 
 \section{Contributions}
 
-\fxnote{Surely I have contributed something?}
+I present a purely functional data-parallel programming language,
+\LO{}, supporting nested parallelism.  The language supports a method
+for safely performing in-place updates of array data through a type
+system concept called \textit{uniqueness types}.  Through the
+translation of real-world financial programs to \LO{}, I demonstrate
+the practical usefulness of this language feature.
+
+I present the design and implementation of several optimisations,
+notably hoisting bounds checks out of inner loops, and loop fusion
+based on a structural transformation.  The fusion transformation is
+capable of fusing loops whose output is used in multiple places, when
+possible without duplicating computation
+
+The benefits of my optimisations are demonstrated on three real-world
+financial benchmarks.  It is shown that the compiler is able to hoist
+bounds checks and other assertions outside of loops.
+
+The effectiveness of fusion is demonstrated via compiler
+instrumentation and quantitative and qualitative measurements on the
+three benchmarks, in the form of inspecting the changes in program
+dataflow.  This shows that always refusing to duplicate computation is
+too conservative on parallel hardware, and discuss potential
+directions for further improvement.
+
+The implementation of the \LO{} compiler consists of roughly ten
+thousand lines of Haskell (ignoring comments and blank lines), and it
+is hosted and publicly browsable at
+\url{https://github.com/HIPERFIT/L0Language}.
 
 Parts of this thesis, in particular the core of the fusion algorithm
 in \cref{chap:fusion}, has been previously published as

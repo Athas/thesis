@@ -4,6 +4,132 @@
 \section{Future work}
 \label{sec:future-work}
 
+\subsection{Size Information in Type System}
+
+The size analysis presented in \cref{chap:hindrance-removal} is quite
+restricted, and was designed and extended on an ad-hoc basis in order
+to enable fusion of the real-world benchmarks.  Considering the great
+importance of accurate size information in not only doing high-level
+optimisations, but also generating efficient low-level code, it seems
+very worthwhile to integrate tracking of array sizes into the language
+itself.
+
+I suggest a type system extension inspired by \textit{dependent
+  types}, although much simpler.  As an example, let us look at how we
+would like to be able to define matrix multiplication:
+
+\begin{colorcode}
+fun [[int,N],P] matMult([[int,N],M] a, [[int,M],P] b ) =
+  ...
+\end{colorcode}
+
+This function declares that it takes two \texttt{int} array arguments,
+the first of size $N \times M$ and the second of size $M \times P$,
+and returns an integer array of size $N \times P$.  Any caller of
+\texttt{matMult} must first prove to the type system that the
+arguments have the correct size, while \texttt{matMult} itself must
+prove that its body always returns an array of the appropriate size.
+
+Such a proof could be provided through a mechanism much like the
+current \texttt{assert}, which allows us a sort of ``escape hatch''
+for when we cannot statically guarantee the size of our data - for
+example, when it is given to us as input from the outside world, or
+the result of a \texttt{filter}.  As the current \LO{} compiler is
+already able to optimise and hoist many assertions away, this would be
+useful by itself.
+
+However, this would not solve the problem encountered in
+\cref{chap:optimisation-results}, when the inability to transform a
+\texttt{size} expression prevented fusion in program R0.  The
+problematic part of RO has this essential structure (where \texttt{N}
+is some variable in scope):
+
+\begin{colorcode}
+let b = map(fn [real] (int x) =>
+              let xa = replicate(N,x) in
+              loop (xa) = for i < N do
+                let xa = f(xa) // Does not change size of xa
+                in
+              xa,
+            a) in
+let n = size(1,b) in
+map(g(n), b)
+\end{colorcode}
+
+The current ad-hoc size analyser is not smart enough to figure out the
+inner size (\texttt{N}) of the array \texttt{b}.  Integrating size
+information into the type system would allow us to annotate the return
+type of the anonymous function as follows:
+
+\begin{colorcode}
+let b = map(fn [real,\emp{N}] (int x) =>
+              ...,
+            a) in
+...
+\end{colorcode}
+
+We now statically promise that the inner size of \texttt{b} will
+always be \texttt{N}.  The intent is that this promise can be checked
+by the type-checker.  Presumably, for the body of the function to be
+type-correct, the function \texttt{f} would have been defined to
+return an array of the same size as its input.
+
+It is not yet clear exactly how we should deal with cases where the
+size of an array dimension cannot be statically known, or where it is
+the result of a complex expression.  It is not desirable to support
+the full power of dependent types, nor to include a full theorem
+prover in \LO{}, as this could make it very cumbersome to use \LO{} as
+a compiler target language.  In the end, it is important to remember
+that our primary motivation is to improve size tracking for the
+benefit of optimisation and code generation.
+
+\fixme{FINISH ME}
+
+\subsection{Software Engineering}
+
+The world already has plenty of papers and theses stuffed with long
+listings of Haskell code, and I have therefore tried to shy away from
+talking too much about the software architecture of the \LO{}
+compiler.  While the overall code base is healthy and well-structured,
+there are still several instances of technical debt that should be
+paid off:
+
+\begin{itemize}
+\item While the compiler is nicely divided into discrete passes, the
+  order in which said passes should be invoked is a bit unclear.  As
+  it stands, programs are passed through every pass several times,
+  simply to ensure that they get optimised fully.  This requires some
+  bit of re-engineering, probably also involving changing some passes
+  (particularly the fusion module) to be less sensitive as to the
+  shape of the input program.
+
+\item For my thesis, I have divided \LO{} into an external and
+  internal language.  In the compiler, both of these are included in
+  the same abstract syntax tree definition, with most passes either
+  silently ignoring or loudly crashing if they encounter a construct
+  that belongs to the external language.  This creates undue
+  complexity, and should be resolved by splitting the language more
+  clearly, even if the cost is some code duplication (for example, we
+  might need separate but very similar parsers).
+
+\item Somewhat related to the previous issue, the \LO{} syntax tree
+  definition does not statically enforce normalisation.  Again,
+  compiler passes either ignore them or crash when an un-normalised
+  term is encountered.
+
+\item Many optimisations depend on every variable in the program
+  having a unique name.  This property is ensured by tagging each
+  input name with a unique integer, then passing around a counter that
+  can be used to generate fresh, globalle integers.  Unfortunately,
+  many transformations (e.g. inlining) end up duplicating bits of
+  code, which then have to be entirely renamed in order to preserve
+  uniqueness.  Furthermore, passing the counter around is cumbersome,
+  even if packaged in a state monad.  An alternative approach to
+  handling name binding, based on de Bruijn
+  indices~\cite{McBride:2004:FPI:1017472.1017477}, is being
+  considered.
+\end{itemize}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "thesis.tex"

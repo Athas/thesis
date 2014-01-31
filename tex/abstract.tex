@@ -1,0 +1,41 @@
+A pure functional data-parallel programming language, \LO{},
+supporting nested parallelism on regular data, is presented.  The
+language is aimed at execution on massively parallel SIMD hardware,
+such as modern graphics-programming units.  A system of
+\textit{uniqueness types} is included, similar to
+Clean~\cite{clean-uniqueness-types}, but in our case used to permit
+in-place modification of arrays where possible violating referential
+transparency, which is a novel feature not found in similar
+languages~\cite{chakravarty2011accelerating,keller2010regular,mcdonell2013optimising}.
+Furthermore, a language-integrated assertion system is presented,
+which is used by the compiler to express dynamic checks such as bounds
+checks directly in \LO{}, potentially facilitating their removal from
+inner loops through standard optimisations.
+
+I discuss the design and implementation of several optimisations,
+notably hoisting bounds checks out of inner loops, and loop fusion
+based on a structural transformation.  The fusion transformation is
+capable of fusing loops whose output is used in multiple places, when
+possible without duplicating computation, which is a feature not found
+in other implementations of fusion~\cite{jones2001playing}.
+
+The benefits of my optimisations are demonstrated on three real-world
+financial benchmarks.  Their translation to \LO{}, particularly their
+beneficial use of in-place array modification, validates the
+expressivity of the language.  It is shown that the compiler is able
+to hoist bounds checks and other assertions outside of loops.
+
+The effectiveness of fusion is demonstrated via compiler
+instrumentation and quantitative and qualitative measurements on the
+three benchmarks, in the form of inspecting the changes in program
+dataflow.  This shows that always refusing to duplicate computation is
+too conservative on parallel hardware, and discuss potential
+directions for further improvement.
+
+Finally, I report a sequential speedup as high as 71\% when comparing
+the fused and optimised programs to the original version of the code.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis.tex"
+%%% End: 

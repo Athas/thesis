@@ -116,8 +116,7 @@ clarity, I will not go into great detail in this section.
 The quintessential example of fusion is composing two consecutive
 \texttt{map} operations into a single \texttt{map}, as follows:
 
-\begin{center}
-\begin{bcolorcode}
+\begin{colorcode}
 let \{x1, x2\} = mapT(f, a1)
 in  mapT(g, x1, y)
     \emphh{\mymath{\Downarrow}}
@@ -125,31 +124,27 @@ mapT(fn \mymath{\beta} (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath
       let \{x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}\} = f(a1\mymath{\myindx{i}})
       in  g(x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
     , a1, y )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
 \texttt{replicate} is an interesting case.  We wish to always be able
 to fuse replicate into a consumer, like this:
 
-\begin{center}
-\begin{bcolorcode}
+\begin{colorcode}
 let x = replicate(N,a) in
 mapT(f, x) in
     \emphh{\mymath{\Downarrow}}
 mapT(fn \mymath{\beta\myindx{1}} (int i) =>
        f(a), b)
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
 And indeed, this can be done through ordinary \texttt{map}-fusion if
 \texttt{replicate(N,a)} is first rewritten to \texttt{map} as
 described in \cref{sec:fusion-in-l0}.
 
-The result of \texttt{map}-\texttt{reduce}-fusion is always
+The result of \texttt{map}-\texttt{reduce}-fusion is normally
 \texttt{redomap}.
 
-\begin{center}
-\begin{bcolorcode}
+\begin{colorcode}
 let \{x1, x2\} = mapT(f, a1)
 in  reduceT(\mymath{\oplus},e\mymath{\myindx{1}},e\mymath{\myindx{2}}, x1,y)
     \emphh{\mymath{\Downarrow}}
@@ -159,10 +154,9 @@ redomapT(\mymath{\oplus}
    => let \{x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}\} = f(a1\mymath{\myindx{i}})
       in  \mymath{\oplus}(e\mymath{\myindx{1}},e\mymath{\myindx{2}},x1\mymath{\myindx{i}},y\mymath{\myindx{i}})
 , (e\mymath{\myindx{1}}, e\mymath{\myindx{2}}), a1, y )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
-We cannot in general fuse \texttt{map} and \texttt{reduce} to another
+In general, we cannot fuse \texttt{map} and \texttt{reduce} to another
 \texttt{reduce}, as the accumulator type of a reduction must match the
 element type of the input array. Adding the input of the \texttt{map}
 to the input of the \texttt{reduce} may violate this requirement, as
@@ -170,18 +164,18 @@ demonstrated on \cref{fig:map-reduce-error}.
 
 \begin{figure}
 \centering
-\begin{bcolorcode}
+\begin{colorcode}
 let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\},
                  a, b) in
 reduceT(op +, 0, c)
-\end{bcolorcode}
+\end{colorcode}
 
 \(\emphh{\Downarrow}\)
 
-\begin{bcolorcode}
+\begin{colorcode}
 reduceT(fn int (int acc, int x, int y) => acc + x + y,
         0, a, b) \emp{// Type error}
-\end{bcolorcode}
+\end{colorcode}
 
 \caption{Cannot fuse to \texttt{reduce}}
 \label{fig:map-reduce-error}
@@ -190,9 +184,8 @@ reduceT(fn int (int acc, int x, int y) => acc + x + y,
 The solution is to first rewrite \texttt{reduceT($f$,$x$,$a$)} to
 \texttt{redomapT($f$,$f$,$x$,$a$)}, since we can always fuse
 \texttt{map} with \texttt{redomap}:
-\fixme{Look at the rest}
-\begin{center}
-\begin{bcolorcode}
+
+\begin{colorcode}
 let \{x1, x2\} = mapT(f, a1)
 in  redomapT(\mymath{\oplus}, g, e, x1, y)
     \emphh{\mymath{\Downarrow}}
@@ -201,11 +194,44 @@ redomapT(\mymath{\oplus}
    => let \{x1\mymath{\myindx{i}}, x2\mymath{\myindx{i}}\} = f(a1\mymath{\myindx{i}})
       in  g(e, x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
 , e, a1, y )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
-\begin{center}
-\begin{bcolorcode}
+However, there are a few rare cases where we can fuse \texttt{map} and
+\texttt{reduce} to \texttt{reduce}.  This only happens when the
+\textit{input} to the map has the same count and types as the outputs
+of the \texttt{map} that are being used as input to the
+\texttt{reduce}.
+
+\begin{colorcode}
+let \{x\cindx{1}, x\cindx{2}\} = mapT(f, a\cindx{1}, a\cindx{2})
+in  reduceT(\mymath{\oplus},\{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, x\cindx{1}, x\cindx{2}, y)
+    \emphh{\mymath{\Downarrow}}
+reduceT(\mymath{\oplus}
+, fn (\(\alpha\myindx{1}\),\(\alpha\myindx{2}\)) ( \(\alpha\myindx{1}\) x\cindx{1}, \(\alpha\myindx{2}\) x\cindx{2}, \(\alpha\myindx{3}\) x\cindx{3},
+      \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}, \(\alpha\myindx{3}\) ye) =>
+    let \{x\cindx{1}, x\cindx{2}\} = f(ae\cindx{1}, ae\cindx{2})
+    in  \mymath{\oplus}(x\cindx{1}, x\cindx{2}, x\cindx{3}, x\cindx{1}, x\cindx{2}, ye)
+, \{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, a\cindx{1}, a\cindx{2}, y)
+\end{colorcode}
+
+In fact, under these circumstances we can also fuse \texttt{map} with
+\texttt{scan}:
+
+\begin{colorcode}
+let \{x\cindx{1}, x\cindx{2}\} = mapT(f, a\cindx{1}, a\cindx{2})
+in  scanT(\mymath{\oplus},\{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, x\cindx{1}, x\cindx{2}, y)
+    \emphh{\mymath{\Downarrow}}
+scanT(\mymath{\oplus}
+, fn (\(\alpha\myindx{1}\),\(\alpha\myindx{2}\)) ( \(\alpha\myindx{1}\) x\cindx{1}, \(\alpha\myindx{2}\) x\cindx{2}, \(\alpha\myindx{3}\) x\cindx{3},
+      \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}, \(\alpha\myindx{3}\) ye) =>
+    let \{x\cindx{1}, x\cindx{2}\} = f(ae\cindx{1}, ae\cindx{2})
+    in  \mymath{\oplus}(x\cindx{1}, x\cindx{2}, x\cindx{3}, x\cindx{1}, x\cindx{2}, ye)
+, \{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, a\cindx{1}, a\cindx{2}, y)
+\end{colorcode}
+
+\fixme{Look at the rest}
+
+\begin{colorcode}
 //\emp{filterT o filterT\mymath{\Rightarrow}filterT}
 //\emp{{\em{}IFF} consumer's input set}
 //\emp{  \mymath{\subseteq} producer's output set}
@@ -218,11 +244,9 @@ let (y, dead) = filterT(
       then c\mymath{\myindx{2}}(a1\mymath{\myindx{i}})
       else false
 , a1, a2 )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
-\begin{center}
-\begin{bcolorcode}
+\begin{colorcode}
 //\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
 //\emp{{\em{}IFF} consumer's input list}
 //\emp{  \mymath{\Rightarrow} producer's output list}
@@ -232,11 +256,9 @@ in  reduceT(\mymath{\oplus}, e, x)
 reduceT(fn \mymath{\beta} (\mymath{\beta} e, \mymath{\beta} a\mymath{\myindx{i}}) =>
   if c(a\mymath{\myindx{i}}) then \mymath{\oplus}(e,a\mymath{\myindx{i}}) else e
 , e, a )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
-\begin{center}
-\begin{bcolorcode}
+\begin{colorcode}
 //\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
 //\emp{{\em{}IFF} consumer's input set}
 //\emp{  \mymath{\subseteq} producer's output set}
@@ -248,11 +270,9 @@ redomapT(\mymath{\oplus}
    => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
       then \mymath{\oplus}(e, a1\mymath{\myindx{i}}) else e
 , e, a1, a2 )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
-\begin{center}
-\begin{bcolorcode}
+\begin{colorcode}
 //\emp{redomapT o filterT\mymath{\Rightarrow}redomapT}
 //\emp{{\em{}IFF} consumer's input set}
 //\emp{  \mymath{\subseteq} producer's output set}
@@ -264,8 +284,7 @@ redomapT(\mymath{\oplus}
    => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
       then g(e, a1\mymath{\myindx{i}}) else e
 , e, a1, a2 )
-\end{bcolorcode}
-\end{center}
+\end{colorcode}
 
 \subsection{Invalid fusion}
 \label{sec:invalidfusion}
@@ -1027,13 +1046,14 @@ loop (v) = for i < n do
   \[
   \zeta = \bigcup_{v \in vs} \inputs(e_{b},v)
   \]
-  be the set of the labels of all SOACs that take our output as input.
-  Additionally, let $e_{f}$ be the body of the function of $soac$.  In
-  case $soac$ is \texttt{redomapT}, the second function (the inner
-  fold) is used, as this is the one that is actually composed.
+  be the set of the labels of all SOACs that contain at least one of
+  our outputs in their input set.  Additionally, let $e_{f}$ be the
+  body of the function of $soac$.  In case $soac$ is
+  \texttt{redomapT}, the second function (the inner fold) is used, as
+  this is the one that is actually composed.
 
-  For all $\ell_{c} \in \zeta$, we find the corresponding triple
-  $(\ell_{c},vs_{c},soac_{c})$ in $\soacs(e_{b})$.  We can check
+  For all $\ell^{c}_{i} \in \zeta$, we find the corresponding triple
+  $(\ell^{c}_{i},vs^{c}_{i},soac^{c}_{i})$ in $\soacs(e_{b})$.  We can check
   whether fusion is possible by determining whether the following
   judgement is derivable.
 
@@ -1041,23 +1061,27 @@ loop (v) = for i < n do
    \fusesto
     {vs}
     {soac}
-    {soac_{c}}
-    {soac_{c_{r}}}
+    {soac^{c}_{i}}
+    {soac^{r}_{i}}
 \]
 
-If so, we can fuse $soac$ with $soac_{c}$ and get $soac_{c_{r}}$.  We
-only perform fusion if we can fuse with \textit{all} consumers in
-$\zeta$, as we might otherwise duplicate computation.
+In total, the following four conditions must all be upheld before we
+can fuse:
 
-Additionally, we must also check whether any of $\overline{vs}$ are in
-the infusible set.  That is, if the intersection
+\begin{enumerate}
+\item There must be at least one consumer $soac^{c}_{i}$ with which we can fuse.
+\item For each consumer $soac^{c}_{i}$, we must be able to fuse and
+  and get some $soac^{r}_{i}$.
+\item None of $\overline{vs}$ are in the infusible set.  That is, if the intersection
 \[
 \overline{vs} \cap \infusible(e_{b})
 \]
-is non-empty, we cannot fuse at all.
+must be non-empty
+\item No $soac^{r}_{i}$ uses an array past a point of consumption. \fixme{Um, detail how we track this.}
+\end{enumerate}
 
 \begin{description}
-\item[Can fuse:]
+\item[If the four conditions are true:]
 
   In this case, we are fusing with several SOACs $soac_{c}$, each with
   a corresponding label $\ell_{c}$, and fused as $soac_{c_{r}}$.
@@ -1077,12 +1101,11 @@ is non-empty, we cannot fuse at all.
   & \quad \cup \{ v\ |\ (v,s) \in \inputs(e_{f}) \} \\
 \end{align*}
 
-\item[Cannot fuse:]
+\item[If they are not:]
 
-  If we \textit{cannot} fuse with all consumers in $\zeta$, or one of
-  the outputs of $soac$ is in the infusible set, then we cannot fuse
-  with $soac$ as a producer, and we must add it by itself.  It may be
-  fused as the consumer at some later stage of the algorithm, however.
+  We cannot fuse with $soac$ as a producer, and we must add it as a
+  kernel by itself.  It may be fused as the consumer at some later
+  stage of the algorithm, however.
 
 \begin{align*}
   & \infusible(e) =\\

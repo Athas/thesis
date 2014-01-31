@@ -19,6 +19,11 @@ original program.  In comparison, the transformation from external to
 internal \LO{} is comparatively simple and reversible (with some loss
 of information; see \cref{sec:internal-to-external}).
 
+A very important first notice: All names in internal \LO{} are
+\textit{globally unique}.  This means that we will never have name
+shadowing, and we can uniquely identify, say, a \texttt{let}-binding
+by one of the names it binds.
+
 \section{Tuple transformation}
 \label{sec:tuple-transformation}
 
@@ -231,9 +236,10 @@ a[<c> | i]
 
 Again, what we gain is the ability to exploit our standard
 expression-optimisation machinery to simplify and perhaps even remove
-the bounds check.  In particular, range analysis\fixme{insert cite or
-  something} can be used to hoist such expressions out of inner loops
-- all the while staying within the (internal) \LO{} language.
+the bounds check.  In particular, range analysis can be used to hoist
+such expressions out of inner loops - all the while staying within the
+(internal) \LO{} language.  I will cover this in somewhat greater
+detail in \cref{sec:hoisting}.
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}

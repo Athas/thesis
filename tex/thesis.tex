@@ -50,31 +50,10 @@
 ~
 \vspace{3cm}
   \begin{abstract}
-    We present a pure functional data-parallel programming language
-    supporting nested parallelism on regular data.  Our language is
-    aimed at execution on massively parallel SIMD hardware, such as
-    modern graphics-programming units.  The language contains novel
-    features for performing in-place modification of arrays without
-    violating functional purity.
-
-    Furthermore, our language includes an assertion system that can be
-    used to express dynamic checks such as bounds checks directly in
-    the language, potentially facilitating their removal from inner
-    loops through standard optimisations.
-
-    We discuss the design and implementation of several optimisations,
-    notably an advanced hoister, and loop fusion based on a structural
-    transformation, which is capable of fusing operations where the
-    output is used in multiple places, when possible without
-    duplicating computation.  This is an unusual feature among fusion
-    transformations.
-
-    The benefit of our optimisations are demonstrated on three
-    real-world benchmarks translated to our programming language.  We
-    argue that always refusing to duplicate computation is too
-    conservative on parallel hardware, and discuss potential
-    directions for further improvement.
+\input{abstract.tex}
   \end{abstract}
+
+\setlength{\cftpartnumwidth}{4em}
 
 % \clearpage
 %  ~\thispagestyle{empty}
