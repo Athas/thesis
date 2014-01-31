@@ -1,6 +1,7 @@
 
 fun real horner (real x) =
-   let {c1,c2,c3,c4,c5} = {0.31938153,-0.356563782,1.781477937,-1.821255978,1.330274429}
+   let {c1,c2,c3,c4,c5} =
+     {0.31938153,-0.356563782,1.781477937,-1.821255978,1.330274429}
    in x * (c1 + x * (c2 + x * (c3 + x * (c4 + x * c5))))
 
 fun real abs (real x) = if x < 0.0 then -x else x
@@ -37,5 +38,7 @@ fun [real] main () =
   let days = 5*365 in
   let a = map(op+(1), iota(days)) in
   let a = map(toReal, a) in
-  let a = map(fn {bool,real,real,real} (real x) => {True, 58.0 + 4.0 * x / toReal(days), 65.0, x / 365.0}, a) in
-  blackscholes(a) 
+  let a = map(fn {bool,real,real,real} (real x) =>
+                {True, 58.0 + 4.0 * x / toReal(days), 65.0, x / 365.0},
+              a) in
+  blackscholes(a)
