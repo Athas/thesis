@@ -41,7 +41,7 @@ useful by itself.
 However, this would not solve the problem encountered in
 \cref{chap:optimisation-results}, when the inability to transform a
 \texttt{size} expression prevented fusion in program R0.  The
-problematic part of RO has this essential structure (where \texttt{N}
+problematic part of R0 has this essential structure (where \texttt{N}
 is some variable in scope):
 
 \begin{colorcode}
@@ -120,14 +120,16 @@ paid off:
 \item Many optimisations depend on every variable in the program
   having a unique name.  This property is ensured by tagging each
   input name with a unique integer, then passing around a counter that
-  can be used to generate fresh, globalle integers.  Unfortunately,
-  many transformations (e.g. inlining) end up duplicating bits of
-  code, which then have to be entirely renamed in order to preserve
-  uniqueness.  Furthermore, passing the counter around is cumbersome,
-  even if packaged in a state monad.  An alternative approach to
-  handling name binding, based on de Bruijn
+  can be used to generate fresh, globally unique integers.
+  Unfortunately, many transformations (e.g. inlining) end up
+  duplicating bits of code, which then have to be entirely renamed in
+  order to preserve uniqueness.  Furthermore, passing the counter
+  around is cumbersome, even if packaged in a state monad.  An
+  alternative approach to handling name binding, based on de Bruijn
   indices~\cite{McBride:2004:FPI:1017472.1017477}, is being
-  considered.
+  considered.  Such an approach would allow us to get rid of the
+  counter, while still being able to cheaply avoid unwanted name
+  capture.
 \end{itemize}
 
 %%% Local Variables: 
