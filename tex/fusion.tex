@@ -60,7 +60,7 @@ examples will use the external \LO{}.
       \textbf{Producers} & \textbf{Consumers} \\\hline
       \texttt{map} & \texttt{map} \\\hline
       & \texttt{reduce} \\\hline
-      \texttt{scan} & \texttt{scan} \\\hline
+      & \texttt{scan} \\\hline
       \texttt{filter} & \texttt{filter} \\\hline
       & \texttt{redomap} \\\hline
     \end{tabular}
@@ -113,6 +113,8 @@ In this section, I will give an informal introduction to which SOACs
 can be fused, as well as the form of the result.  In order to preserve
 clarity, I will not go into great detail in this section.
 
+\subsubsection{\texttt{map-map} fusion}
+
 The quintessential example of fusion is composing two consecutive
 \texttt{map} operations into a single \texttt{map}, as follows:
 
@@ -125,6 +127,8 @@ mapT(fn \mymath{\beta} (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath
       in  g(x1\mymath{\myindx{i}}, y\mymath{\myindx{i}})
     , a1, y )
 \end{colorcode}
+
+\subsubsection{\texttt{replicate} fusion}
 
 \texttt{replicate} is an interesting case.  We wish to always be able
 to fuse replicate into a consumer, like this:
@@ -140,6 +144,8 @@ mapT(fn \mymath{\beta\myindx{1}} (int i) =>
 And indeed, this can be done through ordinary \texttt{map}-fusion if
 \texttt{replicate(N,a)} is first rewritten to \texttt{map} as
 described in \cref{sec:fusion-in-l0}.
+
+\subsubsection{\texttt{map-reduce} and \texttt{map-scan} fusion}
 
 The result of \texttt{map}-\texttt{reduce}-fusion is normally
 \texttt{redomap}.
@@ -163,26 +169,23 @@ to the input of the \texttt{reduce} may violate this requirement, as
 demonstrated on \cref{fig:map-reduce-error}.
 
 \begin{figure}
-\centering
+\begin{center}
 \begin{colorcode}
 let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\},
                  a, b) in
 reduceT(op +, 0, c)
-\end{colorcode}
-
-\(\emphh{\Downarrow}\)
-
-\begin{colorcode}
+  \(\emphh{\Downarrow}\)
 reduceT(fn int (int acc, int x, int y) => acc + x + y,
         0, a, b) \emp{// Type error}
 \end{colorcode}
+\end{center}
 
-\caption{Cannot fuse to \texttt{reduce}}
+\caption{Cannot fuse to \texttt{reduce} (but \texttt{redomap} would be valid)}
 \label{fig:map-reduce-error}
 \end{figure}
 
-The solution is to first rewrite \texttt{reduceT($f$,$x$,$a$)} to
-\texttt{redomapT($f$,$f$,$x$,$a$)}, since we can always fuse
+The solution is to first rewrite \texttt{reduceT($\oplus$,$x$,$a$)} to
+\texttt{redomapT($\oplus$,$\oplus$,$x$,$a$)}, since we can always fuse
 \texttt{map} with \texttt{redomap}:
 
 \begin{colorcode}
@@ -206,12 +209,11 @@ of the \texttt{map} that are being used as input to the
 let \{x\cindx{1}, x\cindx{2}\} = mapT(f, a\cindx{1}, a\cindx{2})
 in  reduceT(\mymath{\oplus},\{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, x\cindx{1}, x\cindx{2}, y)
     \emphh{\mymath{\Downarrow}}
-reduceT(\mymath{\oplus}
-, fn (\(\alpha\myindx{1}\),\(\alpha\myindx{2}\)) ( \(\alpha\myindx{1}\) x\cindx{1}, \(\alpha\myindx{2}\) x\cindx{2}, \(\alpha\myindx{3}\) x\cindx{3},
-      \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}, \(\alpha\myindx{3}\) ye) =>
-    let \{x\cindx{1}, x\cindx{2}\} = f(ae\cindx{1}, ae\cindx{2})
-    in  \mymath{\oplus}(x\cindx{1}, x\cindx{2}, x\cindx{3}, x\cindx{1}, x\cindx{2}, ye)
-, \{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, a\cindx{1}, a\cindx{2}, y)
+reduceT(fn (\(\alpha\myindx{1}\),\(\alpha\myindx{2}\)) ( \(\alpha\myindx{1}\) x\cindx{1}, \(\alpha\myindx{2}\) x\cindx{2}, \(\alpha\myindx{3}\) x\cindx{3},
+            \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}, \(\alpha\myindx{3}\) ye) =>
+          let \{x\cindx{1}, x\cindx{2}\} = f(ae\cindx{1}, ae\cindx{2})
+          in  \mymath{\oplus}(x\cindx{1}, x\cindx{2}, x\cindx{3}, x\cindx{1}, x\cindx{2}, ye)
+        , \{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, a\cindx{1}, a\cindx{2}, y)
 \end{colorcode}
 
 In fact, under these circumstances we can also fuse \texttt{map} with
@@ -221,69 +223,89 @@ In fact, under these circumstances we can also fuse \texttt{map} with
 let \{x\cindx{1}, x\cindx{2}\} = mapT(f, a\cindx{1}, a\cindx{2})
 in  scanT(\mymath{\oplus},\{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, x\cindx{1}, x\cindx{2}, y)
     \emphh{\mymath{\Downarrow}}
-scanT(\mymath{\oplus}
-, fn (\(\alpha\myindx{1}\),\(\alpha\myindx{2}\)) ( \(\alpha\myindx{1}\) x\cindx{1}, \(\alpha\myindx{2}\) x\cindx{2}, \(\alpha\myindx{3}\) x\cindx{3},
-      \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}, \(\alpha\myindx{3}\) ye) =>
-    let \{x\cindx{1}, x\cindx{2}\} = f(ae\cindx{1}, ae\cindx{2})
-    in  \mymath{\oplus}(x\cindx{1}, x\cindx{2}, x\cindx{3}, x\cindx{1}, x\cindx{2}, ye)
-, \{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, a\cindx{1}, a\cindx{2}, y)
+scanT(fn (\(\alpha\myindx{1}\),\(\alpha\myindx{2}\)) ( \(\alpha\myindx{1}\) x\cindx{1}, \(\alpha\myindx{2}\) x\cindx{2}, \(\alpha\myindx{3}\) x\cindx{3},
+          \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}, \(\alpha\myindx{3}\) ye) =>
+        let \{x\cindx{1}, x\cindx{2}\} = f(ae\cindx{1}, ae\cindx{2})
+        in  \mymath{\oplus}(x\cindx{1}, x\cindx{2}, x\cindx{3}, x\cindx{1}, x\cindx{2}, ye),
+      \{e\cindx{1}, e\cindx{2}, e\cindx{3}\}, a\cindx{1}, a\cindx{2}, y)
 \end{colorcode}
 
-\fixme{Look at the rest}
+It should be clear that the composed function is still associative, as
+required by \texttt{scan} and \texttt{reduce}.
+
+\subsubsection{\texttt{filter-filter} fusion}
+
+Fusing \texttt{filter-filter} is quite simple - it's a new
+\texttt{filter} SOAC where both of the filter functions must return
+true for each element.  However, we can only perform the fusion if the
+input set of the consumer is a subset of the output set of the
+producer.  Put another way, the consumer must accept input from no
+other source than the producer involved in the fusion.\footnote{The
+  implementation in the \LO{} compiler is currently even more
+  restrictive, in that the input set of the consumer must match the
+  output set of the producer \textit{exactly}.  Fixing this oversight
+  is left as an exercise for the author.}
 
 \begin{colorcode}
-//\emp{filterT o filterT\mymath{\Rightarrow}filterT}
-//\emp{{\em{}IFF} consumer's input set}
-//\emp{  \mymath{\subseteq} producer's output set}
-let (x1,x2)=filterT(c\mymath{\myindx{1}},a1,a2)
-in  let y = filterT(c\mymath{\myindx{2}}, x1) ..
+let \{x\cindx{1},x\cindx{2}\}=filterT(c\cindx{1},a\cindx{1},a\cindx{2}) in
+let \{y\} = filterT(c\cindx{2}, x\cindx{1}) in
+...
     \emphh{\mymath{\Downarrow}}
-let (y, dead) = filterT(
-  fn bool (\mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}},\mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})=>
-      if   c\mymath{\myindx{1}}(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
-      then c\mymath{\myindx{2}}(a1\mymath{\myindx{i}})
-      else false
-, a1, a2 )
+let \{y, _\} = filterT(fn bool (\(\alpha\myindx{1}\) ai\cindx{1},\(\alpha\myindx{2}\) ai\cindx{2}) =>
+                       if   c\cindx{1}(ai\cindx{1}, ai\cindx{2})
+                       then c\cindx{2}(ai\cindx{1})
+                       else False,
+                     a\cindx{1}, a\cindx{2} ) in
+...
 \end{colorcode}
 
-\begin{colorcode}
-//\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
-//\emp{{\em{}IFF} consumer's input list}
-//\emp{  \mymath{\Rightarrow} producer's output list}
-let x = filterT(c, a)
-in  reduceT(\mymath{\oplus}, e, x)
-    \emphh{\mymath{\Downarrow}}
-reduceT(fn \mymath{\beta} (\mymath{\beta} e, \mymath{\beta} a\mymath{\myindx{i}}) =>
-  if c(a\mymath{\myindx{i}}) then \mymath{\oplus}(e,a\mymath{\myindx{i}}) else e
-, e, a )
-\end{colorcode}
+\subsubsection{\texttt{filter-reduce} fusion}
+
+We can fuse \texttt{filter} with \texttt{reduce} and obtain
+\texttt{reduce} \textit{only} in the case where the input set of the
+\texttt{reduce} is equal to the output set of the \texttt{filter}.
 
 \begin{colorcode}
-//\emp{reduceT o filterT\mymath{\Rightarrow}redomapT}
-//\emp{{\em{}IFF} consumer's input set}
-//\emp{  \mymath{\subseteq} producer's output set}
-let (x1,x2)=filterT(c, a1, a2)
-in  reduceT(\mymath{\oplus}, e, x1)
+let \{x\} = filterT(c, a) in
+reduceT(\mymath{\oplus}, e, x)
     \emphh{\mymath{\Downarrow}}
-redomapT(\mymath{\oplus}
-, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})
-   => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
-      then \mymath{\oplus}(e, a1\mymath{\myindx{i}}) else e
-, e, a1, a2 )
+reduceT(fn \(\beta\) (\(\beta\) e, \(\beta\) ai) =>
+          if c(ai) then \(\oplus\)(e,ai) else e,
+        \{e\}, a)
 \end{colorcode}
 
+We can fuse \texttt{filter} with \texttt{reduce} and obtain
+\texttt{redomapT} if the input set of the \texttt{reduce} is included
+in the output set of the \texttt{filter}.
+
 \begin{colorcode}
-//\emp{redomapT o filterT\mymath{\Rightarrow}redomapT}
-//\emp{{\em{}IFF} consumer's input set}
-//\emp{  \mymath{\subseteq} producer's output set}
-let (x1,x2)=filterT(c, a1, a2)
-in  redomapT(\mymath{\oplus}, g, e, x1)
+let \{x1,x2\} = filterT(c, a\cindx{1}, a\cindx{2})
+in  reduceT(\(\oplus\), \{e\}, x\cindx{1})
     \emphh{\mymath{\Downarrow}}
-redomapT(\mymath{\oplus}
-, fn \mymath{\beta} (\mymath{\beta} e, \mymath{\alpha\myindx{1}} a1\mymath{\myindx{i}}, \mymath{\alpha\myindx{2}} a2\mymath{\myindx{i}})
-   => if c(a1\mymath{\myindx{i}}, a2\mymath{\myindx{i}})
-      then g(e, a1\mymath{\myindx{i}}) else e
-, e, a1, a2 )
+redomapT(\(\oplus\),
+         fn \(\beta\) (\(\beta\) e, \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}) =>
+           if c(ai\cindx{1}, ai\cindx{2})
+           then \(\oplus\)(e, ai\cindx{1})
+           else e,
+         \{e\}, a\cindx{1}, a\cindx{2})
+\end{colorcode}
+
+\subsubsection{\texttt{filter-redomap} fusion}
+
+Similarly, we can fuse \texttt{filter} with \texttt{redomapT} and
+obtain \texttt{redomapT} if the input set of the \texttt{reduce} is
+included in the output set of the \texttt{filter}.
+
+\begin{colorcode}
+let \{x\cindx{1},x\cindx{2}\}=filterT(c, a\cindx{1}, a\cindx{2})
+in  redomapT(\(\oplus\), g, \{e\}, x\cindx{1})
+    \emphh{\(\Downarrow\)}
+redomapT(\(\oplus\),
+         fn \(\beta\) (\(\beta\) e, \(\alpha\myindx{1}\) ai\cindx{1}, \(\alpha\myindx{2}\) ai\cindx{2}) =>
+           if c(ai\cindx{1}, ai\cindx{2})
+           then g(e, ai\cindx{1})
+           else e,
+         \{e\}, a\cindx{1}, a\cindx{2} )
 \end{colorcode}
 
 \subsection{Invalid fusion}
