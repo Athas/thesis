@@ -1,39 +1,52 @@
-A pure functional data-parallel programming language, \LO{},
-supporting nested parallelism on regular data, is presented.  The
-language is aimed at execution on massively parallel SIMD hardware,
-such as modern graphics-programming units.  A system of
-\textit{uniqueness types} is included, similar to
-Clean~\cite{clean-uniqueness-types}, but in our case used to permit
-in-place modification of arrays where possible violating referential
-transparency, which is a novel feature not found in similar
-languages~\cite{chakravarty2011accelerating,keller2010regular,mcdonell2013optimising}.
-Furthermore, a language-integrated assertion system is presented,
-which is used by the compiler to express dynamic checks such as bounds
-checks directly in \LO{}, potentially facilitating their removal from
-inner loops through standard optimisations.
+We present \LO{}, a purely functional programing language supporting nested
+regular data parallelism and targeting massively parallel SIMD hardware
+such as modern graphics processing units (GPUs).
 
-I discuss the design and implementation of several optimisations,
-notably hoisting bounds checks out of inner loops, and loop fusion
-based on a structural transformation.  The fusion transformation is
-capable of fusing loops whose output is used in multiple places, when
-possible without duplicating computation, which is a feature not found
-in other implementations of fusion~\cite{jones2001playing}.
+\LO{} incorporates the following novel features:
 
-The benefits of my optimisations are demonstrated on three real-world
-financial benchmarks.  Their translation to \LO{}, particularly their
-beneficial use of in-place array modification, validates the
-expressivity of the language.  It is shown that the compiler is able
-to hoist bounds checks and other assertions outside of loops.
+\begin{itemize}
+\item A type system for in-place modification and aliasing of arrays
+  and array slices that ensures referential transparency, which in
+  turn supports equational reasoning.
 
-The effectiveness of fusion is demonstrated via compiler
-instrumentation and quantitative and qualitative measurements on the
-three benchmarks, in the form of inspecting the changes in program
-dataflow.  This shows that always refusing to duplicate computation is
-too conservative on parallel hardware, and discuss potential
-directions for further improvement.
+\item An assertion language for expressing bounds checks on
+  dynamically allocated arrays, which can often be checked statically
+  to eliminate dynamic bounds checks.
 
-Finally, I report a sequential speedup as high as 71\% when comparing
-the fused and optimised programs to the original version of the code.
+\item Compiler optimizations for hoisting bounds checks out of inner
+  loops and performing loop fusion based on structural
+  transformations.
+\end{itemize}
+
+We show that:
+
+\begin{itemize}
+\item The type system is simpler than existing linear and unique
+  typing systems such Clean~\cite{barendsen1996uniqueness}, and more
+  expressive than libraries such as DPH, Repa and
+  Accelerate~\cite{Chak06DPH,keller2010regular,ArrayAccelerate}[Keller
+  2010, Chakravarty 2011], for efficient array processing.
+
+\item Our fusion transformation is capable of fusing loops whose
+  output is used in multiple places, when possible without duplicating
+  computation, a feature not found in other implementations of
+  fusion~\cite{jones2001playing}.
+
+\item The effectiveness of our optimizations is demonstrated on three
+  real-world benchmark problems from quantitative finance, based on
+  empirical run-time measurements and manual inspection of the
+  optimised programs.  In particular, hoisting and fusion yield a
+  sequential speed-up of up to 71\% compared to the unoptimized source
+  code, even without any parallel execution.
+\end{itemize}
+
+The results suggest that the language design, expressiveness and
+optimization techniques of \LO{} can be realized across a range of
+SIMD-architectures, notably existing GPUs and manycore-chips, to
+simultaneously achieve portability and eventually performance
+competitive with hand-coding.
+
+The results reported are based on joint work with Cosmin Oancea, DIKU.
 
 %%% Local Variables: 
 %%% mode: latex
