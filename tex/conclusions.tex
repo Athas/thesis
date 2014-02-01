@@ -10,11 +10,11 @@ The size analysis presented in \cref{chap:hindrance-removal} is quite
 restricted, and was designed and extended on an ad-hoc basis in order
 to enable fusion of the real-world benchmarks.  Considering the great
 importance of accurate size information in not only doing high-level
-optimisations, but also generating efficient low-level code, it seems
-very worthwhile to integrate tracking of array sizes into the language
-itself.
+optimisations, but also generating efficient low-level code, it
+appears very worthwhile to integrate tracking of array sizes into the
+language itself.
 
-I suggest a type system extension inspired by \textit{dependent
+We suggest a type system extension inspired by \textit{dependent
   types}, although much simpler.  As an example, let us look at how we
 would like to be able to define matrix multiplication:
 
@@ -88,7 +88,7 @@ benefit of optimisation and code generation.
 \subsection{Software Engineering}
 
 The world already has plenty of papers and theses stuffed with long
-listings of Haskell code, and I have therefore tried to shy away from
+listings of Haskell code, and we have therefore tried to shy away from
 talking too much about the software architecture of the \LO{}
 compiler.  While the overall code base is healthy and well-structured,
 there are still several instances of technical debt that should be
@@ -103,7 +103,7 @@ paid off:
   (particularly the fusion module) to be less sensitive as to the
   shape of the input program.
 
-\item For my thesis, I have divided \LO{} into an external and
+\item For this thesis, \LO{} has been divided into an external and
   internal language.  In the compiler, both of these are included in
   the same abstract syntax tree definition, with most passes either
   silently ignoring or loudly crashing if they encounter a construct

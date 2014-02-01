@@ -50,12 +50,12 @@ left unchanged.  A few examples:
 Both are removed during the conversion process, as they perform a
 transformation between representations that is not necessary in
 internal \LO{}, although \texttt{zip} has some additional
-complications that I discuss in \cref{sec:assertions}.
+complications that are discussed in \cref{sec:assertions}.
 
 Most expressions operating on arrays of tuples have to be modified to
 operate on the components of the replacement tuples-of-arrays instead,
-but the transformation is relatively trivial and not very interesting,
-so I will not describe it in detail.
+but the transformation is relatively trivial, so we will not describe
+it in detail.
 
 Internal \LO{} also does not permit tuple-typed variables.  Hence,
 every pattern that binds a variable to a tuple must be converted to
@@ -109,10 +109,10 @@ $e$ & $::=$ & \texttt{<$c$>mapT(fn $t$ ($t_{1}$ $v_{1}$, \ldots, $t_{n}$ $v_{n}$
 \label{fig:tupleless-soacs}
 \end{figure}
 
-As an aside, curried functions are also not permitted in tupleless
-SOACs, although I will still use them for notational convenience.  The
-notation is summarised on \cref{fig:tupleless-soacs} - the
-\texttt{<$c$>} notation is explained in the next section.
+As a minor detail, curried functions are also not permitted in
+tupleless SOACs, although we will still use them for notational
+convenience.  The notation is summarised on \cref{fig:tupleless-soacs}
+- the \texttt{<$c$>} notation is explained in the next section.
 
 \section{Assertions}
 \label{sec:assertions}
@@ -121,9 +121,9 @@ Removal of \texttt{zip} carries with it an additional complication.
 Recall that \texttt{zip} is responsible for checking that the input
 arrays are of the same (outer) size, and if they are not, terminate
 the program with an error.  The obvious solution is to make each
-tupleless SOAC do the same check, but that seems wasteful.  Even
-worse, it's not a full solution to the problem.  Consider the
-following expression.
+tupleless SOAC do the same check, but that would be wasteful of
+computer resources.  Even worse, it's not a full solution to the
+problem.  Consider the following expression.
 \begin{colorcode}
 let c = zip(a,b) in
 c[0]
@@ -189,14 +189,14 @@ turns out that this is simple in practice.  Essentially, the rule is
 that every expression derived one or more predicated expressions must
 be predicated likewise.
 
-The assertion design also has the particularly nice property that even
-if later transformations pick apart the tuple literal, the individual
-components will still be predicated on the original property.  Even
-more importantly, the condition \texttt{size(0,a) = size(0,b)} is seen
-as a perfectly ordinary expression by the rest of the compiler, and
-can be simplified (or removed altogether) by size analysis, copy
-propagation, constant folding, common-subexpression elimination and
-other standard optimisations.
+The assertion design also has the particularly convenient property
+that even if later transformations pick apart the tuple literal, the
+individual components will still be predicated on the original
+property.  Even more importantly, the condition \texttt{size(0,a) =
+  size(0,b)} is seen as a perfectly ordinary expression by the rest of
+the compiler, and can be simplified (or removed altogether) by size
+analysis, copy propagation, constant folding, common-subexpression
+elimination and other standard optimisations.
 
 One thing is worth noting: The assertion expression, or the value that
 it computes, has no recognisable meaning by itself.  It is not a
@@ -238,8 +238,8 @@ Again, what we gain is the ability to exploit our standard
 expression-optimisation machinery to simplify and perhaps even remove
 the bounds check.  In particular, range analysis can be used to hoist
 such expressions out of inner loops - all the while staying within the
-(internal) \LO{} language.  I will cover this in somewhat greater
-detail in \cref{sec:hoisting}.
+(internal) \LO{} language.  This will be covered in greater detail in
+\cref{sec:hoisting}.
 
 \begin{figure}[bt]
 \begin{tabular}{lrll}

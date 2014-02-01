@@ -22,28 +22,28 @@ was not until the rise of CUDA and OpenCL in 2006 that
 
 ... \fxnote{Insert more}
 
-Throughout this thesis, I will often refer to a vaguely defined
+Throughout this thesis, we will often refer to a vaguely defined
 ``programmer'', as well as ascribe various motives and expectations to
 this nebulous being.  While \LO{} is intended as an intermediate
 language, and in the end is intended as a target language by compilers
 for higher-level languages, it has a well-defined human-readable (and
 writable) syntax, and can be programmed directly.  Indeed, all extant
-\LO{} programs have been written by hand.  Thus, when I refer to ``the
-programmer'', I can mean either an actual human, or a compiler
-generating \LO{} code.  For my purpose, these will have identical
-motives, although a human programmer may complain somewhat more
-vocally about the lack of syntactical niceties in the language.
+\LO{} programs have been written by hand.  Thus, when ``the
+programmer'' is referenced, we can refer to either an actual human, or
+a compiler generating \LO{} code.  For our purposes, these will have
+identical motives, although a human programmer may complain somewhat
+more vocally about the lack of syntactical niceties in the language.
 
 \section{Contributions}
 
-I present a purely functional data-parallel programming language,
+We present a purely functional data-parallel programming language,
 \LO{}, supporting nested parallelism.  The language supports a method
 for safely performing in-place updates of array data through a type
 system concept called \textit{uniqueness types}.  Through the
-translation of real-world financial programs to \LO{}, I demonstrate
+translation of real-world financial programs to \LO{}, we demonstrate
 the practical usefulness of this language feature.
 
-I present the design and implementation of several optimisations,
+We present the design and implementation of several optimisations,
 notably hoisting bounds checks out of inner loops, and loop fusion
 based on a structural transformation.  The fusion transformation is
 capable of fusing loops whose output is used in multiple places, when

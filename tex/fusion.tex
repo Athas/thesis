@@ -109,9 +109,10 @@ cannot be known in advance, which precludes an efficient fused form.
 \subsection{Fusion algebra}
 \label{sec:fusionalgebra}
 
-In this section, I will give an informal introduction to which SOACs
+In this section, we will give an informal introduction to which SOACs
 can be fused, as well as the form of the result.  In order to preserve
-clarity, I will not go into great detail in this section.
+clarity, we will not go into great detail until
+\cref{sec:fusion-rules}.
 
 \subsubsection{\texttt{map-map} fusion}
 
@@ -357,7 +358,7 @@ The implementation in the \LO{} compiler will currently only fuse if
 absolutely no computation is duplicated, although this is likely too
 conservative.  Duplicating cheap work, for example functions that use
 only primitive operations on scalars, is probably not harmful to
-overall performance, although I have not investigated this
+overall performance, although we have not investigated this
 fully.\fxnote{Reference someone who has.}
 
 In general, in the context of GPU, the tradeoff between duplicating
@@ -431,7 +432,7 @@ map(fn [int] (\{int,int,[int]\} t) =>
 \newcommand\inputmapping[0]{\mathcal{I}}
 \newcommand\arrparams[1]{\textrm{params}(#1)}
 
-To begin our discussion of the precise mechanics of fusion, I will
+To begin the exposition of the precise mechanics of fusion, we will
 present the mechanics behind composing the functions involved in a
 fusion operation.  For example, consider the trivial example of
 \texttt{map}-\texttt{map}-fusion.  In principle, the equation seems
@@ -446,7 +447,7 @@ complex \texttt{mapT}s that may take input from several sources, where
 only some may be fusible.  Hence, a more detailed elaboration is
 necessary.
 
-This section will describe different ways of combining the functions
+This section will describe various ways of combining the functions
 used in SOACs, as appropriate for different cases of fusion.  In
 \cref{sec:fusion-rules}, we will describe the rules used for fusion of
 full SOAC expressions.
@@ -484,7 +485,7 @@ mapT(fn int (int a, int b, int d) =>
 \end{figure}
 
 The presentation will be of the form of \textit{judgements}.  To skip
-ahead a bit, I will write the \texttt{map}-composition of two
+ahead a bit, we will write the \texttt{map}-composition of two
 functions as
 \[
 \boxed{
@@ -547,7 +548,7 @@ The body of $l_{r}$ is then defined as follows:
 e_{r} \equiv \texttt{let \{$\inputmapping(o_{1})$,\ldots,$\inputmapping(o_{k})$\} = $e_{a}$ in $e_{b}$}
 \]
 
-I will refer to this entire operation as:
+We will refer to this entire operation as:
 \[
 \mapcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{m}}}{o_1,\ldots,o_k}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{r_{1}},\ldots,e_{r_{l}}}
 \]
@@ -597,7 +598,7 @@ e_{r} \equiv\quad&\texttt{let \{$ok$\} = $e_{a}$ in $ok$ \&\&} \\
 \end{align*}
 where $ok$ is some fresh variable.
 
-I will refer to this entire operation as:
+We will refer to this entire operation as:
 \[
 \filtercompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{n}}}{o_{1},\ldots,o_{k}}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{a_{1}},\ldots,e_{a_{n}}}
 \]
@@ -644,7 +645,7 @@ e_{r} \equiv\quad&\texttt{let \{$ok$\} = $e_{a}$ in if $ok$} \\
 \end{align*}
 where $ok$ is some fresh variable.
 
-I will refer to this entire operation as:
+We will refer to this entire operation as:
 \[
 \foldcompose{l_{b}}{e_{b_{1}},\ldots,e_{b_{n}}}{o_{1},\ldots,o_{k}}{l_{a}}{e_{a_{1}},\ldots,e_{a_{n}}}{l_{r}}{e_{a_{1}},\ldots,e_{a_{n}}}
 \]
@@ -655,7 +656,7 @@ I will refer to this entire operation as:
 \newcommand\fusesto[4]{\bfrac{#2\overset{#1}{\leadsto}#3}{\Rightarrow #4}}
 
 With function composition defined, we can define fusion rules for
-SOACs.  I present fusion as a judgement
+SOACs.  We present fusion as a judgement
 \[
 \boxed{
 \fusesto{os}{producer}{consumer}{result}
@@ -883,10 +884,10 @@ We will track the following pieces of information.\fxnote{All of this
   &\texttt{let y = mapT(g,a) in \{x,y\}}) = \{a\},
   \end{align*}
   because $a$ is used twice, and hence fusing its producer into
-  \texttt{f} and \texttt{g} would cause work duplication.  (To
-  simplify the example, I have ignored $f$ and $g$ when computing the
-  infusible set, although as we shall see below, this is not the case
-  in practice.)
+  \texttt{f} and \texttt{g} would cause work duplication.  To simplify
+  the example, $f$ and $g$ are ignored when computing the infusible
+  set, although as we shall see below, this is not the case in
+  practice.
 
 \item[$\inputs : Exp \rightarrow Name \rightarrow Labels$.] A mapping from arrays to a set of the SOACs that use the array
   as input.  This is modelled as a set of pairs, each pair consisting

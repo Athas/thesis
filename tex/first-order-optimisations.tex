@@ -284,7 +284,7 @@ processed as follows:
     If more than one index is given, we can handle the same cases as
     above (although indexing into e.g. an \texttt{iota} would of
     course be a type error), as well as a few more:\footnote{For
-      simplicity, I treat only the case where two indices are given.
+      simplicity, we treat only the case where two indices are given.
       The implementation in the \LO{} compiler supports an arbitrary
       number of indices.}
     \begin{description}
@@ -581,7 +581,10 @@ f(a,b)
 However, this violates Uniqueness Rule 1, as \texttt{b} is aliased to
 \texttt{a}, yet is used after \texttt{a} is consumed in a
 \texttt{let-with} expression.  The solution is to not perform CSE on
-expressions whose result is eventually consumed.
+expressions whose result is eventually consumed -- or more
+conservatively, never perform CSE on an expression of type
+\texttt{*[$\alpha$]}.  The latter is easier to implement, although too
+conservative, but is what the \LO{} compiler currently does.
 
 \section{The Rebinder}
 \label{sec:rebinder}
@@ -634,9 +637,9 @@ substituting definitions of \texttt{let}-bindings (for CSE).
 Normalisation is performed by a separate pass before entering the
 Rebinder.
 
-In order to keep the exposition simpler, I will ignore \texttt{loop}
-and \texttt{let-with} (except with respect to upholding uniqueness
-constraints), and only talk about hoisting normal
+In order to keep the exposition simpler, \texttt{loop} and
+\texttt{let-with} will be ignored (except with respect to upholding
+uniqueness constraints), and only discuss hoisting of normal
 \texttt{let}-bindings.
 
 To try to give an intuition of the Rebinder, let us consider the
@@ -734,10 +737,10 @@ fun int main([int] a_0, int i_1, int v_2) =
 \end{itemize}
 
 We could now do a separate CSE pass over the entire program, but there
-is a more efficient strategy. If we make the rebinder perform the CSE
-optimisation when we insert non-hoistable bindings into the syntax
-tree, we only have to perform a single program traversal.  I will try
-to provide an intuition for the approach using the above example:
+may be a more efficient strategy.  The rebinder should be able to
+perform the CSE optimisation whenever we insert the non-hoistable
+bindings into the syntax tree.  We will try to provide an intuition
+for the approach, using the above example:
 
 When, at the end, we have to insert bindings for \texttt{index\_10},
 \texttt{times\_11}, \texttt{res\_5}, \texttt{index\_7} ordering
