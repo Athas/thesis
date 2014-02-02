@@ -598,9 +598,9 @@ implement hoisting could be easily extended to also perform CSE, and
 thus was born an optimisation with the rather idiosyncratic name
 \textit{the Rebinder}.
 
-The central idea is to assume a fully normalised program in a slightly
-modified A-normal form~\cite{Sabry:1992:RPC:141478.141563}, a format
-similar to \textit{three address code}, where the definition of each
+The central idea is to assume a program in a slightly modified
+A-normal form~\cite{Sabry:1992:RPC:141478.141563}, a format similar to
+\textit{three address code}, where the definition of each
 \texttt{let}-binding is a \textit{simple expression}, and the body of
 a \texttt{let}-binding is either another binding or a variable.  A
 simple expression is either a branch\footnote{Not permitted in
@@ -634,8 +634,9 @@ fun real solve(real a_0, real b_1, real c_2) =
 This simplifies hoisting and CSE significantly, as the problem is now
 reduced to moving nodes in the syntax tree (for hoisting) and
 substituting definitions of \texttt{let}-bindings (for CSE).
-Normalisation is performed by a separate pass before entering the
-Rebinder.
+A-Normalisation is performed by a separate pass before entering the
+Rebinder, and is generally trivial, but there are a few difficulties
+that I will cover in \cref{sec:simplification-of-expressions}.
 
 In order to keep the exposition simpler, \texttt{loop} and
 \texttt{let-with} will be ignored (except with respect to upholding
@@ -849,9 +850,70 @@ in the former uses a name bound bound in the latter.
 
 \fixme{Explain the ``insertion'' part.}
 
-\subsection{Problems with normalisation}
+\subsection{Simplification of Expressions}
+\label{sec:simplification-of-expressions}
 
-Is (x*y)*z the same as x*(y*z)?  They normalise differently. \fixme{Finish}
+The CSE technique described in previous sections depends heavily on
+semantically identical code also having ($\alpha$-)equivalent
+bindings.  However, in many cases, two expressions may have different
+syntax trees, yet semantically be the same.  For example, consider the
+expressions \texttt{(x*y)*z} versus \texttt{x*(y*z)}.  If we assume
+that \texttt{*} is associative\footnote{Strictly not the case for
+  floating-point multiplication.}, these expressions will always
+compute the same value.  With respect to Anormalisation, the two
+different normalised expressions are shown on
+\cref{fig:differing-normalisation}.
+
+\begin{figure}
+\begin{subfigure}[t]{.5\textwidth}
+\centering
+\begin{colorcode}
+(x * y) * z
+  \(\Downarrow\)
+let a = x * y in
+let b = a * z in
+b
+\end{colorcode}
+\subcaption{Left-leaning multiplication}
+\end{subfigure}%
+\begin{subfigure}[t]{.5\textwidth}
+\centering
+\begin{colorcode}
+x * (y * z)
+  \(\Downarrow\)
+let a = x * y in
+let b * x * a in
+b
+\end{colorcode}
+\subcaption{Right-leaning multiplication}
+\end{subfigure}
+\caption{Normalisation of syntactically different expressions}
+\label{fig:differing-normalisation}
+\end{figure}
+
+Despite the syntactical difference between these two expressions, they
+are clearly semantically identical, and we would like for CSE to
+remove one of them.  Given the way our CSE optimisation works, the
+only solution is to ensure that equivalent expessions A-normalise to
+$\alpha$-equivalent bindings.  In general, this is a very hard-problem
+- in fact, determining whether two expressions will always evaluate to
+the same result is undecideable.\fixme{Do I need a cite?}
+Fortunately, the problem becomes quite tractable with restricted to
+arithmetic operations, through the use of \textit{simplification}
+before employing the normaliser.
+
+One solution, which was implemented in an unpublished bachelors thesis
+by Jonas Brunsgaard and Rasmus Wriedt Larsen, is to simplify
+arithmetic expressions into a form known as \textit{sum-of-products}.
+In this form, the top node of the syntax tree for an arithmetic
+expression is always an addition node with $n$ multiplication
+children.  Each of these multiplication nodes may have $m$ children,
+which can be arbitary numeric expressions.  By ordering the children
+of each node according to some criterion (say, lexicographically), we
+obtain a unique tree structure for arithmetic expressions that ignores
+superficial syntactical differences, such as one shown on
+\cref{fig:differing-normalisation}.  This unique tree structure can
+then be A-normalised into an equally unique set of bindings.
 
 %%% Local Variables: 
 %%% mode: latex
