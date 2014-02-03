@@ -956,10 +956,11 @@ Now for specific rules, based on the shape of the given expression.
   \texttt{map} operation, it might be beneficial to replace the index
   operation by an inlined copy of the \texttt{map} function, and let
   the original \texttt{map} be fused.  Duplicating computation of a
-  single element is likely acceptable, but not done by the current
-  implementation, and it is hard to determine the optimal choice as
-  long as \LO{} does not have a defined cost model. \fxnote{We
-    actually do this in limited cases.}
+  single element is likely acceptable, but not done in the general
+  case by the current implementation, and it is hard to determine the
+  optimal choice as long as \LO{} does not yet have a well-defined
+  cost model.  Nevertheless, \cref{sec:inlining-indexing} will
+  describe how we inline particularly simple cases.
   \begin{align*}
   & \infusible(e) = \{v\} \cup \bigcup_{1\leq i \leq n}\infusible(e_{i}) \\
 \end{align*}

@@ -1,10 +1,171 @@
 \chapter{Hindrance removal}
 \label{chap:hindrance-removal}
 
-A chapter on size tracking and rewriting \texttt{size}s, really.
+The fusion algorithm presented in previous chapters assumed an input
+program with a structure that made any possibilities for fusion as
+explicit as possible.  The most obvious such structure is the
+normalised input program and the use of tupleless SOACs, but there are
+other transformations we can do in order to enable more possibilities
+for fusion.
 
-\section{Size Analysis}
+In particular, recall that the fusion algorithm is very strict about
+never duplicating computation, and hence multiple uses of the output
+of a SOAC may easily block any fusion of the SOAC.  We call such a use
+a \textit{hindrance}, with an example shown on
+\cref{fig:size-hindrance}(\subref{fig:size-hindrance-blocking}).  In
+some cases, the hindrances are unavoidable, but in other cases, a
+pre-fusion transformation of the program can remove some unnecessary
+hindrances.
+
+\begin{figure}
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+let \emp{b} = map(f, a) in
+size(0,\emp{b}) + reduce(op +, 0, \emp{b})
+\end{colorcode}
+\label{fig:size-hindrance-blocking}
+\subcaption{Hindrance blocking fusion}
+\end{subfigure}%
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+let \emp{b} = map(f, a) in
+size(0,a) + reduce(op +, 0, \emp{b})
+\end{colorcode}
+\label{fig:size-hindrance-removed}
+\subcaption{Hindrance removed}
+\end{subfigure}%
+\caption{Typical case of \texttt{size}-hindrance}
+\label{fig:size-hindrance}
+\end{figure}
+
+\Cref{sec:size-hindrance-removal} will cover cases where we can
+rewrite \texttt{size}-expressions that reference a SOAC output.
+\Cref{sec:inlining-indexing} will describe inlining of index
+expressions where the index array is the result of a \texttt{map}
+operation.  This inlining may duplicate a small amount of computation.
+
+An important detail is that neither of the presented transformations
+should be considered optimisations \textit{per se}.  Rather, their
+purpose is enable the fusion optimisation to apply more often.
+
+Both transformations are run completely independently (and in advance)
+of fusion.  This results in greater conceptual and technical
+simplicity, but at some cost in precision.  In particular, the
+rewriting of \texttt{size}-expressions can in fact inhibit fusion in
+some cases.
+
+\section{Size Hindrance Removal}
+\label{sec:size-hindrance-removal}
+
+Consider the program shown on \cref{fig:size-hindrance}.  The output
+of the \texttt{map} producer, \texttt{b}, is used in two places - as
+input to a consumer \texttt{reduce}, and as argument to a
+\texttt{size} expression.  This means that fusing the two SOACs would
+duplicate computation, as we be unable to remove the original
+\texttt{map} expression.
+
+Fortunately, in this case, we can exploit a property of \texttt{map}
+to rewrite the \texttt{size} expression.  Specifically, the outer size
+of the array output from a \texttt{map} expression is equal to the
+outer size of its array inputs.  In the context of
+\cref{fig:size-hindrance}, this means that the expression
+\texttt{size(0,b)} will always give the same value as
+\texttt{size(0,a)}.  Hence, we can rewrite the program as shown on
+\cref{fig:size-hindrance}(\subref{fig:size-hindrance-removed}), which
+has now become fusible.
+
+At first glance, removing \texttt{size} hindrances may appear to
+rarely be useful, but in fact, it is crucial to making the fusion
+algorithm perform well in practice.  The reason is that the assertions
+described in \cref{sec:assertions} check the dimensions of various
+arrays via \texttt{size} expressions.  Hence, after the transformation
+from external to internal \LO{}, we will have generated several
+\texttt{size} expressions, many of which may act as hindrances to
+fusion.  As an example, consider this simple program:
+
+\begin{colorcode}
+fun [int] main([int] a, [int] b) =
+  let \emp{a2} = map(op+(1), a) in
+  let \emphh{b2} = map(op+(2), b) in
+  map(op+, zip(\emp{a2}, \emphh{b2}))
+\end{colorcode}
+
+After transformation to internal \LO{}, we obtain the following
+(slightly denormalised for readability):
+
+\begin{colorcode}
+fun [int] main([int] a, [int] b) =
+  let \{\emp{a2}\} = mapT(op + (1), a) in
+  let \{\emphh{b2}\} = mapT(op + (2), b) in
+  let a2_sz = size(0, \emp{a2}) in
+  let b2_sz = size(0, \emphh{b2})) in
+  let zip_assert = assert(a2_sz = b2_sz) in
+  let \{res\} = <zip_assert>mapT(op + \emp{a2}, \emphh{b2}) in
+  res
+\end{colorcode}
+
+Two \texttt{size}-hindrances are present.  Since \texttt{a2} and
+\texttt{b2} are the outputs of mapping over \texttt{a} and \texttt{b}
+respectively, we can rewrite \texttt{size(0,a2)} to \texttt{size(0,a)}
+and \texttt{size(0,b2)} to \texttt{size(0,b)}, thus removing the
+nuisances and turning the program fusible.
+
+Our chosen approach is quite simple: Traverse the program, and
+whenever an expression of the form \texttt{size($k$,$v$)} is
+encountered, see if it can be rewritten to a ``better'' form.  In most
+cases, we will have several alternative expressions to choose from,
+and hence we need a way to determine the best replacement.
+
+For our purposes, we will want the expression that has the least
+chance of being a hindrance to fusion.  As noted in the introduction
+to this chapter, hindrance removal is done outside of the fusion
+module, and hence we do not have access to precise information about
+whether a candidate replacement expression removes a potential
+hindrance, or perhaps even moves it.
+\Cref{sec:accidentally-adding-hindrances} will describe cases in which
+moving \texttt{size}-expressions may cause new hindrances to appear.
+
+We define a heuristic determining the \textit{quality} of an
+expression $e$ as follows: For every free variable $v_{i}$ in $e$,
+determine the data-flow path from $v_{i}$ to either a constant or a
+function parameter.  The quality of the expression is inversely
+proportional to the number of nodes in this path, exluding nodes that
+are simply copies or indexing.  That is, the expression with the
+lowest number is best.  The idea behind this heuristic is to choose
+the expression that we can move the furthest up the program, ideally
+preceding all SOACs.
+
+For example, for the program shown on
+\cref{fig:multiple-replacements}, the hindrance \texttt{size(0, c)}
+can be replaced with either \texttt{size(0, b)} or \texttt{size(0,
+  a)}.  We pick the latter, because its single free variable can be
+traced directly to a function parameter (\texttt{a}), whereas the free
+variable in the former can only reach a function parameter through the
+binding for \texttt{b}.
+
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
+fun [int] main([int] a) =
+  let b = map(op + (1), a) in
+  let c = map(op + (2), b) in
+  let n = size(0, c) in
+  let d = map(op + (n), d) in
+  d
+\end{bcolorcode}
+\end{center}
+\caption{Multiple potential hindrance replacements}
+\label{fig:multiple-replacements}
+\end{figure}
+
+\subsection{Size analysis}
 \label{sec:size-analysis}
+
+\subsection{Accidentally Adding Hindrances}
+\label{sec:accidentally-adding-hindrances}
+
+\section{Inlining of indexing}
+\label{sec:inlining-indexing}
 
 %%% Local Variables: 
 %%% mode: latex

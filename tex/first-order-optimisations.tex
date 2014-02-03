@@ -865,27 +865,32 @@ different normalised expressions are shown on
 \cref{fig:differing-normalisation}.
 
 \begin{figure}
-\begin{subfigure}[t]{.5\textwidth}
+\begin{subfigure}[t]{.33\textwidth}
 \centering
 \begin{colorcode}
-(x * y) * z
-  \(\Downarrow\)
 let a = x * y in
 let b = a * z in
 b
 \end{colorcode}
-\subcaption{Left-leaning multiplication}
+\subcaption{\texttt{(x * y) * z}}
 \end{subfigure}%
-\begin{subfigure}[t]{.5\textwidth}
+\begin{subfigure}[t]{.33\textwidth}
 \centering
 \begin{colorcode}
-x * (y * z)
-  \(\Downarrow\)
-let a = x * y in
+let a = y * z in
 let b * x * a in
 b
 \end{colorcode}
-\subcaption{Right-leaning multiplication}
+\subcaption{\texttt{x * (y * z)}}
+\end{subfigure}%
+\begin{subfigure}[t]{.33\textwidth}
+\centering
+\begin{colorcode}
+let a = z * y in
+let b * x * a in
+b
+\end{colorcode}
+\subcaption{\texttt{x * (z * y)}}
 \end{subfigure}
 \caption{Normalisation of syntactically different expressions}
 \label{fig:differing-normalisation}
