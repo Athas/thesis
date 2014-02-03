@@ -135,8 +135,8 @@ How should this be transformed?  There is an obvious solution:
 But it is of course wrong - there is no checking that \texttt{a} and
 \texttt{b} are of the same length, hence the original expression may
 fail, while the transformed expression may evaluate successfully.  The
-solution is to \textit{predicate} the expression on the fact that
-\texttt{a} and \texttt{b} must match.
+final solution is to \textit{predicate} the expression on the fact
+that \texttt{a} and \texttt{b} must match.
 \begin{colorcode}
 if \textit{\texttt{a} and \texttt{b} have the same length}
 then \{a[0], b[0]\}
