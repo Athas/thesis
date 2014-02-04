@@ -380,13 +380,20 @@ than normal type checking.  In particular, detailed sharing analysis
 has to be performed, in order to ensure that after an array $a$ is
 consumed, it becomes an error to use any value that may refer to
 (parts of) the old value of the array.  Whenever we consume a variable
-$a$, we mark as inaccessible all of its aliases.
+$a$, we mark as inaccessible all of its aliases, as illustrated on
+\cref{fig:consumption}.
 
-\begin{colorcode}
+\begin{figure}
+\begin{center}
+\begin{bcolorcode}
   let b = a in               // Now \(\texttt{b}\in\aliases{\texttt{a}}\).
   let c = a with [i] <- x in // \(\forall{}v\in\aliases{\texttt{a}}\Rightarrow\textrm{Mark \(v\) as consumed.}\)
   b                          // Error, because \(\texttt{b}\in\aliases{\texttt{a}}\)!
-\end{colorcode}
+\end{bcolorcode}
+\end{center}
+\caption{Example of array consumption}
+\label{fig:consumption}
+\end{figure}
 
 A key principle is that of \textit{sequence points} that lexically
 checkpoint the use of variables.  As an example, assume that we are

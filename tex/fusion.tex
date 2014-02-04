@@ -9,8 +9,8 @@ restrictions of my handling of loop fusion.
 In producer-consumer fusion, the aim is to merge (or \textit{fuse})
 two loops, where the output of the first loop -- the producer -- is
 used as input to the second -- the consumer.  We currently only fuse
-loops that are expressed via SOACs, not the \texttt{do}-notation.  The
-reason for this is to simplify analysis, as it can be hard to
+loops that are expressed via SOACs, not the \texttt{loop}-notation.
+The reason for this is to simplify analysis, as it can be hard to
 determine in which cases arbitrary \texttt{do}-loops can be combined,
 whereas it is possible to define simple rules for how and when SOACs
 can be fused.
@@ -174,10 +174,11 @@ demonstrated on \cref{fig:map-reduce-error}.
 \begin{colorcode}
 let \{c\} = mapT(fn \{int\} (int x, int y) => \{x+y\},
                  a, b) in
-reduceT(op +, 0, c)
+reduceT(op +, \{0\}, c)
   \(\emphh{\Downarrow}\)
 reduceT(fn int (int acc, int x, int y) => acc + x + y,
-        0, a, b) \emp{// Type error}
+        \{0\}, a, b) \emp{// Type error, as accumulator}
+                   \emp{// type must match array input type}
 \end{colorcode}
 \end{center}
 
@@ -259,6 +260,10 @@ let \{y, _\} = filterT(fn bool (\(\alpha\myindx{1}\) ai\cindx{1},\(\alpha\myindx
                      a\cindx{1}, a\cindx{2} ) in
 ...
 \end{colorcode}
+
+As a bit of a technical curiosity, we are forced to use an
+\texttt{if}-expression, as the \texttt{\&\&} operator in \LO{} is not
+short-circuiting.
 
 \subsubsection{\texttt{filter-reduce} fusion}
 
@@ -1037,11 +1042,15 @@ if p(map(v,b)) then map(g,b)
 \item[Case $e \equiv \texttt{loop ($p$ = $e_{1}$) = for $v$ < $e_{2}$ do $e_{3}$ in $e_{4}$}$]
 
   For loops, we add any arrays used as SOAC inputs in the loop body to
-  the infusible set, as fusing into the loop would duplicate
-  computation, by re-evaluating the function in the consumer for every
-  iteration of the loop -- see \cref{fig:cannot-fuse-loop} for an
-  example of this.  This is similar to how we ban fusing into
+  the infusible set.  This is because fusing into the loop would
+  duplicate computation by re-evaluating the function in the consumer
+  for every iteration of the loop -- see \cref{fig:cannot-fuse-loop}
+  for an example of this.  This is similar to how we ban fusing into
   SOAC-functions.
+
+  Note that any use of an array for another purpose than as SOAC input
+  results in that array name being present in $\infusible(e_{3})$
+  already, thus banning fusion.
 \begin{align*}
   & \infusible(e) =\\
   & \quad \infusible(e_{1}) \cup \infusible(e_{2}) \cup \infusible(e_{3}) \cup \infusible(e_{4}) \\

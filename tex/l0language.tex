@@ -1,9 +1,9 @@
 \chapter{The \LO{} language}
 \label{chap:l0language}
 
-\LO{} is a purely functional, call-by-value, mostly first-order
-language that permits bulk operations on arrays using
-\textit{second-order array combinators} (SOACs).
+The \LO{} programming language is a purely functional, call-by-value,
+mostly first-order language that permits bulk operations on arrays
+using \textit{second-order array combinators} (SOACs).
 \Cref{sec:fo-l0,sec:soacs} will present \LO{} through informal
 walkthrough of the major language concepts, whilst a complete
 reference of language constructs is given in \cref{sec:l0-reference}.
@@ -122,7 +122,7 @@ example, all rows of a two-dimensional array must have the same number
 of elements.
 \begin{colorcode}
   [[1, 2], [3]]      // Compile-time error.
-  [iota(1), iota(2)] // Likely a run-time error.
+  [iota(1), iota(2)] // A run-time error if reached.
 \end{colorcode}
 Arrays are indexed using the common row-major notation, e.g.,
 \texttt{a[i1, i2, i3...]}.  An indexing is said to be \textit{full} if
@@ -276,14 +276,14 @@ fun *[[int]] matmultImp(int N, [[int]] a, [[int]] b) =
     in res
 \end{colorcode}
 
-\texttt{Let-with} has some unusual restrictions to permit in-place
-modification of the \textit{src} array, as described in
-\cref{chap:uniqueness-types}, specifically we track that \textit{src}
-is never used again.  The consequence is that we can guarantee that
-the execution of a \texttt{let-with} expression does not involve any
-copying of the source array in order to create the newly bound array.
-We can think of it as similar to array modification in an imperative
-language.
+The \texttt{let-with} construct has some unusual restrictions to
+permit in-place modification of the \textit{src} array, as described
+in \cref{chap:uniqueness-types}, specifically we track that
+\textit{src} is never used again.  The consequence is that we can
+guarantee that the execution of a \texttt{let-with} expression does
+not involve any copying of the source array in order to create the
+newly bound array.  We can think of it as similar to array
+modification in an imperative language.
 
 \section{SOACs}
 \label{sec:soacs}
@@ -339,9 +339,9 @@ be typed in \LO{} itself.
 \texttt{ scan($f$,$x$,$a$)} & \equiv \texttt{\{$f$($x$,$a$[0]), $f$($f$($x$,$a$[0]),$a$[1]),\ldots\}}
 \end{align*}
 
-\texttt{scan} is an inclusive prefix scan, meaning that it returns an
-array of the same outer size as the original array.  The functions
-given to \texttt{reduce} and \texttt{scan} must be binary associative
+\texttt{scan} is an inclusive prefix scan, and returns an array of the
+same outer size as the original array.  The functions given to
+\texttt{reduce} and \texttt{scan} must be binary associative
 operators, and the value given as the initial value of the accumulator
 must be the neutral element for the function.  These properties are
 not checked by the \LO{} compiler, and are the responsibility of the
@@ -376,7 +376,7 @@ $(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
 \emphh{\equiv}\ \texttt{reduce}\ \odot\
 e\ \circ \texttt{map} \ (\emp{\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p}$\\
 Where $g$ is a function generated from the composition of $f$ and
-$\circ$.  It follows that in order to generate parallel code for \\
+$\odot$.  It follows that in order to generate parallel code for \\
 \texttt{(reduce $\odot$ $e$) $\circ$ (map $f$)} it is sufficient to
 record either $\odot$ and $f$, or $\odot$ and $g$. We choose the
 latter, i.e., \texttt{redomap($\odot$, $g$, $e$)}, because it allows a

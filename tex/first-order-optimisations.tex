@@ -20,7 +20,7 @@ inline every non-recursive function call.  Inlining a large function
 at multiple call sites can of course result in a tremendous amount of
 code bloat, but as function calls are in any case usually always
 inlined on current GPU hardware, due to no stack being available, this
-is perhaps excusable.
+is perhaps excusable.\fixme{There is a stack sometimes}
 
 After inlining, most functions will be dead, and are summarily
 removed.
@@ -58,7 +58,7 @@ a + if (if c\cindx{1} then \(e\myindx{1}\) else \(e\myindx{2}\))
     then \(e\myindx{3}\)
     else \(e\myindx{4}\)
   \(\Downarrow\)
-let c\(\myindx{2}\) = if c\(\myindx{1}\)then \(e\myindx{1}\) else \(e\myindx{2}\) in
+let c\(\myindx{2}\) = if c\(\myindx{1}\) then \(e\myindx{1}\) else \(e\myindx{2}\) in
 let b = if c\(\myindx{2}\) then \(e\myindx{3}\) else \(e\myindx{4}\) in a+b
 \end{colorcode}
 \end{center}
@@ -93,7 +93,7 @@ let y = 3 in
 let z = x in
 z + y
   \(\Downarrow\)
-let x = 2
+let x = 2 in
 let y = 3 in
 x + y
 \end{colorcode}
@@ -132,7 +132,7 @@ previous section, it is easy to perform all three optimisations in
 tandem directly on the syntax tree of an \LO{} program.
 
 The central idea is that we consider some expressions to be
-\textit{inlineable}.  Whenever the RHG of a \texttt{let}-expression is
+\textit{inlineable}.  Whenever the RHS of a \texttt{let}-expression is
 inlineable, we substitute any occurrences of the name bound by the
 binding within the body of the \texttt{let}-expression by the RHS (we
 ignore bindings where the pattern is a tuple-pattern for now).  For
@@ -262,7 +262,7 @@ processed as follows:
   \item[\texttt{a[i]}]\hfill\\
     There are several potential avenues for constant-folding index
     operations, depending on how \texttt{a} was bound:
-    \begin{description}
+    \begin{description}[font=\normalfont\itshape]
     \item[\texttt{a} is bound to a variable \texttt{b}:] Replace with \texttt{b[i]}.
 
     \item[\texttt{a} is \texttt{iota(n)}:] Replace with \texttt{i} --
@@ -408,12 +408,12 @@ An unpublished bachelors thesis by Jonas Brunsgaard and Rasmus Wriedt
 Larsen has demonstrated that the technique works in practice, but
 their work has not yet been merged with the main compiler code base.
 
-Hoisting assertions such as these is not only useful when the program
+Hoisting assertions such as these is useful not only when the program
 uses explicit array indexing.  While the array accesses performed by
 SOACs are by construction always in-bounds, and therefore do not need
 dynamic checks, the \texttt{assert} expressions we generate when
 transforming from external SOACs to tupleless SOACs are conceptually
-identical to bounds checks, and similarl important to hoist.  For
+identical to bounds checks, and similarly important to hoist.  For
 example, consider this program:
 
 \begin{colorcode}
@@ -461,10 +461,10 @@ covered in \cref{sec:rebinder}.
 \label{sec:when-not-to-hoist}
 
 Clearly, we can hoist only loop-invariant expressions.  Unfortunately,
-not all loop-invariant expressions are hoistable, and as usual, when
-seemingly valid transformations become problematic, constraints
-imposed by uniqueness types are at fault.  Consider the following
-program:
+not all loop-invariant expressions are hoistable, and as is often the
+case when seemingly valid transformations become problematic,
+constraints imposed by uniqueness types are at fault.  Consider the
+following program:
 
 \begin{colorcode}
 map(fn (int i) =>
@@ -819,11 +819,11 @@ We need to split the potentially hoistable set into a
 \textit{hoistable set}, and a set of the bindings that cannot be
 hoisted further, the \textit{unhoistable set}.  To this end, we are
 given a unary relation $\mathcal{B}$, that given a binding $(p_{i},
-e_{i})$, tells us whether $e_{i}$ is \texttt{it} blocked from being
-hoisted.  As the most archetypical reason, $\mathcal{B}(p_{i}, e_{i})$
-whenever $e_{i}$ uses a parameter of the function that we are trying
-to hoist out of, but the relation also checks the other cases
-mentioned in \cref{sec:when-not-to-hoist}.
+e_{i})$, tells us whether $e_{i}$ is blocked from being hoisted.  As
+the most archetypical reason, $\mathcal{B}(p_{i}, e_{i})$ whenever
+$e_{i}$ uses a parameter of the function that we are trying to hoist
+out of, but the relation also checks the other cases mentioned in
+\cref{sec:when-not-to-hoist}.
 
 Each of the expressions $e_{i}$ may use variables from any of the
 patterns $p_{j}$ (except its own), but there may also be free
@@ -844,7 +844,7 @@ name set:
 \end{itemize}
 The end result: a set of hoistable bindings and a set of nonhoistable
 bindings.  Because of the ordering, we are guaranteed that no binding
-in the former uses a name bound bound in the latter.
+in the former uses a name bound in the latter.
 
 \subsection{Inserting Bindings}
 

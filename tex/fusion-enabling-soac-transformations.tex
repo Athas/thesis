@@ -71,7 +71,7 @@ expressing fusion judgements.  The
 places where we have previously considered only plain variables and
 SOAC expression.  However, there is fundamentally nothing dubious
 about this usage, and we will not need to modify the previously
-defined rules.
+defined rules.\fixme{Rephrase ``dubious''}
 
 We will need a judgement to determine which SOAC inputs are simply
 transformations of an origin array.  The judgement
@@ -81,7 +81,8 @@ transformations of an origin array.  The judgement
 }
 \]
 means that $e$ is a transformation of the array-typed variable $v$.
-Valid judgements are defined by the following inference rules.
+For example $e$, may be \texttt{transpose($v$)}.  Valid judgements are
+defined by the following inference rules.
 
 \begin{align*}
 \nfrac{
@@ -113,7 +114,7 @@ it can never be fused as a producer.  In some cases, however, we can
 rewrite \texttt{scanT} to expose producer-fusability.  Specifically,
 when the body of a \texttt{scanT} operation consists of a nested
 \texttt{mapT}, we can interchange the two loops and transpose both
-input and output.  A simple example is as follows:
+input and output.  A simple example is as follows:\fixme{Finish}
 
 \begin{colorcode}
 scanT(fn [real] ([real] x, [real] y) =>

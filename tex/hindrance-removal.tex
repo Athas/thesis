@@ -125,7 +125,17 @@ hindrance, or perhaps even moves it.
 \Cref{sec:accidentally-adding-hindrances} will describe cases in which
 moving \texttt{size}-expressions may cause new hindrances to appear.
 
-We define a heuristic determining the \textit{quality} of an
+It is conceptually simple to generate alternatives to the expression
+\texttt{size($k$,$v$)}.  During traversal of the program, we track the
+binding of all array-typed variables in a symbol table mapping
+variable names to static size information.  For example, after seeing
+the binding \texttt{let~a~=~iota($e$)}, we know that
+\texttt{size(0,a)} can be rewritten to \texttt{$e$}.  The details of
+size analysis are described in \cref{sec:size-analysis}.  However, in
+some cases there may be several possible replacement expressions, and
+we need a way to select the best one.
+
+We define a heuristic determining the \textit{quality} of a candidate
 expression $e$ as follows: For every free variable $v_{i}$ in $e$,
 determine the data-flow path from $v_{i}$ to either a constant or a
 function parameter.  The quality of the expression is inversely
@@ -158,11 +168,84 @@ fun [int] main([int] a) =
 \label{fig:multiple-replacements}
 \end{figure}
 
+In the \LO{} compiler, size hindrance removal is implemented as part
+of the Rebinder introduced in \cref{sec:rebinder}.  Array sizes are
+tracked by inspecting bindings during the traversal of the syntax tree
+(as described in the next section).  Whenever we encounter a binding
+of a \texttt{size}-expression, we use the size information to obtain
+candidate replacements, then use the quality heuristic to determine
+the best replacement.
+
 \subsection{Size analysis}
 \label{sec:size-analysis}
 
+\begin{description}
+\item[\texttt{let $a$ = iota($e$)}] \hfill\\
+  $a \mapsto [\{e\}]$
+
+\item[\texttt{let $a$ = replicate($e_{n}$, $e_{v}$)}] \hfill\\
+  We know that the number of rows in $a$ is $e_{n}$, but we also know
+  that the size of dimension $d$ of $a$ will be the size of dimension
+  $d+1$ in $e_{v}$.  This is reflected in the size binding:
+
+  $a \mapsto [\{e_{n}\}, \{size(0,e_{v})\}, \ldots,
+  \{size(n,e_{v})\}]$, where $n$ is the rank of $e_{v}$.
+
+\item[\texttt{let \{$a$,$b$\} = split($e_{n}$, $e_{v}$)}] \hfill\\
+  The semantics of \texttt{split($e_{n}$, $e_{v}$)} is that the first
+  returned array contains the initial $e_{n}$ elements, while the
+  remaining \texttt{size(0,$e_{v}$)-$e_{n}$} are in the the second
+  returned array.  This leads to the following size bindings:
+
+  $a \mapsto [\{e_{n}\}, \{size(1,e_{v})\}, \ldots, \{size(n,e_{v})]$\\
+  $b \mapsto [\{size(0,e_{v})-e_{n}, e_{n}\}, \{size(1,e_{v})\},
+  \ldots, \{size(n,e_{v})]$\\
+  Where $n$ is the rank of $e_{v}$.
+
+\item[\texttt{let $a$ = concat($e_{x}$, $e_{y}$)}] \hfill\\
+  $a \mapsto [\{size(0,e_{x})+size(0,e_{y})\}, \{size(1,e_{x}), size(1,e_{y})\},
+  \ldots, \{size(n,e_{x}), size(n,e_{y})]$, where $n$ is the rank of $e_{x}$ and
+  $e_{y}$ (the same, according to the type rules of \LO{}).
+
+\item[\texttt{let $a$ = $b$[$e_{0},\ldots,e_{n}$]}] \hfill\\
+  $a \mapsto [\{size(n+1,b)\}, \ldots, \{size(m,b)\}]$, where $m$ is
+  the rank of $b$.
+
+\item[\texttt{let $a$ = transpose($e$)}] \hfill\\
+  $a \mapsto [\{size(1,e)\}, \{size(0,e)\}, \{size(2,e)\}, \ldots,
+  \{size(n,b)\}]$, where $n$ is the rank of $b$.
+
+\item[\texttt{let $a$ = $b$ with [\ldots] <- $e$}] \hfill\\
+  $a \mapsto [\{size(0,b)\}, \ldots, \{size(n,b)\}]$, where $n$ is the
+  rank of $b$.
+
+\item[\texttt{let $\overline{os}$ = mapT(fn $t$ ($p_{1},\ldots,p_{n}$) => $e$, $e_{1}$, \ldots, $e_{n}$)}] \hfill\\
+  Within the body of the SOAC function ($e$), the symbol table will
+  map the parameters to slices of their corresponding arrays:
+
+  $p_{1} \mapsto [\{size(1, e_{1})\}, \ldots, \{size(m, e_{1})\}]$, where $m$ is the rank of $e_{1}$. \\
+  $\vdots$\\
+  $p_{n} \mapsto [\{size(1, e_{n})\}, \ldots, \{size(m, e_{n})\}]$, where $m$ is the rank of $e_{n}$. \\
+\end{description}
+
 \subsection{Accidentally Adding Hindrances}
 \label{sec:accidentally-adding-hindrances}
+
+\begin{colorcode}
+let b = map(f, a) in
+let c = map\(\myindu{2}\)(g, b) in
+let k = size(1,c) in
+h(k,c)
+\end{colorcode}
+
+\begin{colorcode}
+let b = map(f, a) in
+let k = size(1,b) in
+let c = map\(\myindu{2}\)(g, b) in
+h(k,c)
+\end{colorcode}
+
+\subsection{Size Hindrance Removal as a Hoisting Enabler}
 
 \section{Inlining of indexing}
 \label{sec:inlining-indexing}
