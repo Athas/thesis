@@ -1,4 +1,4 @@
-\chapter{Hindrance removal}
+\chapter{Hindrance Removal}
 \label{chap:hindrance-removal}
 
 The fusion algorithm presented in previous chapters assumed an input
@@ -266,11 +266,23 @@ in scope.
   outer size of any $a_{i}$ must match the outer size of any $e_{j}$.
   This gives rise to the following mappings:
 
-  $a_{1} \mapsto \langle\{\texttt{size($j$, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
+  $a_{1} \mapsto \langle\{\texttt{size(0, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
   $\vdots$\\
-  $a_{k} \mapsto \langle\{\texttt{size($j$, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
+  $a_{k} \mapsto \langle\{\texttt{size(0, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
 
-  Similar rules apply to the other SOACs.
+  Similar rules apply to the other SOACs, but a few are interesting
+  enough to be mentioned explicitly.
+
+\item \texttt{let \{$a_{1},\ldots,a_{k}$\} = mapT$\myindu{d}$(fn $t$ ($p_{1},\ldots,p_{n}$) => $e$, $e_{1}$, \ldots, $e_{n}$)} \hfill\\
+  We create the same bindings as above for the function parameters,
+  but the interesting fact is that since we are dealing with a
+  $d$-deep mapping, the outer $d$ dimensions of the output correspond
+  to the outer $d$ dimensions of the input.  This gives rise to the
+  following mappings:
+
+  $a_{1} \mapsto \langle\{\texttt{size(0, $e_{j}$)}\ |\ 1 \leq j \leq n\}, \ldots, \{\texttt{size($d$, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
+  $\vdots$\\
+  $a_{k} \mapsto \langle\{\texttt{size(0, $e_{j}$)}\ |\ 1 \leq j \leq n\}, \ldots, \{\texttt{size($d$, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
 
 \item \texttt{let \{$a_{1},\ldots,a_{n}$\} =\\scanT(fn $t$ ($p^{v}_{1},\ldots,p^{v}_{n}$, $p^{a}_{1},\ldots,p^{a}_{n}$) => $e$, \{$v_{1},\ldots,v_{n}$\}, $e_{1}$, \ldots, $e_{n}$)} \hfill\\
   Within the body of the SOAC function ($e$), the symbol table will
@@ -286,9 +298,9 @@ in scope.
   the outer size of any $a_{i}$ must match the outer size of any
   $e_{j}$.  This gives rise to the following mappings:
 
-  $a_{1} \mapsto \langle\{\texttt{size($j$, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
+  $a_{1} \mapsto \langle\{\texttt{size(0, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
   $\vdots$\\
-  $a_{n} \mapsto \langle\{\texttt{size($j$, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
+  $a_{n} \mapsto \langle\{\texttt{size(0, $e_{j}$)}\ |\ 1 \leq j \leq n\}\rangle$. \\
 \end{description}
 
 There is no rule for the binding of array literals - this is handled
@@ -299,12 +311,23 @@ binding will not ever inhibit fusion.
 \subsection{Accidentally Adding Hindrances}
 \label{sec:accidentally-adding-hindrances}
 
+In some cases, our aggressive rewriting of \texttt{size} expressions
+may in fact \textit{create}, rather than \textit{remove} hindrances.
+Consider the following program:
+
 \begin{colorcode}
 let b = map(f, a) in
 let c = map\(\myindu{2}\)(g, b) in
 let k = size(1,c) in
 h(k,c)
 \end{colorcode}
+
+Here, there is a clear opportunity for fusing the two \texttt{map}s.
+Note that the function \texttt{f} is opaque, and we cannot know the
+size of the arrays it returns.  Since \texttt{c} is the result of a
+\texttt{map\(myindu{2}\)} operation, the Rebinder can change
+\texttt{size(1,c)} to \texttt{size(1,b)}, resulting in the following
+program:
 
 \begin{colorcode}
 let b = map(f, a) in
@@ -313,10 +336,84 @@ let c = map\(\myindu{2}\)(g, b) in
 h(k,c)
 \end{colorcode}
 
+The \texttt{size} expression is now a nuisance preventing fusion.  One
+possible solution, and the one taken in the current \LO{} compiler, is
+a preliminary fusion stage, prior to executing the Rebinder, then run
+the Rebinder and re-run fusion.  A more precise solution would be to
+integrate nuisance removal into the fusion algorithm, but this
+requires careful engineering in order to keep the resulting code
+complexity under control.  Alternatively, it may be possible to tweak
+the rules in the Rebinder to remove the possibility of creating fusion
+hindrances, although this has not been investigated in depth.
+
 \subsection{Size Hindrance Removal as a Hoisting Enabler}
+
+This section has been solely concerned with \texttt{size} nuisance
+removal as a transformation to enable fusion.  However, it is equally
+useful in enabling hoisting.  Consider the following program:
+
+\begin{colorcode}
+mapT(fn \{[int]\} ([int] ar, [int] br) =>
+       let c = assert(size(0,ar) == size(0,br)) in
+       mapT<c>(op +, ar, br),
+     a, b)
+\end{colorcode}
+
+Size analysis will reveal that \texttt{size(0,ar)} can be rewritten to
+\texttt{size(1,a)}, and \texttt{size(0,br)} to \texttt{size(1,b)},
+which can then be hoisted out of the loop.  This results in the
+following program:
+
+\begin{colorcode}
+let c = assert(size(1,ar) == size(1,br)) in
+mapT(fn \{[int]\} ([int] ar, [int] br) =>
+       mapT<c>(op +, ar, br),
+     a, b)
+\end{colorcode}
+
+Not only does this result in removing the assertion from the inner
+loop, but the result is a perfect map nest, potentially permitting
+fusion across transpose.
 
 \section{Inlining of indexing}
 \label{sec:inlining-indexing}
+
+The fusion algorithm presented in \cref{chap:fusion} is very strict
+about never duplicating computation, to the point where otherwise
+beneficial fusion is prevented.  For example, consider this program:
+
+\begin{colorcode}
+let b = map(f, a) in
+reduce(min, b[0], b)
+\end{colorcode}
+
+Fusion is not possible, as \texttt{b} is used in multiple places.  If
+duplication of computation were acceptable, we could rewrite
+\texttt{b[0])} as \texttt{f(a[0])}, and get the following program:
+
+\begin{colorcode}
+let b = map(f, a) in
+reduce(min, f(a[0]), b)
+\end{colorcode}
+
+We could then perform \texttt{map}-\texttt{reduce} fusion and obtain a
+fully fused \texttt{redomap} expression.  If \texttt{f} is cheap, it
+is very likely that the small duplication of computation is
+worthwhile.
+
+Similarly to size hindrance removal, we can implement this as a
+transformation performed before running the fusion algorithm.
+Specifically, when we find an expression of form \texttt{b[i]}, where
+\texttt{b} is the result of an expression \texttt{map(f, a)} and
+\texttt{f} is \textit{cheap} (see below), we rewrite \texttt{b[i]} to
+\texttt{f(a[i])}, essentially inlining part of the \texttt{map}
+operation.
+
+A function is considered cheap if its body executes in constant time -
+notably, no SOACs.  We must also be careful not to inline into a loop,
+as this would duplicate more than a constant amount of computation.
+This implies that every such instance of inlining at most results in
+duplicating a constant amount of work.
 
 %%% Local Variables: 
 %%% mode: latex
