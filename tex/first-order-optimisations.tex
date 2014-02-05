@@ -298,16 +298,16 @@ processed as follows:
 \section{Hoisting}
 \label{sec:hoisting}
 
-In the compiler literature, \textit{hoisting} (also called
-\textit{loop-invariant code motion} by those textbook authors paid per
-page) is the movement of loop-invariant expressions out of a loop.
-This has a clear benefit: rather than executing once per iteration of
-the loop, the expression is executed once before the loop begins.
-When compiling an imperative language, we must be careful not to move
-any code with side effects, but in a pure language such as \LO{}, we
-can hoist freely (with a few restrictions that I'll get to in
-\cref{sec:when-not-to-hoist}).  A simple example of hoisting in action
-is shown on \cref{fig:simple-hoisting}.
+In the compiler literature, \textit{hoisting} (also known as
+\textit{loop-invariant code motion}) is the movement of loop-invariant
+expressions out of a loop.  This has a clear benefit: rather than
+executing once per iteration of the loop, the expression is executed
+once before the loop begins.  When compiling an imperative language,
+we must be careful not to move any code with side effects, but in a
+pure language such as \LO{}, we can hoist freely (with a few
+restrictions that I'll get to in \cref{sec:when-not-to-hoist}).  A
+simple example of hoisting in action is shown on
+\cref{fig:simple-hoisting}.
 
 \begin{figure}
 \begin{center}
@@ -370,8 +370,9 @@ map(fn int (int i) =>
 \end{colorcode}
 
 Now, the assertions are not loop-invariant, as they depend on
-\texttt{i}, but using \textit{symbolic range
-  propagation}\cite{blume1995symbolic}, it can be deduced that the
+\texttt{i}.  If we assume a sufficiently smart compiler, for example
+by employing some extension of \textit{symbolic range
+  propagation}\cite{blume1995symbolic}, we can deduce that the
 variable \textit{i} will always be in the range $[0,n-1]$.  This
 allows us to rewrite the assertions -- the checks for non-negativity
 goes away, as it is always true, and we only have to check the upper
@@ -402,11 +403,11 @@ For a simple loop such as the above, the potential benefits are great,
 as most of the instructions of the original loop body was devoted to
 bounds checkings.
 
-The \LO{} compiler does not yet support the symbolic range propagation
-that enables the critical rewrite of the \texttt{assert} expressions.
-An unpublished bachelors thesis by Jonas Brunsgaard and Rasmus Wriedt
-Larsen has demonstrated that the technique works in practice, but
-their work has not yet been merged with the main compiler code base.
+The \LO{} compiler does not yet support the range analysis that
+enables the critical rewrite of the \texttt{assert} expressions.  An
+unpublished bachelors thesis by Jonas Brunsgaard and Rasmus Wriedt
+Larsen suggests that the technique works in practice, but their work
+has not yet been merged with the main compiler code base.
 
 Hoisting assertions such as these is useful not only when the program
 uses explicit array indexing.  While the array accesses performed by
@@ -494,12 +495,13 @@ binding out of a loop in which it is consumed.
 Most compilers generally do not hoist out of branches, as branching is
 often used to prevent expensive execution of expensive expressions
 whose value is not needed.  On many GPUs however, execution happens in
-lock-step across all processors, both sides of the branch are always
-executed~\cite{reducing-branch-divergence}.  This implies that
-hoisting out of a branch does not cause more instructions to be
-executed, and hoisting might expose the possibility of other
-optimisations, such as common subexpression elimination (see
-\cref{sec:cse}).
+lock-step across all processors.  This implies that unless the branch
+condition computes the same value in all threads, both sides of the
+branch will have to be executed~\cite{reducing-branch-divergence}.
+This implies that in some cases, hoisting out of a branch does not
+cause more instructions to be executed, and hoisting might expose the
+possibility of other optimisations, particularly common subexpression
+elimination (see \cref{sec:cse}).
 
 We should still be careful when hoisting expressions out of the
 branches of a conditional, as it is possible that the expression may
@@ -507,13 +509,14 @@ result in an error unless the condition checked by the conditional is
 true.  For example, consider this expression:
 
 \begin{colorcode}
-if x != 0 then y / x
-          else 0
+if \(c\) then y / x
+     else if \(p\) then y / x
+               else 0
 \end{colorcode}
 
 If \texttt{y / x} was hoisted out of the branch, the resulting program
 might end up dividing by zero.  Assertions and array indexing are
-other operations that it is not safe to hoist out of a branch.  Most
+other operations that are not safe to hoist out of a branch.  Most
 expressions are safe however, and the \LO{} compiler aggressively
 hoists these out of branches.  Depending on improvements in hardware,
 or the targeting of \LO{} for non-GPU systems, it is likely that this
@@ -588,7 +591,7 @@ conservative, but is what the \LO{} compiler currently does.
 
 \section{The Rebinder}
 \label{sec:rebinder}
-
+\fixme{Improve the writing}
 Conceptually, hoisting and CSE are rather different transformations.
 However, they both depend on identifying subexpressions that can be
 moved (in the case of hoisting) or replaced (in the case of CSE), but
@@ -674,15 +677,22 @@ fun int main([int] a_0, int i_1, int v_2) =
   res_5
 \end{colorcode}
 
-The central idea behind the rebinder is to maintain the
-\textit{potentially hoistable set}, a partially ordered set of
-bindings.  The partial order used is $\preceq$: for two bindings
-$b_{i}, b_{j}$, $b_{i} \preceq b_{j}$ if $b_{j}$ uses any variables
-bound by $b_{i}$, or if $b_{i} = b_{j}$.
+The central idea behind the rebinder is to maintain a partially
+ordered set of bindings, which we will term the \textit{potentially
+  hoistable set}.  The partial order used is $\preceq$: for two
+bindings $b_{i}, b_{j}$, $b_{i} \preceq b_{j}$ if $b_{j}$ uses any
+variables bound by $b_{i}$, or if $b_{i} = b_{j}$.  The potentially
+hoistable set thus represents an acyclic data-dependency graph.
+
+The intuition is that while working on an expression $e$, there may be
+free varibles in $e$ that are provided by the bindings we keep in the
+potentially hoistable set.  At some point, we will have to insert the
+bindings in the program, but we will try to put them as far out of
+loops as possible.
 
 The Rebinder proceeds with a recursive walk down the syntax tree,
 inspecting the bindings:
-
+\fixme{This is still incomprehensible.}
 \begin{itemize}
 \item First, we encounter the \texttt{index\_10} and
   \texttt{times\_11} bindings, and their right-hand sides are
@@ -696,19 +706,20 @@ inspecting the bindings:
 
   \begin{itemize}
   \item We inspect the right-hand sides of \texttt{plus\_6},
-    \texttt{index\_7}, \texttt{times\_8} and \texttt{plus\_9}, neither
-    of which yield hoistable subexpressions.  We collect these
-    bindings into a potentially hoistable set and remove them from the
-    function body, leaving just the expression \texttt{\{plus\}}.
+    \texttt{index\_7}, \texttt{times\_8} and \texttt{plus\_9}, none of
+    which yield hoistable subexpressions.  We collect these bindings
+    into a potentially hoistable set and remove them from the function
+    body, leaving just the expression \texttt{\{plus\}}.
 
   \item We are now done inspecting the function, and we need to decide
     which of the bindings in the potentially hoistable set can in fact
-    be hoisted out.  We create a dependency graph of the bindings, and
-    see which of the bindings have right-hand sides that depend on the
-    function parameters \texttt{sum\_3} and \texttt{x\_4}.  This
-    leaves the bindings for \texttt{index\_7} and \texttt{times\_8} as
-    hoistable; while \texttt{plus\_6} and \texttt{plus\_9} are
-    re-inserted into the program.
+    be hoisted out.  We create a dependency graph of the
+    bindings\fixme{Insert figure}, and see which of the bindings have
+    right-hand sides that depend on the function parameters
+    \texttt{sum\_3} and \texttt{x\_4}.  This leaves the bindings for
+    \texttt{index\_7} and \texttt{times\_8} as hoistable; while
+    \texttt{plus\_6} and \texttt{plus\_9} are re-inserted into the
+    program.
   \end{itemize}
 
   This yields the \texttt{index\_7} and \texttt{times\_8} bindings as
@@ -744,12 +755,12 @@ bindings into the syntax tree.  We will try to provide an intuition
 for the approach, using the above example:
 
 When, at the end, we have to insert bindings for \texttt{index\_10},
-\texttt{times\_11}, \texttt{res\_5}, \texttt{index\_7} ordering
-constraints \texttt{times\_8} must first be determined.  It is seen
-that \texttt{times\_11} uses \texttt{index\_10}, \texttt{times\_8}
-uses \texttt{index\_7}, and \texttt{res\_5} uses \texttt{times\_11}
-and \texttt{times\_8}.  Hence, the following insertion order is chosen
-(top-down):
+\texttt{times\_11}, \texttt{res\_5}, \texttt{index\_7} and
+\texttt{times\_8}, we have to determine an order that does not result
+in a variable being used before it is defined.  This is easy, since
+the potentially hoistable set is already dependency-ordered and thus
+defines a data dependency graph.  The following insertion order is
+obtained by performing a depth-first traversal of the graph:
 
 \begin{enumerate}
 \item \texttt{index\_10}
@@ -844,7 +855,7 @@ name set:
 \end{itemize}
 The end result: a set of hoistable bindings and a set of nonhoistable
 bindings.  Because of the ordering, we are guaranteed that no binding
-in the former uses a name bound in the latter.
+in the former uses a name bound in the latter.\fixme{Insert figure}
 
 \subsection{Inserting Bindings}
 

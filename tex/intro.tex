@@ -20,7 +20,10 @@ was not until the rise of CUDA and OpenCL in 2006 that
 \textit{General-Purpose computing on Graphics Processing Units}
 (GPGPU) began to move into the mainstream.
 
-... \fxnote{Insert more}
+... \fxnote{Insert more - convince reader that my work addresses an
+  important problem, and that I will give a well thought-out solution.
+  Why is \LO{} functional, and why does it support sequential loops
+  anyway?}
 
 Throughout this thesis, we will often refer to a vaguely defined
 ``programmer'', as well as ascribe various motives and expectations to
@@ -38,8 +41,10 @@ more vocally about the lack of syntactical niceties in the language.
 
 We present a purely functional data-parallel programming language,
 \LO{}, supporting nested parallelism.  The language supports a method
-for safely performing in-place updates of array data through a type
-system concept called \textit{uniqueness types}.  Through the
+\fixme{Why do I support nested parallelism?  Why only regular arrays?
+  Why are in-place updates supported (cross-iteration dependent
+  loops)} for safely performing in-place updates of array data through
+a type system concept called \textit{uniqueness types}.  Through the
 translation of real-world financial programs to \LO{}, we demonstrate
 the practical usefulness of this language feature.
 
@@ -47,7 +52,9 @@ We present the design and implementation of several optimisations,
 notably hoisting bounds checks out of inner loops, and loop fusion
 based on a structural transformation.  The fusion transformation is
 capable of fusing loops whose output is used in multiple places, when
-possible without duplicating computation
+possible without duplicating computation.\fixme{Why is it important to
+  hoist bounds checks?  Because we target aggressive (static+dynamic)
+  analysis; this is an instance of optimising arbitrary predicates.}
 
 The benefits of my optimisations are demonstrated on three real-world
 financial benchmarks.  It is shown that the compiler is able to hoist
@@ -87,6 +94,8 @@ cover transformations that enable other optimisations (although
 particularly fusion).
 
 \section{Notation}
+
+\fixme{Do I have any funky notation at all?}
 
 %%% Local Variables:
 %%% mode: latex

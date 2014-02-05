@@ -8,6 +8,22 @@ using \textit{second-order array combinators} (SOACs).
 walkthrough of the major language concepts, whilst a complete
 reference of language constructs is given in \cref{sec:l0-reference}.
 
+The primary idea behind \LO{} is to design a language that has enough
+expressive power to conveniently express complex programs, yet is also
+amenable to aggressive optimisation and parallelisation.
+Unfortunately, as the expressive power of a language grows, the
+difficulty of optimisation often rises likewise.  For example, we
+support nested parallelism, despite the complexities of efficiently
+mapping to the flat parallelism supported by hardware, as a great many
+programs depend on this feature.  On the other hand, we do not support
+non-regular arrays, as they complicate size analysis a great deal.  It
+is also the plan to eventually present a rigorous cost model for
+\LO{}, although this work has not yet been completed.
+
+This chapter serves as a reference and basic introduction to the \LO{}
+language.  \Cref{chap:uniqueness-types,chap:internal} describe more subtle
+design issues.
+
 \section{First-order \LO{}}
 \label{sec:fo-l0}
 
@@ -124,10 +140,13 @@ of elements.
   [[1, 2], [3]]      // Compile-time error.
   [iota(1), iota(2)] // A run-time error if reached.
 \end{colorcode}
+The restriction to regular arrays simplifies size analysis and
+optimisation.
+
 Arrays are indexed using the common row-major notation, e.g.,
 \texttt{a[i1, i2, i3...]}.  An indexing is said to be \textit{full} if
 the number of given indexes is equal to the dimensionality of the
-array.
+array. 
 
 A \texttt{let}-expression can be used to refer to the result of a
 subexpression:
@@ -160,6 +179,7 @@ saturated - currying is only permitted in SOACs (see
 \cref{sec:soacs}).
 
 \subsection{Sequential loops}
+\label{sec:sequential-loops}
 
 \LO{} has a built-in syntax for expressing certain tail-recursive
 functions.  Consider the following tail-recursive formulation of a
@@ -174,7 +194,7 @@ We can rewrite this using the \texttt{loop} construct.
 \begin{colorcode}
   fun int fib(int n) =
     loop (\{x, y\} = \{1,1\}) = for i < n do
-                              {y, x+y}
+                              \{y, x+y\}
     in x
 \end{colorcode}
 The semantics of this is precisely as in the tail-recursive function
@@ -194,13 +214,18 @@ has the following semantics:
   \item Evaluate \textit{body} with \textit{pat} bound to its final
     value.
 \end{enumerate}
-The purpose of \texttt{loop} is partly to render some sequential
-computations slightly more convenient, partly to express certain loop
-optimisations in the compiler.  Semantically, it is completely
-equivalent to the call to its corresponding tail-recursive function.
-For example, denoting by \texttt{t} the type of \texttt{x}, the loop
-in \cref{fig:loop-recursion} has the semantics of a call to the
+Semantically, a \texttt{loop} expression is completely equivalent to a
+call to its corresponding tail-recursive function.  For example,
+denoting by \texttt{t} the type of \texttt{x}, the loop in
+\cref{fig:loop-recursion} has the semantics of a call to the
 tail-recursive function on the right-hand side.
+
+The purpose of \texttt{loop} is partly to render some sequential
+computations slightly more convenient, but primarily to express
+certain very specific forms of recursive functions, specifically those
+with a fixed iteration count.  This property can eventually be used
+for analysis and optimisation, although the current \LO{} compiler
+does not yet exploit this.
 
 \begin{figure}
 \begin{center}
@@ -231,10 +256,14 @@ in body
 \end{figure}
 
 \subsection{In-place updates}
+\label{sec:in-place-updates}
 
-General modification of array elements is done using the
-\texttt{let-with} construct.  In its most general form, it looks as
-follows.
+In an array-oriented programming language, a common task is to modify
+some elements of an array.  In a pure language, we cannot permit free
+mutation, but we can permit the creation of a duplicate array, where
+some elements have been changed.  General modification of array
+elements is done using the \texttt{let-with} construct.  In its most
+general form, it looks as follows.
 \begin{colorcode}
   let \textit{dest} = \textit{src} with [\textit{indexes}] <- \textit{value}
   in \textit{body}
@@ -276,14 +305,20 @@ fun *[[int]] matmultImp(int N, [[int]] a, [[int]] b) =
     in res
 \end{colorcode}
 
-The \texttt{let-with} construct has some unusual restrictions to
-permit in-place modification of the \textit{src} array, as described
-in \cref{chap:uniqueness-types}, specifically we track that
-\textit{src} is never used again.  The consequence is that we can
-guarantee that the execution of a \texttt{let-with} expression does
-not involve any copying of the source array in order to create the
-newly bound array.  We can think of it as similar to array
-modification in an imperative language.
+With the naive implementation based on copying the source array,
+executing the \texttt{let-with} expression would require memory
+proportional to the entire source array, rather than proportional to
+the slice we are changing.  This is not ideal.  Therefore, the
+\texttt{let-with} construct has some unusual restrictions to permit
+in-place modification of the \textit{src} array, as described in
+\cref{chap:uniqueness-types}.  Simply put, we track that \textit{src}
+is never used again.  The consequence is that we can guarantee that
+the execution of a \texttt{let-with} expression does not involve any
+copying of the source array in order to create the newly bound array,
+and therefore the time required for the update is proportional to the
+section of the array we are updating, not the entire array.  We can
+think of this as similar to array modification in an imperative
+language.
 
 \section{SOACs}
 \label{sec:soacs}
@@ -410,7 +445,7 @@ the language.
   \item[\texttt{\textit{x} \textbf{bitop} \textit{y}}] \hfill\\
     Evaluate the binary operator on its operands, which must both be
     of type \intt.  The following operators are supported:
-    \texttt{\^}, \texttt{\&}, \texttt{|}, \texttt{>>}, \texttt{<<},
+    \texttt{\^}, \texttt{\&}, \texttt{|}, \texttt{$>>$}, \texttt{$<<$},
     i.e., bitwise xor, and, or, and arithmetic shift right and left.
 
   \item[\texttt{\textit{x} \&\& \textit{y}}]\hfill\\

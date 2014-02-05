@@ -27,12 +27,18 @@ by one of the names it binds.
 \section{Tuple transformation}
 \label{sec:tuple-transformation}
 
-The principal difference between external and internal \LO{} is the
-total absence of arrays of tuples in the latter.  There are several
-reasons for this - \cref{chap:fusion} will describe how this benefits
-the fusion algorithm, and when generating the final machine code, we
-will also not be able to conveniently represent arrays of tuples in
-memory.
+The principal difference between external and internal \LO{} is that
+the latter does not permit arrays of tuples.  There are two reasons
+for this:
+\begin{itemize}
+\item Dataflow analysis is simplified by removing
+  \texttt{zip}/\texttt{unzip} expressions - the fusion algorithm in
+  \cref{chap:fusion} benefits greatly from this.
+
+\item Arrays of tuples cannot in general be efficiently represented in
+  memory due to alignment constraints, and so we would have to remove
+  them at some stage anyway.
+\end{itemize}
 
 An array of tuples type is converted to a tuple containing arrays of
 the original tuple components, for which the process is then repeated
@@ -185,9 +191,9 @@ variable-usage rules that govern all other expressions, and it is
 therefore not necessary to handle \texttt{assert} specially in the
 various transformations.  It is, however, necessary to maintain the
 list of certificates when transforming a predicated expression, but it
-turns out that this is simple in practice.  Essentially, the rule is
-that every expression derived one or more predicated expressions must
-be predicated likewise.
+turns out that this is simple in practice.  Essentially, the rule of
+thumb is that every expression derived one or more predicated
+expressions must be predicated likewise.
 
 The assertion design also has the particularly convenient property
 that even if later transformations pick apart the tuple literal, the
