@@ -521,13 +521,13 @@ the language.
     =
     \texttt{b}[i_1 , \ldots, i_{k+1} , \ldots, i_{k+n}, i_k, \ldots, i_q ].
     \]
-
-    Thus, \texttt{transpose(0,1,a)} is the common two-dimensional
+    We will call this an operation an \textit{$(k,n)$-transposition}.
+    Note that \texttt{transpose(0,1,a)} is the common two-dimensional
     transpose.
 
-    Note that $k$ and $n$ must be static integer literals, and $k+n$
-    must be non-negative and smaller than the rank of \texttt{a}, or
-    it is a type error.
+    Be aware that $k$ and $n$ must be static integer literals, and
+    $k+n$ must be non-negative and smaller than the rank of
+    \texttt{a}, or it is considered a type error.
 
   \item[\texttt{let \textit{pat} = \textit{e} in \textit{body}}]\hfill\\
     While evaluating \textit{body}, bind the names mentioned in

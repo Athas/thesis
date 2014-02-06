@@ -1,4 +1,4 @@
-\chapter{Internal representation}
+\chapter{Internal Representation}
 \label{chap:internal}
 
 It is a common compilation technique to transform the externally
@@ -24,7 +24,7 @@ A very important first notice: All names in internal \LO{} are
 shadowing, and we can uniquely identify, say, a \texttt{let}-binding
 by one of the names it binds.
 
-\section{Tuple transformation}
+\section{Tuple Transformation}
 \label{sec:tuple-transformation}
 
 The principal difference between external and internal \LO{} is that
@@ -93,8 +93,8 @@ mapT(fn \{int\} (int x, int y) =>
        f(x,y),
      a, b)
 \end{colorcode}
-Conceptually, we can imagine that the tuple-SOACs all have a built-in
-\texttt{zip}.  Furthermore, initial values for tuple-typed
+Conceptually, we can imagine that the tupleless SOACs all have a
+built-in \texttt{zip}.  Furthermore, initial values for tuple-typed
 accumulators (for \texttt{reduceT}, \texttt{scanT} and
 \texttt{redomapT}) are given element-wise, and also passed
 element-wise to the function.  This, combined with the ban on arrays

@@ -1,4 +1,4 @@
-\chapter{Fusion-enabling SOAC transformations}
+\chapter{Fusion-enabling SOAC Transformations}
 \label{chap:fusion-enabling-soac-transformations}
 
 The fusion rules in \cref{sec:fusion-rules} cover only simple cases,
@@ -29,7 +29,7 @@ can be defined as follows (using the nested map notation from
 \cref{fig:nested-maps}):
 
 \begin{align*}
-  \nfrac{
+  \inference{
     \fusesto
     {e_{b}}
     {\texttt{mapT($l_{a}$,$e_a$)}}
@@ -69,9 +69,58 @@ Furthermore, we will need to extend the SOAC notation we use for
 expressing fusion judgements.  The
 \textsc{Fuse-Map-Transpose-Map-Single} rule uses \texttt{transpose} in
 places where we have previously considered only plain variables and
-SOAC expression.  However, there is fundamentally nothing dubious
-about this usage, and we will not need to modify the previously
-defined rules.\fixme{Rephrase ``dubious''}
+SOAC expressions.  Their meaning is as follows:
+
+\begin{itemize}
+\item Whenever we use \texttt{transpose} (or, later, \texttt{reshape})
+  around a SOAC, the intent is that we transpose every output of the
+  SOAC.  Thus, even though \texttt{transpose(mapT(\ldots))} is
+  technically not type-correct \LO{}, since \texttt{mapT} returns a
+  tuple, the intended meaning is that every output is transposed.
+\item When we enclose inputs to a SOAC in \texttt{transpose} or
+  \texttt{reshape}, as in for example
+  \texttt{mapT($f$,transpose($\overline{es}$))}, the intended meaning
+  is to apply \texttt{transpose} to every input, i.e.
+  \texttt{mapT($f$, transpose($e_{1}$), \ldots, transpose($e_{n}$))}.
+\end{itemize}
+
+We add the following two ancillary fusion rules for fusing with a
+consumer whose output is transposed or reshaped.
+
+\begin{align*}
+  \inference{
+    \fusesto
+    {os}
+    {soac_{p}}
+    {soac_{c}}
+    {soac_{r}}
+  }{
+    \fusesto
+    {os}
+    {soac_{p}}
+    {\texttt{transpose($soac_{c}$)}}
+    {\texttt{transpose($soac_{r}$)}}
+  } & \tagsc{Fuse-Transposed-Consumer}
+\end{align*}
+
+\begin{align*}
+  \inference{
+    \fusesto
+    {os}
+    {soac_{p}}
+    {soac_{c}}
+    {soac_{r}}
+  }{
+    \fusesto
+    {os}
+    {soac_{p}}
+    {\texttt{reshape($shape$, $soac_{c}$)}}
+    {\texttt{reshape($shape$, $soac_{r}$)}}
+  } & \tagsc{Fuse-Reshaped-Consumer}
+\end{align*}
+
+The intuition behind these rules is that fusion is not sensitive to
+what happens with the output of the consumer.
 
 We will need a judgement to determine which SOAC inputs are simply
 transformations of an origin array.  The judgement
@@ -84,177 +133,121 @@ means that $e$ is a transformation of the array-typed variable $v$.
 For example $e$, may be \texttt{transpose($v$)}.  Valid judgements are
 defined by the following inference rules.
 
-\begin{align*}
-\nfrac{
+\[
+\inference{
   \Re(e) = v
 }{
   \Re(\texttt{transpose}(k,n,e)) = v
 }
-\end{align*}
+\]
 
-\begin{align*}
-\nfrac{
+\[
+\inference{
   \Re(e) = v
 }{
   \Re(\texttt{reshape}(shape,e)) = v
 }
-\end{align*}
+\]
 
-\begin{align*}
-  \nfrac{
-  }{
-    \Re(v) = v
-} \quad (\mbox{If $v$ is a variable})
-\end{align*}
+\[
+\inference{
+  \mbox{If $v$ is a variable}
+}{
+  \Re(v) = v
+}
+\]
 
-\section{ISWIM - Interchange scan with inner maps}
-
-The fusion algebra for \texttt{scanT} is quite poor -- in particular,
-it can never be fused as a producer.  In some cases, however, we can
-rewrite \texttt{scanT} to expose producer-fusability.  Specifically,
-when the body of a \texttt{scanT} operation consists of a nested
-\texttt{mapT}, we can interchange the two loops and transpose both
-input and output.  A simple example is as follows:\fixme{Finish}
-
-\begin{colorcode}
-scanT(fn [real] ([real] x, [real] y) =>
-        mapT(op +, x, y),
-     , \{0.0, \ldots, 0.0\}, a)   \emphh{\mymath{\equiv}}
-transpose(mapT (fn [real] ([real] x) =>
-                  scanT(op +,0.0,x)
-               , transpose(a) )
-\end{colorcode}
-
-\section{Fusing across \texttt{reshape}}
+When $\Re(e) = v$, we will say that the \textit{source array} of $e$
+is $v$.
 
 \section{Fusing across \texttt{transpose}}
 
-Push-transpose example:
+In the general case, \texttt{transpose} acts like a fusion blocker -
+if the output of a producer is transformed before being fed to the
+consumer, then most likely fusion cannot take place.  In some
+instances, we can perform a local transformation, either
+\textit{pushing} the transposition past the consumer, or
+\textit{pulling} it to before the producer.  An example is seen on
+\cref{fig:fuse-across-transpose} - on \cref{fig:transpose-unfusible},
+the transposition blocks fusion, but by pushing the transpose
+operation to the return value of the consumer, as on
+\cref{fig:transpose-fusible}, we expose
+\texttt{map}-\texttt{map}-fusibility.  \Cref{fig:pull-transpose}
+demonstrates same concept, but by pulling instead of pushing the
+transposition.
 
+\begin{figure}
+\begin{subfigure}[t]{.5\textwidth}
 \begin{colorcode}
-let \{\emphh{b}\} = mapT(f, a) in
-mapT\(\myindu{2}\)(g, \emp{transpose}(\emphh{b}))
-  \emphh{\(\Downarrow\)}
-let \{\emphh{b}\} = mapT(f, a) in
-\emp{transpose}(mapT\(\myindu{2}\)(g, \emphh{b})
+let \{\emphh{b}\} = map(f, a) in
+map\(\myindu{2}\)(g, \emp{transpose}(\emphh{b}))
 \end{colorcode}
-
-\[
-\boxed{
-  \text{untranspose}(k,n,os,es) \Rightarrow es'
-}
-\]
-
-\begin{align*}
-\nfrac{
-}{
-  \text{untranspose}(k,n,os,()) \Rightarrow ()
-}
-\end{align*}
-
-\begin{align*}
-& \nfrac{
-  \Re(e) = v
-  \quad
-  \text{untranspose}(k,n,os,es) \Rightarrow es'
-}{
-  \text{untranspose}(k,n,os,(\texttt{transpose}(k,n,e),es)) \Rightarrow (e,es')
-} & \quad (v \in os)
-\\
-\\
-& \nfrac{
-  \Re(e) = v
-  \quad
-  \text{untranspose}(k,n,os,es) \Rightarrow es'
-}{
-  \text{untranspose}(k,n,os,(e,es)) \Rightarrow (e,es')
-} & \quad (v \notin os)
-\end{align*}
-
-And rule:
-
-\begin{align*}
-  \nfrac{
-    \fusesto
-    {os}
-    {soac_{p}}
-    {\texttt{mapT$^{k+n}$($f$,$\overline{es'}$)}}
-    {soac_{r}}
-    \quad
-    \text{untranspose}(k,n,os,es) \Rightarrow es'
-  }{
-    \fusesto
-    {os}
-    {soac_{p}}
-    {\texttt{mapT$^{k+n}$($f$,transpose(k, n, $es$))}}
-    {\texttt{transpose$^{-1}$(k, n, $soac_{r}$)}}
-  }
-  \tagsc{Push-Transpose}
-\end{align*}
-
-Pull-transpose example:
-
+\subcaption{Unfusible\label{fig:transpose-unfusible}}
+\end{subfigure}%
+\begin{subfigure}[t]{.5\textwidth}
 \begin{colorcode}
-let \{\emphh{b}\} = mapT\(\myindu{2}\)(f, a) in
-reduceT(g, v, \emp{transpose}(\emphh{b}))
-  \emphh{\(\Downarrow\)}
-let \{\emphh{b}\} = mapT\(\myindu{2}\)(f, \emp{transpose}(a)) in
-reduceT(g, v, \emphh{b})
+let \{\emphh{b}\} = map(f, a) in
+\emp{transpose}(map\(\myindu{2}\)(g, \emphh{b}))
 \end{colorcode}
+\subcaption{Fusible\label{fig:transpose-fusible}}
+\end{subfigure}
 
-And rule:
+\caption{Pushing transposition past consumer}
+\label{fig:fuse-across-transpose}
+\end{figure}
 
-\[
-\boxed{
-  \text{transpose}(k,n,os,es) \Rightarrow es'
-}
-\]
+\begin{figure}
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+let \emphh{b} = map\(\myindu{2}\)(f, a) in
+map(g, \emp{transpose}(\emphh{b}))
+\end{colorcode}
+\subcaption{Unfusible\label{fig:pull-transpose-unfusible}}
+\end{subfigure}%
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+let \emphh{b} = map\(\myindu{2}\)(f, \emp{transpose}(a)) in
+map(g, \emphh{b})
+\end{colorcode}
+\subcaption{Fusible\label{fig:pull-transpose-fusible}}
+\end{subfigure}
 
-\begin{align*}
-\nfrac{
-}{
-  \text{transpose}(k,n,os,()) \Rightarrow ()
-}
-\end{align*}
+\caption{Pulling transposition before producer}
+\label{fig:pull-transpose}
+\end{figure}
 
-\begin{align*}
-& \nfrac{
-  \Re(e) = v
-  \quad
-  \text{transpose}(k,n,os,es) \Rightarrow es'
-}{
-  \text{transpose}(k,n,os,(e,es)) \Rightarrow (\texttt{transpose}(k,n,e),es')
-} & \quad (v \in os)
-\\
-\\
-& \nfrac{
-  \Re(e) = v
-  \quad
-  \text{transpose}(k,n,os,es) \Rightarrow es'
-}{
-  \text{transpose}(k,n,os,(e,es)) \Rightarrow (e,es')
-} & \quad (v \notin os)
-\end{align*}
+To get an intution for the validity of these transformations, we
+employ the concept of \textit{transpose depth}.  A standard textbook
+transposition interchanges the outer two dimensions - hence we say
+that it has a depth of $2$, as those are the dimensions that are
+affected.  If a SOAC does not directly access the two outermost
+dimensions, as for example a \texttt{mapT$\myindu{2}$} does not, we
+can interchange them without modifying the values that are seen by the
+body of the SOAC.  This can also be generalised to support the
+generalised $(k,n)$-transposition described in \cref{sec:l0-reference}.
 
-\begin{align*}
-  \nfrac{
-    \text{transpose}(k,n,os,es_{p}) \Rightarrow es_{p}'
-    \quad
-    \fusesto
-    {os}
-    {\texttt{mapT$^{k+n}$($f$,$\overline{es_{p}'}$)}}
-    {\texttt{mapT($g$, $\overline{es_{c}}$)}}
-    {soac_{r}}
-  }{
-    \fusesto
-    {os}
-    {\texttt{mapT$^{k+n}$($f$,$\overline{es_{p}}$)}}
-    {\texttt{mapT($g$, transpose(k, n, $\overline{es_{c}}$))}}
-    {soac_{r}}
-  }
-  \tagsc{Pull-Transpose}
-\end{align*}
+Specifically, \texttt{mapT$\myindu{n}$} accesses the element at index
+\([i_{1}, \ldots, i_{n}]\), but we are free to transpose the indices
+$i_{1}, \ldots, i_{n-1}$.  Of course, the order of the results will be
+different, which is why we need to perform an inverse transposition on
+the result.  To this end, \cref{fig:depth-of-transpose} defines a
+function for determining the transpose depth of a $(k,n)$-transpose,
+and \cref{fig:inverse-transpose} defines a notation for the inverse of
+a transposition.
 
+\begin{figure}
+\begin{center}
+  \[
+  \mathcal{D}(k,n) =
+  \begin{cases}
+    k+n & n \geq 0\\
+    k   & n < 0
+  \end{cases}
+  \]
+\end{center}
+\caption{Transposition depth}
+\label{fig:depth-of-transpose}
+\end{figure}
 \begin{figure}
 \begin{center}
 \texttt{transpose\mymath{\myindu{-1}}(k,n,e)} $\equiv$ \texttt{transpose(k+n,-n,e)}
@@ -263,7 +256,634 @@ And rule:
 \label{fig:inverse-transpose}
 \end{figure}
 
-%%% Local Variables: 
+Note the crucial property \texttt{transpose\(\myindu{-1}\)($k$, $n$,
+  transpose($k$, $n$, $e$))~=~$e$}.
+
+Our presentation will assume that transpositions are inlined as part
+of the inputs to the consumer, as on \cref{fig:fuse-across-transpose}.
+
+\subsection{Pushing \texttt{transpose}}
+
+To get an intution for how the transformation works, let us look at a
+slightly more complicated example:
+
+\begin{colorcode}
+let \{\emphh{b}\} = mapT(f, a) in
+map\(\myindu{\mathcal{D}(k,n)}\)(g, \emp{transpose}(k, n, \emphh{b}), c)
+\end{colorcode}
+
+The consumer takes two inputs, and only one of them is from the
+producer.  Our goal is to remove the \texttt{transpose} from $b$ - we
+do not care about whether the algorithm will eventually try to fuse
+$c$ as well.  Observe that by applying an inverse transposition to
+both inputs, we would remove the transposition surrounding \texttt{b},
+thus obtaining inputs \texttt{b} and
+\texttt{transpose\(\myindu{-1}\)(k, n, c)}, and thereby exposing
+\texttt{map}-\texttt{map}-fusibility between the producer and
+consumer.  Of course, we still have to transpose the output of the new
+consumer.  This solution also works \textit{only} when all inputs
+coming from the producer are transposed in the \textit{exact same}
+way, as otherwise applying the inverse transposition would not cause
+the transpositions to go away.
+
+To define fusion rules that fit into the framework established in
+\cref{chap:fusion}, we will need a bit of machinery.  First, we define
+a judgement for determining whether the outputs of a producer are
+transposed by the consumer:
+
+\[
+\boxed{
+  \text{transposed}(os,\overline{es}) \Rightarrow (k,n)
+}
+\]
+
+Here, $os$ must be the outputs of a producer, and $\overline{es}$ are
+the inputs of the consumer.  The judgement produces $(k,n)$ if one of
+the outputs are transposed in $\overline{es}$, defined by the
+following inference rules:
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  (v \in os)
+}{
+  \text{transposed}(os, \texttt{transpose($k$,$n$,$e$)}, \overline{es}) \Rightarrow (k,n)
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{transposed}(os,\overline{es}) \Rightarrow (k,n)
+  &
+  (v \notin os)
+}{
+  \text{transposed}(os, e, \overline{es}) \Rightarrow (k,n)
+}
+\]
+
+We also need a judgement for checking whether all inputs coming from
+the producer are transposed the exact same way, and if so, produce a
+modified input list with inverse transpositions applied:
+
+\[
+\boxed{
+  \text{transpose}^{-1}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+}
+\]
+
+This judgement states that all inputs in $\overline{es}$ whose
+underlying array is in $os$ is $(k,n)$-transposed.  Furthermore, the
+result of applying an inverse $(k,n)$-transposition to every input in
+$es$ is $\overline{es'}$.  The judgement is defined by the following
+inference rules:
+
+\[
+\inference{
+}{
+  \text{transpose}^{-1}(k, n, os,\texttt{transpose($k$,$n$,$e$)}) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  (\text{$e$ is not a transposition})
+}{
+  \text{transpose}^{-1}(k, n, os, e) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{transpose}^{-1}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \in os)
+}{
+  \text{transpose}^{-1}(k, n, os, \texttt{transpose}(k, n, e), \overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{transpose}^{-1}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \in os)
+}{
+  \text{transpose}^{-1}(k, n, os, \texttt{transpose}(k,n,e), \overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{transpose}^{-1}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \notin os)
+}{
+  \text{transpose}^{-1}(k, n, os, e, \overline{es}) \Rightarrow \texttt{transpose$^{-1}$($k$, $n$, $e$)}, \overline{es'}
+}
+\]
+
+We can now define a fusion rule for pushing \texttt{transpose} past
+\texttt{mapT} operations of sufficient nesting.  The general outline
+is as follows: First, determine whether an output of the producer is
+$(k,n)$-transposed by the consumer.  Then, check whether \textit{all}
+of the producer outputs used by the consumer are $(k,n)$-transposed,
+and if so, apply the inverse transposition to every input, obtaining
+$\overline{es'}$.  Finally, attempt to fuse the result.
+
+\begin{align*}
+\inference{
+  \text{transposed}(os,\overline{es}) \Rightarrow (k,n)
+  \\
+  \text{transpose}^{-1}(k,n,os,es) \Rightarrow es'
+  \\
+  \fusesto
+  {os}
+  {soac_{p}}
+  {\texttt{mapT$^{\mathcal{D}(k,n)}$($f$,$\overline{es'}$)}}
+  {soac_{r}}
+}{
+  \fusesto
+  {os}
+  {soac_{p}}
+  {\texttt{mapT$^{\mathcal{D}(k,n)}$($f$,$\overline{es}$)}}
+  {\texttt{transpose($k$, $n$, $soac_{r}$)}}
+} & \tagsc{Push-Transpose}
+\end{align*}
+
+\subsection{Pulling \texttt{transpose}}
+
+Consider the following program:
+
+\begin{colorcode}
+let \{\emphh{b1}, \emphh{b2}\} = mapT\(\myindu{\mathcal{D}(k,n)}\)(f, a1, a2) in
+reduceT(g, \emp{transpose}(k, n, \emphh{b1}), \emp{transpose}(k, n, \emphh{b2}), c)
+\end{colorcode}
+
+We can only push transpositions past sufficiently deeply nested
+\texttt{mapT}s, and in this case the consumer is a \texttt{reduceT}.
+However, since all of the inputs derived from outputs of the consumer
+are $(k,n)$-transposed, we can instead transform the producer itself
+by $(k,n)$-transposing its inputs.  This produces the following
+program, where \texttt{mapT}-\texttt{reduceT} fusion is possible:
+
+\begin{colorcode}
+let \{\emphh{b1}, \emphh{b2}\} = mapT\(\myindu{\mathcal{D}(k,n)}\)(f, \emp{transpose}(k, n, a1), \emp{transpose}(k, n, a2)) in
+reduceT(g, \emphh{b1}, \emphh{b2}, c)
+\end{colorcode}
+
+Again, this relies on the fact that the body of the producer is
+invariant with respect to the outer $\mathcal{D}(k,n)$ dimensions.
+
+Again, we will need an ancillary judgement.
+
+\[
+\boxed{
+  \text{untranspose}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+}
+\]
+
+This judgement checks that all inputs in $\overline{es}$ that use an
+input from $os$ are $(k,n)$-transposed, and produces a new sequence of
+inputs $\overline{es'}$ where such transposes are removed.  It is
+defined by the following inference rules.
+
+\[
+\inference{
+}{
+  \text{untranspose}(k, n, os,\texttt{transpose($k$,$n$,$e$)}) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  (\text{$e$ is not a transposition})
+}{
+  \text{untranspose}(k, n, os, e) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{untranspose}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \in os)
+}{
+  \text{untranspose}(k, n, os, \texttt{transpose}(k, n, e), \overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{untranspose}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \notin os)
+}{
+  \text{untranspose}(k, n, os, e, \overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+We can now define a fusion rule for pulling transpositions past
+\texttt{mapT} producers of sufficient nesting.  The general outline is
+as follows: First, determine whether an output of the producer is
+$(k,n)$-transposed by the consumer.  Then, check whether \textit{all}
+of the producer outputs used by the consumer are $(k,n)$-transposed,
+and if so, strip those transpositions and $(k,n)$-transpose the inputs
+to the producer instead.  Finally, attempt to fuse the result.
+
+\begin{align*}
+\inference{
+  \text{transposed}(os,\overline{es_{c}}) \Rightarrow (k,n)
+  &
+  \text{untranspose}(k,n,os,\overline{es_{c}}) \Rightarrow \overline{es_{c}'}
+  \\
+  \fusesto
+  {os}
+  {\texttt{mapT$^{\mathcal{D}(k,n)}$($f$,transpose($k$,$n$,$\overline{es_{p}}$))}}
+  {\texttt{mapT($g$, $\overline{es_{c}'}$)}}
+  {soac_{r}}
+}{
+  \fusesto
+  {os}
+  {\texttt{mapT$^{\mathcal{D}(k,n)}$($f$,$\overline{es_{p}}$)}}
+  {\texttt{mapT($g$, $\overline{es_{c}}$)}}
+  {soac_{r}}
+} & \tagsc{Pull-Transpose}
+\end{align*}
+
+\section{Fusing across \texttt{reshape}}
+
+The idea behind fusing across \texttt{reshape} operations is similar
+to the one covering \texttt{transpose}, although less well-developed.
+We support solely \textit{pulling} reshape prior to \texttt{mapT}
+producers taking single-dimensional arrays as input.  For example, we
+can fuse the following program:
+
+\begin{colorcode}
+let \{\emphh{b}\} = mapT(f, a) in \emp{// a is one-dimensional}
+reduceT(g, reshape((\(e\myindx{1}, \ldots, e\myindx{n}\)), \emphh{b}))
+\end{colorcode}
+
+Conceptually, the producer applies the function \texttt{f} to every
+element in \texttt{a}.  We reshape \texttt{a} to be $n$-dimensional
+and change the producer to be a depth-$n$ nest:
+
+\begin{colorcode}
+let \{\emp{b}\} = mapT\(\myindu{n}\)(f, reshape((\(e\myindx{1}, \ldots, e\myindx{n}\)) a)) in
+reduceT(g, \emp{b})
+\end{colorcode}
+
+In the resulting program, \texttt{mapT}-\texttt{reduceT}-fusability is
+exposed.
+
+Again, we need ancillary judgements.  These are entirely analogous to
+the ``\text{transposed}'' and ``\text{untransposed}'' judgements.
+
+\[
+\boxed{
+  \text{reshaped}(os,\overline{es}) \Rightarrow (k,n)
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  (v \in os)
+}{
+  \text{reshaped}(os,\texttt{reshape($shape$,$e$)}) \Rightarrow shape
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{reshaped}(os,\overline{es}) \Rightarrow shape
+  &
+  (v \notin os)
+}{
+  \text{reshaped}(os, e, \overline{es}) \Rightarrow shape
+}
+\]
+
+\[
+\boxed{
+  \text{unreshape}(shape, os, \overline{es}) \Rightarrow \overline{es'}
+}
+\]
+
+\[
+\inference{
+}{
+  \text{unreshape}(shape, os,\texttt{reshape($shape$,$e$)}) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  (\text{$e$ is not a reshaping})
+}{
+  \text{unreshape}(shape, os, e) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{unreshape}(shape, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \in os)
+}{
+  \text{unreshape}(k, n, os, \texttt{reshape}(shape, e), \overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  \text{unreshape}(shape, os, \overline{es}) \Rightarrow \overline{es'}
+  &
+  (v \notin os)
+}{
+  \text{unreshape}(shape, os, e, \overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+The fusion rule is also extremely similar to
+\textsc{Pull-Transpose}.
+
+\begin{align*}
+\inference{
+  \text{reshaped}(os, \overline{es_{c}}) \Rightarrow (e^{s}_{1}, \ldots, e^{s}_{n})
+  &
+  \text{unreshaped}((e^{s}_{1}, \ldots,e^{s}_{n}), os, \overline{es_{c}}) \Rightarrow \overline{es_{c}'}
+  \\
+  (\text{All of $\overline{es_{p}}$ have rank 1})
+  &
+  \fusesto
+  {os}
+  {\texttt{mapT$^{n}$($f$, reshape($(e^{s}_{1},\ldots,e^{s}_{n})$, $\overline{es_{p}}$))}}
+  {\texttt{mapT($g$, $\overline{es_{c}'}$)}}
+  {soac_{r}}
+}{
+  \fusesto
+  {os}
+  {\texttt{mapT($f$, $\overline{es_{p}}$)}}
+  {\texttt{mapT($g$, $\overline{es_{c}}$)}}
+  {soac_{r}}
+} & \tagsc{Pull-Reshape}
+\end{align*}
+
+\section{ISWIM - Interchange Scan With Inner Maps}
+
+The fusion algebra for \texttt{scanT} is quite poor -- in particular,
+it can never be fused as a producer.  In some cases however, we can
+rewrite \texttt{scanT} to expose producer-fusibility.  This section
+presents a high-level transformation that may enable fusion of
+\texttt{scanT}.  Specifically, when the body of a \texttt{scanT}
+operation consists of a nested \texttt{mapT}, we can interchange the
+two loops and transpose both input and output.  A simple example to
+demonstrate the intuitive idea is illustrated on
+\cref{fig:iswim-example}.  Using Haskell-like notation, a
+\texttt{scan} operation on a matrix in which the binary associative
+operator is \texttt{zipWith $\odot$} has the same semantics as
+transposing the matrix, mapping each of the rows, i.e., former
+columns, with \texttt{scan $\odot$} and transposing back the result.
+
+In principle, this transformation interchanges the \texttt{scanT} with
+the inner \texttt{mapT}, hence ISWIM, with the result that the
+transformed code can be executed as a segmented scan~\cite{segScan},
+i.e., exploiting both levels of parallelism.  With \texttt{scanT} on
+the outside, we would have to choose between the parallel
+\texttt{scanT} and the parallel \texttt{mapT}.  Furthermore, pushing
+the least parallel construct, i.e., \texttt{scanT}, at the innermost
+position might reveal a deeper \texttt{mapT}-nest, e.g., if the
+original \texttt{scanT} was inside a \texttt{mapT} itself, thus
+increasing the depth of parallelism.  Finally, if the created
+\texttt{mapT} nest exhibits enough parallelism, then the
+\texttt{scanT} can be executed sequentially rather than in parallel.
+In this way, the ISWIM transformation is not solely about enabling
+fusion, but is worthwhile on its own.
+
+\begin{figure}
+\begin{subfigure}[t]{.6\textwidth}
+\begin{colorcode}
+scanT(fn [real] ([real] x, [real] y) =>
+        mapT(op +, x, y),
+      \{0.0, \ldots, 0.0\}, a)
+\end{colorcode}
+\vspace{0.5cm}
+\subcaption{Unfusible \label{fig:iswim-unfusible}}
+\end{subfigure}%
+\begin{subfigure}[t]{.4\textwidth}
+\begin{colorcode}
+transpose(
+  mapT (fn [real] ([real] x) =>
+          scanT(op +, 0.0, x),
+                transpose(a)))
+\end{colorcode}
+\subcaption{Potentially fusible \label{fig:iswim-unfusible}}
+\end{subfigure}
+\caption{Interchange Scan With Inner Maps}
+\label{fig:iswim-example}
+\end{figure}
+
+Two fusion rules are defined.  One where ISWIM is applied to the
+producer, and one where it is applied to the consumer.
+
+\begin{align*}
+\inference{
+  \fusesto
+  {os}
+  {
+    soac_{p}
+  }
+  {
+    \texttt{transpose(mapT(scanT($f$), $\{e^{v}_{1}, \ldots, e^{v}_{k}\}, e^{a}_{1}, \ldots, e^{a}_{k}$))}
+  }
+  {
+    soac_{r}
+  }
+}{
+  \fusesto
+  {os}
+  {
+    soac_{p}
+  }
+  {
+    \texttt{scanT}(\texttt{mapT}(f), \{e^{v}_{1}, \ldots ,e^{v}_{k}\}, e^{a}_{1}, \ldots, e^{a}_{k})
+  }
+  {
+    soac_{r}
+  }
+} \tagsc{Fuse-ISWIM-Consumer}
+\end{align*}
+
+\begin{align*}
+\inference{
+  \fusesto
+  {os}
+  {
+    \texttt{transpose(mapT(scanT($f$), $\{e^{v}_{1}, \ldots, e^{v}_{k}\}, e^{a}_{1}, \ldots, e^{a}_{k}$))}
+  }
+  {
+    soac_{c}
+  }
+  {
+    soac_{r}
+  }
+}{
+  \fusesto
+  {os}
+  {
+    \texttt{scanT}(\texttt{mapT}(f), \{e^{v}_{1}, \ldots ,e^{v}_{k}\}, e^{a}_{1}, \ldots, e^{a}_{k})
+  }
+  {
+    soac_{c}
+  }
+  {
+    soac_{r}
+  }
+} \tagsc{Fuse-ISWIM-Producer}
+\end{align*}
+
+ISWIM depends critically on the fusion algorithm being able to fuse
+through \texttt{transpose}.  There is also a further generalisation
+for ISWIM, illustrated on \cref{fig:iswim-deep}, which permits the
+inner \texttt{mapT} to be arbitrarily nested, but it has not yet been
+implemented in the \LO{} compiler.
+
+\begin{figure}[bt]
+\begin{colorcode}
+\emp{scanT}( fn ( [\cindx{1}[\cindx{...n+1}\mymath{\alpha\myindx{1}}]], ..., [\cindx{1}[\cindx{...n+1}\mymath{\alpha\myindx{k}}]] )
+          ( [\cindx{1}[\cindx{...n+1}\mymath{\alpha\myindx{1}}]] x\mymath{\myindu{1}\myindx{1}}, ..., [\cindx{1}[\cindx{...n+1}\mymath{\alpha\myindx{k}}]] x\mymath{\myindu{1}\myindx{k}},
+            [\cindx{1}[\cindx{...n+1}\mymath{\alpha\myindx{1}}]] x\mymath{\myindu{2}\myindx{1}}, ..., [\cindx{1}[\cindx{...n+1}\mymath{\alpha\myindx{k}}]] x\mymath{\myindu{2}\myindx{k}} ) =>
+                \emphh{mapT}\cindu{n+1}(\mymath{\oplus}, x\mymath{\myindu{1}\myindx{1}},..., x\mymath{\myindu{1}\myindx{k}}, x\mymath{\myindu{2}\myindx{1}},..., x\mymath{\myindu{2}\myindx{k}}),
+     (ne\cindx{1}, ..., ne\cindx{k}), a\cindx{1}, ..., a\cindx{k})
+             \emphh{\(\equiv\)}
+let (..., re\cindx{t}, ...) = (..., map\cindx{n+1}( replicate(1), ne\cindx{t} ), ...)
+// Replicate dimension \(n+1\) of neutral elements so mapT sizes match
+let ( y\cindx{1}, ..., y\cindx{k} ) =
+  \emphh{mapT}(fn ( [\cindx{1}[\(\myindx{...n+1}\alpha\myindx{1}\)]],    ..., [\cindx{1}[\cindx{...n+1}\(\alpha\myindx{k}\)]] )
+          ( [\cindx{1}[\cindx{...n+1}\(\alpha\myindx{1}\)]] x\cindx{1}, ..., [\cindx{1}[\cindx{...n+1}\(\alpha\myindx{k}\)]] x\cindx{k} ) =>
+          \emphh{mapT}\cindu{n}(fn (\(\alpha\myindx{1}\),  ..., \(\alpha\myindx{k}\))
+                   (\(\alpha\myindx{1}\) e\cindx{1},...,\(\alpha\myindx{k}\) e\cindx{k},
+                    \(\alpha\myindx{1}\) x\cindx{1},...,\(\alpha\myindx{k}\) x\cindx{k})
+                     =>\emp{scanT}(\(\oplus\), e\cindx{1}[0],...,e\cindx{k}[0], x\cindx{1},...,x\cindx{k}),
+                 re\cindx{1}, ..., re\cindx{k}, x\cindx{1}, ..., x\cindx{k} ),
+       transpose(1,n+1,a\cindx{1}), ..., transpose(1,n+1,a\cindx{k}))
+in (transpose(n+1, q\cindx{1}-(n+1), y\cindx{1}), ..., transpose(n+1, q\cindx{k}-(n+1), y\cindx{k}))
+// transpose back the result; q\mymath{\myindx{t}} is the dimension of \mymath{\alpha\myindx{t}}
+\end{colorcode}
+\caption{Arbitrary-depth generalisation of ISWIM}
+\label{fig:iswim-deep}
+\end{figure}
+
+\section{Fusing A Transposed Producer}
+
+While an input program will never contain a producer of the form
+\texttt{transpose($k$,$n$,$soac$)}, the ISWIM transformation may
+create them.  To fuse these, we first move the transpositions to the
+inputs of the consumer.
+
+We need yet another ancillary judgement:
+
+\[
+\boxed{
+  \text{transpose}(k, n, os, \overline{es}) \Rightarrow \overline{es'}
+}
+\]
+
+This judgement wraps every input in $\overline{es}$ whose source array
+is in $os$ in an $(k,n)$-transposition, producing $\overline{es'}$.
+It is defined by the following inference rules:
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  (v \in os)
+}{
+  \text{transpose}(k, n, os, e) \Rightarrow \texttt{transpose($k$,$n$,$e$)}
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  (v \notin os)
+}{
+  \text{transpose}(k, n, os, e) \Rightarrow e
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  (v \in os)
+  &
+  \text{transpose}(k, n, os, e,\overline{es}) \Rightarrow \overline{es'}
+}{
+  \text{transpose}(k, n, os, e,\overline{es}) \Rightarrow \texttt{transpose($k$,$n$,$e$)}, \overline{es'}
+}
+\]
+
+\[
+\inference{
+  \Re(e) = v
+  &
+  (v \notin os)
+  &
+  \text{transpose}(k, n, os, e,\overline{es}) \Rightarrow \overline{es'}
+}{
+  \text{transpose}(k, n, os, e,\overline{es}) \Rightarrow e, \overline{es'}
+}
+\]
+
+We can now define a fusion rule.  First, we extract the array inputs
+of the consumer (not formalised), then transpose those whose source
+arrays come from the producer, producing $\overline{es'}$.  Finally,
+we attempt fusion where we have substituted the original array inputs
+in the consumer with $\overline{es'}$.
+
+\begin{align*}
+\inference{
+  \text{Inputs of $soac_{c}$ is $\overline{es}$}
+  &
+  \text{transpose}(k, n, os,\overline{es}) \Rightarrow \overline{es'}
+  \\
+  \fusesto
+  {os}
+  {soac_{p}}
+  {\text{$soac_{c}$ with inputs $\overline{es'}$}}
+  {soac_{r}}
+}{
+  \fusesto
+  {os}
+  {\texttt{transpose($k$, $n$, $soac_{p}$)}}
+  {soac_{c}}
+  {soac_{r}}
+} \tagsc{Fuse-Transposed-Producer}
+\end{align*}
+
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "thesis.tex"
-%%% End: 
+%%% End:

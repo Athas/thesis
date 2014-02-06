@@ -1,4 +1,4 @@
-\chapter{Optimisation results}
+\chapter{Optimisation Results}
 \label{chap:optimisation-results}
 
 Testing the impact of my optimisations presents three primary
@@ -236,9 +236,9 @@ mapT(fn \{*[real], *[real], *[real], *[real]\} (real xi_481) =>
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=5.8cm,valign=t]{img/CalibLexiFi-unfused.pdf}
+\includegraphics[width=5.7cm,valign=t]{img/CalibLexiFi-unfused.pdf}
 \hspace{0.2cm}
-\includegraphics[width=5.8cm,valign=t]{img/CalibLexiFi-fused.pdf}
+\includegraphics[width=5.7cm,valign=t]{img/CalibLexiFi-fused.pdf}
 \end{center}
 \caption{R0 benchmark dataflow, before and after optimisation}
 \label{fig:r2-dataflow}
@@ -248,7 +248,7 @@ R2 is easily the most complex benchmark, and also the one for which
 fusion has the smallest impact on the data flow graph.  As shown on
 \cref{fig:r2-dataflow}, the body of the main loop contains three
 independent (but near-identical) loops whose results are combined
-using a non-fusable series of reductions (summarised as a single
+using a non-fusible series of reductions (summarised as a single
 node).  The optimised structure is virtually identical: the only
 optimisation is a few instances of \texttt{map}-\texttt{map} and
 \texttt{map}-\texttt{reduce} fusion.  However, it is worth noting that
