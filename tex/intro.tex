@@ -18,7 +18,107 @@ parallel vector processors in the form of graphics cards.  While
 hardware acceleration of graphics became commonplace in the 90s, it
 was not until the rise of CUDA and OpenCL in 2006 that
 \textit{General-Purpose computing on Graphics Processing Units}
-(GPGPU) began to move into the mainstream.
+(GPGPU) began to move into the mainstream.  Today, there are three
+main ways to take advantage of this parallel processing power:
+
+\begin{description}
+\item[Low-level interfaces:] CUDA and OpenCL implementations are
+  supplied by the GPU vendors.\footnote{Strictly. OpenCL has a broader
+    focus, and seeks to provide an interface to heterogenous
+    computation in general, but for the purpose of this thesis, we
+    will consider OpenCL and CUDA to be GPU-oriented.}  These are very
+  low-level, and provide a C-like programming interface.  Furthermore,
+  GPU hardware has very complicated performance characteristics, and
+  it can be hard to achieve optimal, or even good performance.
+  Nevertheless, the full supported power of the devices is available
+  at this level, and optimal performance is theoretically achievable,
+  although in practice, specialist knowledge is required to achieve
+  good results at this level.
+
+\item[Libraries:] Some programming libraries aimed at high-peformance
+  computing have been rewritten to take advantage of GPU acceleration.
+  For example, Nvidia provides CUBLAS~\cite{nvidia2008cublas}, an
+  implementation of the well-known BLAS array operations API.  These
+  libraries are typically written by experts, and come close to peak
+  potential performance on the target hardware.  It is generally easy
+  to use these libraries from any language offering a good foreign
+  function interface, and it is thus an efficient way to reach a large
+  number of potential users.  Usage of these libraries requires little
+  in the way of GPU knowledge, or indeed knowledge about parallel
+  programming at all.
+
+  On the downside, although each discrete function may be
+  well-optimised in isolation, the library approach does not permit
+  \textit{cross-function} optimisation.  For example, if a library
+  exports a function \texttt{mult} to multiply two matrices, and I use
+  it in two invocations to multiply three matrices, as in
+  \texttt{mult(x,mult(y,z))}, the library will likely not be as fast
+  as if I used a hand-written three-operand-multiplication function.
+  Although particularly clever libraries may use a variant of lazy
+  evaluation to delay computation and optimise some compound
+  operations~\cite{kristensenbohrium}, the optimisation potential is
+  still limited as long as the program cannot be inspected directly.
+
+  The library approach is very popular in practice, with many
+  high-performance computing libraries now possessing GPGPU backends.
+
+\item[New data-parallel programming languages:] The final way to
+  perform GPGPU is to integrate GPU support directly into a
+  programming language.  This lets the compiler take a global view of
+  the entire computation, at least in theory, and optimise with full
+  knowledge of the program.  There appears to be two main paths within
+  the programming language approach:
+
+\begin{description}
+\item[Embedded languages:] Somewhat similar to the library approach,
+  this integrates GPGPU support in an existing language as an
+  \textit{Embedded Domain Specific Language}
+  (EDSL)~\cite{czarnecki2004dsl}.  The distinction between an EDSL and
+  a library is often fuzzy, with the distinction typically being about
+  the level of composability offered, and whether the EDSL follows the
+  same evaluation rules as the host language.  Further blurring the
+  issue, some EDSLs use syntactical extensions -- for example through
+  macros~\cite{kohlbecker1986hygienic} or
+  quasiquotation~\cite{mainland2007s} -- while others take advantage
+  of the host languages existing syntactical facilities.
+
+  The limitations for EDSLs are similar to the ones for libraries.
+  For example, the embedded language must be expressible in the type
+  system of the host language.  It also varies how much support the
+  host language provides for hooking into the compiler, in order to
+  perform optimisation.  On the other hand, much of the infrastructure
+  of the host language will be inherited by the EDSL, leading to a
+  much simpler implementation, compared to writing a full compiler.
+  Furthermore, the integration into the host language can be very
+  seamless and easy to use.
+
+  DPH, Repa and
+  Accelerate~\cite{Chak06DPH,keller2010regular,ArrayAccelerate} are
+  examples of data-parallel EDSLs for Haskell, with Accelerate suppors
+  OpenCL and CUDA backends.
+
+\item[Independent languages:] The final approach is to write an entire
+  compiler targeting GPGPU execution.  This provides total control, at
+  the cost of greatly increased implementation complexity.
+  Furthermore, it can be difficult to integrate components written in
+  a these new languages into existing code-bases written in mainstream
+  languages.  Nevertheless, the language can be designed from the
+  bottom up for efficient parallel execution, without compromises due
+  to host language integration.  The NESL~\cite{BlellochCACM96NESL}
+  language is an early ('96) example of a programming language
+  designed entirely for data-parallel execution.  Although designed
+  before the proliferation of GPUs, a GPU backend has recently been
+  developed~\cite{bergstrom2012nested}.  Another example of such a
+  language is Single-Assignment C~\cite{grelck2006sac}.
+
+  In a way, we could also consider the OpenCL and CUDA kernel
+  languages themselves to be in this category, but I prefer to only
+  consider high-level languages.
+\end{description}
+\end{description}
+
+In this thesis, we will present \LO{}, a language belonging to the
+latter category.
 
 ... \fxnote{Insert more - convince reader that my work addresses an
   important problem, and that I will give a well thought-out solution.

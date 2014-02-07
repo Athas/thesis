@@ -796,6 +796,7 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
 \newcommand{\infusible}[0]{\textsc{unfusible}}
 \newcommand{\inputs}[0]{\textsc{arrInputs}}
 \newcommand{\soacs}[0]{\textsc{SOACs}}
+\newcommand{\consumed}[0]{\textsc{consumed}}
 \newcommand{\patNames}[1]{\textsc{patNames}(#1)}
 \newcommand{\childExps}[1]{\textsc{childExps}(#1)}
 \newcommand{\parentExp}[1]{\textsc{parentExp}(#1)}
@@ -857,13 +858,13 @@ traversal of the \LO{} syntax tree.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=30ex,valign=t]{img/fusion-1.pdf}\hspace{2ex}
-\includegraphics[width=30ex,valign=t]{img/fusion-2.pdf}
+\includegraphics[width=35ex,valign=t]{img/fusion-1.pdf}\hspace{2ex}
+\includegraphics[width=35ex,valign=t]{img/fusion-2.pdf}
 
 \hfill\vspace{2ex}\\
 
-\includegraphics[width=30ex,valign=t]{img/fusion-3.pdf}\hspace{2ex}
-\includegraphics[width=30ex,valign=t]{img/fusion-4.pdf}
+\includegraphics[width=35ex,valign=t]{img/fusion-3.pdf}\hspace{2ex}
+\includegraphics[width=35ex,valign=t]{img/fusion-4.pdf}
 \caption{Fusion by T$_{2}$ transformation on the dependency graph}
 \label{fig:fusion}
 \end{figure}
@@ -907,8 +908,7 @@ edges.
 
 \subsection{Dataflow rules}
 
-We will track the following pieces of information.\fxnote{All of this
-  can be done in one pass - explain how and why.}
+During reduction, we will track the following pieces of information.
 
 \begin{description}
 \item[$\soacs : Exp \rightarrow (Label \times Pat \times Exp) Set$.]
@@ -974,6 +974,16 @@ We will track the following pieces of information.\fxnote{All of this
   &\{(v_{1},s_{1}),\ldots,(v_{n},s_{n})\} \sqcap \{(v_{n+1},s_{n+1}),\ldots,(v_{n+m},s_{n+m})\} =\\
   &\quad \{(v_{i}, \bigcap_{(v_{i},s_{j}),0 \leq j \leq n+m} s_{j})\},
   \end{align*}
+
+\item[$\consumed : Exp \rightarrow Label \rightarrow Name Set$.] A
+  mapping from the labels of SOACs in an expression, to a set of the
+  names that are consumed on the path to that SOAC.  The purpose of
+  this mapping is to ensure that we do not fuse in violation of the
+  uniqueness rules.  For example, if
+  \[
+  consumed(e)[\ell] = \{\texttt{a}\}
+  \]
+  then
 \end{description}
 
 If more specific rules are not given, the data flows default to the
