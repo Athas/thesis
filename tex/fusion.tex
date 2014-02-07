@@ -983,7 +983,9 @@ During reduction, we will track the following pieces of information.
   \[
   consumed(e)[\ell] = \{\texttt{a}\}
   \]
-  then
+  then we cannot fuse any producer taking \texttt{a} as input with the
+  SOAC labelled $\ell$, as \texttt{a} is consumed on the execution
+  path to $\ell$.
 \end{description}
 
 If more specific rules are not given, the data flows default to the
@@ -994,7 +996,9 @@ following.
   \\
   \inputs(e) &= \bigsqcup_{e'\in\childExps{e}} e'\\
   \\
-  \soacs(e) &= \bigcup_{e'\in\childExps{e}} \soacs(e')
+  \soacs(e) &= \bigcup_{e'\in\childExps{e}} \soacs(e') \\
+  \\
+  \consumed(e) &= \bigcup_{e'\in\childExps{e}} \consumed(e')
 \end{align*}
 Where $\childExps{e}$ are the \textit{immediate} children of $e$, e.g.
 \[
@@ -1170,7 +1174,12 @@ can fuse:
 \[
 \overline{vs} \cap \infusible(e_{b}) = \empty
 \]
-\item No $soac^{r}_{i}$ uses an array past a point of consumption. \fixme{Um, detail how we track this.}
+\item Fusion must not bring an array past a point where it is
+  consumed.  Formally, we must have that,
+\[
+\consumed(e_{b})[\ell^{c}_{i}] \cap (\text{The array inputs of \(soac\)}) = \emptyset
+\]
+for all $\ell^{c}_{i}$.
 \end{enumerate}
 
 \begin{description}
@@ -1218,7 +1227,13 @@ can fuse:
 
 \item[Case $e \equiv \texttt{let $v_{1}$ = $v_{2}$ with [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$ in $e_b$}$]
 
-Record the in-place modification of $v_{2}$. \fxnote{Not sure how to model this yet.}
+  For any soac $\ell$ in the body $e_{b}$, we note that the aliases of
+  $v_{2}$ are consumed on the path to $\ell$.
+
+\begin{align*}
+  & \consumed(e) =\\
+  & \quad \{ (\ell, \aliases{v_{2}} \cup \consumed(e_{b})[\ell])\ |\ (\ell,p_{\ell},e_{\ell}) \in \consumed(e_{b}) \}
+\end{align*}
 
 \end{description}
 
