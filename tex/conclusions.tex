@@ -1,8 +1,91 @@
 \chapter{Conclusions}
 \label{chap:conclusions}
 
-\section{Future work}
+This chapter summarises the result of our work.
+\Cref{sec:related-work} compares our fusion algorithm with fusion in
+other data-parallel programming languages.  \Cref{sec:future-work}
+outlines a number of possible future improvements to \LO{} and the
+compiler.  \Cref{sec:conclusion} provides a final summary of the
+results of this thesis.
+
+\section{Related Work}
+\label{sec:related-work}
+
+Our approach to performining fusion, via rewrite rules, is not unique
+by itself, as this is the approach used in e.g. Data-Parallel
+Haskell~\cite{Chak06DPH} (DPH).  What sets us apart is the fact that
+our rewriting rules are defined on the dataflow graph, and not the
+program itself.  While DPH obtains good results, its rewrite rules are
+quite limited -- they are an inherently local view of the program, and
+would be unable to cope with limitations in the presence of in-place
+array updates, and whether the result of an array operation is used
+multiple times.  The Glasgow Haskell Compiler itself also bases its
+list fusion on rewrite rules and cross-module
+inlining~\cite{jones2001playing,gill1993short}.
+
+The Repa~\cite{keller2010regular} approach to fusion is based on a
+delayed representation of arrays, which models an array as a function
+from index to value.  With this representation, fusion happens
+automatically through function composition, although this can cause
+duplication of work in many cases.  To counteract this, Repa lets the
+user \textit{force} an array, by which it is converted from the
+delayed representation to a traditional sequence of values.  The pull
+arrays of Obsidian~\cite{claessen2012expressive} use a similar
+mechanism.  This approach puts the onus on the programmer to specify
+points where the manifestation of arrays is beneficial, even though
+this may be a low-level consideration that depends on details of the
+target hardware.  We therefore consider this a job better suited for
+the compiler.
+
+Accelerate~\cite{mcdonell2013optimising} uses an elaboration of the
+delayed arrays representation from Repa, and in particular manages to
+avoid duplicating work.  All array operations have a uniform
+representation as constructors for delayed arrays, on which fusion is
+performed by tree contraction.  Accelerate supports multiple arrays as
+input to the same array operation (using a \texttt{zipWith}
+construct).  Although arrays are usually used at least twice (once for
+getting the size, once for the data), it does not seem that they can
+handle the difficult case where the output of an array operation is
+used as input to two other array operations.
+
+NESL has been extended with a GPU backend~\cite{bergstrom2012nested},
+for which the authors note that fusion is critical to the performance
+of the flattened program.  The NESL approach is to use a form of
+copy-propagation on the intermediary code, and lift the resulting
+functions to work on entire arrays.  This approach only works for what
+we would term \texttt{map}-\texttt{map} fusion, however.
+
+Our uniqueness attributes have some similarities to the ``owning
+pointers'' found in the impure language Rust~\cite{rust}, albeit there
+are deep differences.  In Rust, owning pointers are used to manage
+memory -- when an owning pointer goes out of scope, the memory it
+points to is deallocated -- while we use uniqueness attributes to
+handle side effects.  In addition, we allow function calls to consume
+arrays passed as unique-type parameters, whereas in Rust this causes a
+deep copy of the object referenced by the owning pointer.
+
+A closer similarity is found in the pure functional language Clean,
+which contains a sophisticated system of uniqueness
+typing~\cite{barendsen1996uniqueness}.  Clean employs uniqueness
+typing to re-use memory in cases where a function receives a unique
+argument, but also (and perhaps more importantly) to control side
+effects including arbitrary I/O.  As in \LO{}, alias analysis is used
+to ensure that uniqueness properties are not violated.  A notable
+difference is that the Clean language itself does not have any
+facilities for consuming unique objects, apart from specifying a
+function parameter as unique, but delegate this to (unsafe) internal
+functions, that are exposed safely via the type system.  Furthermore,
+a unique return value in Clean may alias some of the parameters to the
+function, which is forbidden in \LO{}.  We have found that this
+greatly simplifies analysis, and allows it to be fully
+intraprocedural.
+
+\section{Future Work}
 \label{sec:future-work}
+
+A very important immediate goal is the implementation of a code
+generator targeting GPU execution.  Furthermore, a number of other
+avenues for further research and development of \LO{} ae available.
 
 \subsection{Size Information in Type System}
 
@@ -69,8 +152,9 @@ let b = map(fn [real,\emp{N}] (int x) =>
 \end{colorcode}
 
 We now statically promise that the inner size of \texttt{b} will
-always be \texttt{N}.  The intent is that this promise can be checked
-by the type-checker.  Presumably, for the body of the function to be
+always be \texttt{N}, possibly backed by an assertion within the body
+of the map.  The intent is that this promise can be checked by the
+type-checker.  Presumably, for the body of the function to be
 type-correct, the function \texttt{f} would have been defined to
 return an array of the same size as its input.
 
@@ -83,13 +167,166 @@ a compiler target language.  In the end, it is important to remember
 that our primary motivation is to improve size tracking for the
 benefit of optimisation and code generation.
 
-\fixme{FINISH ME}
-
 \subsection{Improved Aliasing Analysis}
+\label{sec:improved-aliasing-analysis}
 
-Track slices as well.
+The system of uniqueness types presented in
+\cref{chap:uniqueness-types} hinges crucially on tracking potential
+sharing between arrays.  However, the current model of aliasing is
+very coarse-grained, as it cannot describe sharing at a more precise
+level than entire arrays.  For example, assume that we have the
+following function:
+
+\begin{colorcode}
+  fun *[int] replace(*[int] arr, int i, int x) =
+    let arr[i] = x in arr
+\end{colorcode}
+
+The result of \texttt{replace(a,i,x)} is the array \texttt{a} with the
+element at index \texttt{i} replaced by \texttt{x}.  We may want to
+use this function to replace an element within a slice of an array,
+like so\footnote{Of course, in this contrived example, we could just
+  use \texttt{let-with} rather than a separate function.}:
+
+\begin{colorcode}
+let b = a with [j] <- replace(a[j], j, x) in
+...
+\end{colorcode}
+
+Unfortunately, this code will be refused by the compiler: The call to
+\texttt{replace} consumes the array \texttt{a}, because \texttt{a[j]}
+is aliased with \texttt{a}, yet \texttt{a} is used as the source in a
+let-binding.  Making a separate binding for the call to
+\texttt{replace} may make things more clear:
+
+\begin{colorcode}
+let r = replace(a[j], j, x) in \emp{// Consumes a}
+let b = a with [j] <- r in
+...
+\end{colorcode}
+
+As far as the type system is concerned, both the call to
+\texttt{replace} and the \texttt{let-with} expression consume the
+entirety of \texttt{a}, hence causing a compile-time
+double-consumption error.  The only solution is to use \texttt{copy}:
+
+\begin{colorcode}
+let r = replace(\emphh{copy}(a[j]), j, x) in \emp{// Consumes a}
+let b = a with [j] <- r in
+...
+\end{colorcode}
+
+It is clear to us however, that the call to \texttt{replace} only
+modifies the memory associated with the \texttt{j}th row of
+\texttt{a}.  Furthermore, when \texttt{a} is next accessed (and
+consumed), the \texttt{j}th row is replaced anyway.  Thus, it should
+be possible to perform this entire operation in $O(1)$ space.
+
+We could of course make a specialised variant of \texttt{replace} for
+two-dimensional arrays, but this leads to unnecessary code bloat.
+Thus, we believe that more precising tracking of sharing would be
+worthwhile.  The problem is not easy, however, as the expression for
+the array index may be arbitrarily complicated.
 
 \subsection{Array Views}
+
+Array indexing in \LO{} is quite limited - only entire dimensions can
+be extracted.  With \texttt{split}, we can get slightly more control,
+but extracting e.g. the inner elements of a $2$-dimensional array is
+an enormously clumsy affair, as illustrated on
+\cref{fig:inner-elements-l0}.
+
+\begin{figure}
+\centering
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+fun [[int]] inner([[int]] a) =
+  let n = size(0,a) in
+  let m = size(0,b) in
+  let \{_,a2\}   = split(1,a) in
+  let \{rows,_\} = split(n-2,a2) in
+  map(fn [int] ([int] row) =>
+        let \{_, row2\} =
+          split(1,row) in
+        let \{res, _\}  =
+          split(m-2,row2) in
+        res,
+      rows)
+\end{colorcode}
+\subcaption{\LO{} \label{fig:inner-elements-l0}}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{.4\textwidth}
+\begin{colorcode}
+def inner(a):
+  a[1:-1, 1:-1]
+
+
+
+
+
+
+
+
+
+
+\end{colorcode}
+\subcaption{Numpy \label{fig:inner-elements-numpy}}
+\end{subfigure}
+\caption{Removing the outer elements of a $2$-dimensional array}
+\label{fig:inner-elements}
+\end{figure}
+
+The primary reason for this is that \texttt{split} only slices the
+outer dimension.  In other systems, such as the Python library
+Numpy~\cite{oliphant2006guide}, it is comparatively much simpler to
+simultaneously slice on every dimension of an array, as illustrated on
+\cref{fig:inner-elements-numpy}.
+
+As an array-oriented programming language, \LO{} should have similar
+convenient support for slicing arrays.  It is not only practical when
+writing code, but the resulting slice expressions are much easier to
+analyse than a dense expression using \texttt{size} and
+\texttt{split}.
+
+More radically, many operations in \LO{} are operationally just
+transformations of the index space of an underlying array.
+Transpositions, \texttt{reshape}, \texttt{replicate}, and even array
+indexing, merely provide different views of underlying data.  Thus,
+perhaps the best solution would be to provide a language construct
+that can express this mapping directly.  We can envision a syntax like
+the following:
+
+\begin{colorcode}
+fun [[int]] transpose([[int]] a) =
+  \emphh{arrange} a as
+    size (n,m) => (m,n) \emp{// Determine size of output array}
+    elem (i,j) => (j,i) \emp{// Put input (j,i) at position (i,j) in output}
+\end{colorcode}
+
+A crucial property is that every element of the output array maps
+directly to some element in the input array, which means that at
+compile time, we can remove the \texttt{arrange} intermediary and
+access the original array directly.  This design is very similar to
+the delayed arrays of Repa~\cite{keller2010regular}, which represent
+arrays as a function from the index space to the value space.  The
+built-in \texttt{replicate} could be reformulated as follows:
+
+\begin{colorcode}
+fun [[[int]]] replicate(int k, [[int]] r) =
+  \emphh{arrange} r as
+    size (n,m)   => (k,n,m)
+    elem (i,j,p) => (j,p)
+\end{colorcode}
+
+A large potential problem with a construct such as \texttt{arrange} is
+whether the compiler will be able to recognise ``known''
+transformations.  For example, we demonstrated in
+\cref{chap:fusion-enabling-soac-transformations} that the fusion
+algorithm depends on being able to recognise and rewrite
+\texttt{transpose} expressions, which it must be able to do, even if
+they are formulated in terms of \texttt{arrange}.  Hence, it would be
+important that every \texttt{arrange} can be reduced to a canonical
+form that uniquely represents the transformation it performs.
 
 \subsection{Software Engineering}
 
@@ -137,6 +374,11 @@ paid off:
   counter, while still being able to cheaply avoid unwanted name
   capture.
 \end{itemize}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Yeah, it's pretty good.\fixme{Maybe a bit vague.}
 
 %%% Local Variables: 
 %%% mode: latex

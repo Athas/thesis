@@ -4,7 +4,7 @@
 This chapter will outline the principles behind
 \textit{producer-consumer} loop fusion, describe their implementation
 in the \LO{} compiler, and discuss possible complications and
-restrictions of my handling of loop fusion.
+restrictions of our handling of loop fusion.
 
 In producer-consumer fusion, the aim is to merge (or \textit{fuse})
 two loops, where the output of the first loop -- the producer -- is
@@ -823,7 +823,15 @@ be concerned solely with the gathering stage.
 analysis, and the fusion algorithm is indeed designed as a reduction
 of a dataflow graph.
 
-My structural analysis is inspired by the
+\begin{figure}
+\begin{center}
+\includegraphics[width=5cm]{img/t1t2-1.pdf}
+\end{center}
+\caption{T$_{1}$-T$_{2}$-reduction}
+\label{fig:t1t2-1}
+\end{figure}
+
+Our structural analysis is inspired by the
 T$_{1}$-T$_{2}$-reduction~\cite{red_dragon}.  We say that a flow graph
 is reducible if it can be reduced to a single node by the following
 two transformations:
@@ -847,13 +855,55 @@ expression, with the successors of the node being its subexpressions.
 This means that we can implement the reduction simply as a bottom-up
 traversal of the \LO{} syntax tree.
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=5cm]{img/t1t2-1.pdf}
-\end{center}
-\caption{T$_{1}$-T$_{2}$-reduction}
-\label{fig:t1t2-1}
+\begin{figure}[t]
+\centering
+\includegraphics[width=30ex,valign=t]{img/fusion-1.pdf}\hspace{2ex}
+\includegraphics[width=30ex,valign=t]{img/fusion-2.pdf}
+
+\hfill\vspace{2ex}\\
+
+\includegraphics[width=30ex,valign=t]{img/fusion-3.pdf}\hspace{2ex}
+\includegraphics[width=30ex,valign=t]{img/fusion-4.pdf}
+\caption{Fusion by T$_{2}$ transformation on the dependency graph}
+\label{fig:fusion}
 \end{figure}
+
+Figure~\ref{fig:fusion} depicts the intuitive idea on which our fusion
+transformation is based.  The top-left figure shows the dependency
+graph of a simple program, where an arrow points from the consumer to
+the producer.
+
+The main point is that all SOACs that appear inside the box dashed box
+can be fused without duplicating any computation, even if several of
+the to-be-fused arrays are used in different SOACs.  For example,
+\texttt{y1} is used to compute both \texttt{\{z1,z2\}} and
+\texttt{\{q1,q2\}}\footnote{Note also that not all input arrays of a
+  SOAC need be produced by the same SOAC.}.  This is accomplished by
+means of $T_2$ reduction on the dependency graph:
+
+The rightmost child, i.e., \texttt{mapT(g,..)}, of the root SOAC
+(\texttt{mapT(f1,...)}) has only one incoming edge, hence it can be
+fused.  This is achieved by:
+\begin{enumerate}
+\item Replacing in the root SOAC the child's
+  output with the child's input arrays
+\item Inserting a call to the
+  child's function in the root's function, which computes the
+  per-element output of the child,
+\item Removing duplicate input arrays of the resulting SOAC.
+\end{enumerate}
+This operation is exactly what the fusion rules in
+\cref{sec:fusion-rules} formalise.
+
+The top-right part of \cref{fig:fusion} shows the (optimised) result
+of the first fusion, where the copy statements have been eliminated by
+copy propagation.  In the new graph, the leftmost child of the root,
+i.e., the one computing \texttt{\{z1,z2\}}, has only one incoming edge
+and can be fused.  The resulting graph, shown in the bottom-left
+figure can be fused again resulting in the bottom-right graph of
+\cref{fig:fusion}.  At this point no further $T_2$ reduction is
+possible, because the SOAC computing \texttt{x1} has two incoming
+edges.
 
 \subsection{Dataflow rules}
 

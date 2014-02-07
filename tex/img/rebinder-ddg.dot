@@ -1,18 +1,18 @@
 digraph finite_state_machine {
-	rankdir=TD;
+	rankdir=DT;
         fontname="Courier"
 	node [shape = rectangle, bgcolor="red", style=filled]; a_0 i_1 v_2;
 	node [shape = rectangle, fillcolor=white];
         {rank=same; a_0 i_1 v_2}
-        a_0 -> index_10
-        i_1 -> index_10
-        index_10 -> times_11
-        v_2 -> times_11
-        a_0 -> index_7
-        i_1 -> index_7
-        index_7 -> times_8
-        v_2 -> times_8
-        a_0 -> res_5
-        times_8 -> res_5
-        times_11 -> res_5
+        index_10 -> a_0
+        index_10 -> i_1
+        times_11 -> index_10
+        times_11 -> v_2
+        index_7 -> a_0
+        index_7 -> i_1
+        times_8 -> index_7
+        times_8 -> v_2
+        res_5 -> a_0
+        res_5 -> times_8
+        res_5 -> times_11
 }

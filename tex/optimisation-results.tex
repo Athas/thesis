@@ -1,7 +1,7 @@
 \chapter{Optimisation Results}
 \label{chap:optimisation-results}
 
-Testing the impact of my optimisations presents three primary
+Testing the impact of our optimisations presents three primary
 difficulties:
 
 \begin{enumerate}
@@ -174,7 +174,8 @@ loops in sequence.  The two first could in principle be fused, but we
 are again foiled by limitations of the size analyser.  In this case,
 the use of an explicit \texttt{loop} prevents the size analyser from
 determining the column size of the two-dimensional array returned by
-the \texttt{mapT}.
+the \texttt{mapT}.  The fusion of R0 also requires fusing across
+\texttt{transpose} and \texttt{reshape}.
 
 \begin{figure}
 \begin{center}

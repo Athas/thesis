@@ -56,7 +56,7 @@ possible without duplicating computation.\fixme{Why is it important to
   hoist bounds checks?  Because we target aggressive (static+dynamic)
   analysis; this is an instance of optimising arbitrary predicates.}
 
-The benefits of my optimisations are demonstrated on three real-world
+The benefits of our optimisations are demonstrated on three real-world
 financial benchmarks.  It is shown that the compiler is able to hoist
 bounds checks and other assertions outside of loops.
 
@@ -95,7 +95,20 @@ particularly fusion).
 
 \section{Notation}
 
-\fixme{Do I have any funky notation at all?}
+In various places, I will use an \(\overline{\text{overline}}\) to
+indicate a comma-separated sequence of terms.  For example, when
+describing a function call, rather than writing:
+\[
+f(e_{1},\ldots,e_{n})
+\]
+I may instead write:
+\[
+f(\overline{es})
+\]
+I may also use this in conjunction with expliclt arguments, as in:
+\[
+f(e_{start},\overline{es},e_{end})
+\]
 
 %%% Local Variables:
 %%% mode: latex
