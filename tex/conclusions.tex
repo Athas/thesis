@@ -300,7 +300,7 @@ the following:
 fun [[int]] transpose([[int]] a) =
   \emphh{arrange} a as
     size (n,m) => (m,n) \emp{// Determine size of output array}
-    elem (i,j) => (j,i) \emp{// Put input (j,i) at position (i,j) in output}
+    elem [i,j] => [j,i] \emp{// Map position (i,j) in output to position (j,i) in input}
 \end{colorcode}
 
 A crucial property is that every element of the output array maps
@@ -315,7 +315,18 @@ built-in \texttt{replicate} could be reformulated as follows:
 fun [[[int]]] replicate(int k, [[int]] r) =
   \emphh{arrange} r as
     size (n,m)   => (k,n,m)
-    elem (i,j,p) => (j,p)
+    elem [i,j,p] => [j,p]
+\end{colorcode}
+
+We can also express entirely novel transformations, such as a
+rearrangement that repeats every element of its input array twice:
+
+\begin{colorcode}
+fun [int] dupElem([int] a) =
+  \emphh{arrange} a as
+    size (n)     => (n)
+    elem (2*i)   => [i]
+    elem (2*i+1) => [i]
 \end{colorcode}
 
 A large potential problem with a construct such as \texttt{arrange} is
@@ -378,7 +389,36 @@ paid off:
 \section{Conclusion}
 \label{sec:conclusion}
 
-Yeah, it's pretty good.\fixme{Maybe a bit vague.}
+In this master’s thesis, we have presented the design for a pure
+functional data-parallel language, with a design that enables both a
+degree low-level imperative programming, as well as supporting
+high-level structural transformations such as loop fusion.  The
+language contains a type system for in-place modification and aliasing
+of arrays and array slices that ensures referential transparency,
+which in turn supports equational reasoning.
+
+Previous work on fusion has taken two main directions: Either fusion
+is performed aggressively, and the programmer is provided primitives
+to inhibit fusion, for example by forcing array to materialise, or
+fusion is performed via rewriting rules on the syntax tree.  The
+latter approach relies tightly on the inliner engine, and its
+applicability is limited to the case when each fused array is consumed
+by one array combinator.
+
+This thesis has presented a program-level, structural-analysis
+approach to fusion that handles the difficult case in which an array
+produced by a second-order array combinator (SOAC), such as
+\texttt{map}, is consumed by several other SOACs (if the SOAC
+producer-consumer dependency graph is reducible).  This essentially
+allows fusion to operates across \texttt{zip}/\texttt{unzip}.
+
+Furthermore, we have shown a compositional algebra for fusion that
+includes array combinators, such as \texttt{map}, \texttt{reduce},
+\texttt{filter}, \texttt{scan}, and \texttt{redomap}, and other
+built-in functions that would otherwise hinder fusion applicability,
+such as \texttt{size}, \texttt{transpose}, and \texttt{reshape}.  This
+algebra also includes transformations that in come cases allow fusion
+with \texttt{scan} as both consumer and producer.
 
 %%% Local Variables: 
 %%% mode: latex

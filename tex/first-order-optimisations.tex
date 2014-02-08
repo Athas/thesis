@@ -766,10 +766,10 @@ fun int main([int] a_0, int i_1, int v_2) =
 \end{itemize}
 
 We could now do a separate CSE pass over the entire program, but there
-may be a more efficient strategy.  The Rebinder should be able to
-perform the CSE optimisation whenever we insert the non-hoistable
-bindings into the syntax tree.  We will try to provide an intuition
-for the approach, using the above example:
+may be a more efficient strategy.  The Rebinder is able to perform the
+CSE optimisation whenever we insert the non-hoistable bindings into
+the syntax tree.  We will try to provide an intuition for the
+approach, using the above example:
 
 When, at the end, we have to insert bindings for \texttt{index\_10},
 \texttt{times\_11}, \texttt{res\_5}, \texttt{index\_7} and
@@ -859,7 +859,9 @@ e_{i})$, tells us whether $e_{i}$ is blocked from being hoisted.  As
 the most archetypical reason, $\mathcal{B}(p_{i}, e_{i})$ whenever
 $e_{i}$ uses a parameter of the function that we are trying to hoist
 out of, but the relation also checks the other cases mentioned in
-\cref{sec:when-not-to-hoist}.
+\cref{sec:when-not-to-hoist}.  We will consider as unhoistable any
+binding that is unhoistable according to $\mathcal{B}$, as well as any
+binding that depends on an unhoistable binding.
 
 Each of the expressions $e_{i}$ may use variables from any of the
 patterns $p_{j}$ (except its own), but there may also be free
@@ -881,17 +883,37 @@ name set:
 The end result is a set of hoistable bindings, and a set of
 nonhoistable bindings.  Because of the ordering, we are guaranteed
 that no binding in the former uses a name bound in the
-latter.\fixme{Insert figure}
+latter.
 
 \subsection{Inserting Bindings}
 
-\fixme{Explain the ``insertion'' part.}
+After dividing the potentially hoistable set into hoistable and
+non-hoistable bindings, we have to insert all non-hoistable bindings
+around the core expression.  Concretely, we are given a core
+expression $e_{c}$ and an ordered set of expressions
+$\{(p_{i},~e_{i})\}$, where binding $(p_{i},~e_{i})$ must precede
+binding $(p_{i+1},~e_{i+1})$.  We can take this opportunity to perform
+dead code elimination by removing any binding $(p_{i},~e_{i})$ that is
+not used in either $e_{c}$ or any enclosed binding.  The idea is to
+track which names are actually used in the lexical scope of the
+binding, and remove bindings that are never referenced.
+
+The algorithm is as follows.  We will track two pieces of data: A set
+$\mathcal{F}$, which is initialised to the free variables of $e_{c}$
+\footnote{This can be done efficiently if the rebinder constantly
+  tracks the free variables of the core expression.}.  Then we proceed
+\textit{backwards} through the list of bindings, i.e., we first
+process the binding that should be innermost.  For each binding
+$(p_{i},~e_{i})$, we check whether any of the names bound by $p_{i}$
+are present in $\mathcal{F}$.  If so, we add the free variables of
+$e_{i}$ to $\mathcal{F}$ and insert the binding.  If the binding is
+not used, we skip it.
 
 \subsection{Simplification of Expressions}
 \label{sec:simplification-of-expressions}
 
-The CSE technique described in previous sections depends heavily on
-semantically identical code also having ($\alpha$-)equivalent
+The CSE technique described in the previous sections depends heavily
+on semantically identical code also having ($\alpha$-)equivalent
 bindings.  However, in many cases, two expressions may have different
 syntax trees, yet semantically be the same.  For example, consider the
 expressions \texttt{(x*y)*z} versus \texttt{x*(y*z)}.  If we assume

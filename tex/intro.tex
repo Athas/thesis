@@ -11,7 +11,7 @@ processors, as happened previously, \textit{more} processors, or more
 \textit{specialised} processors, are added.  Thus, while computing
 power is still growing, it has become increasingly necessary to write
 programs that are parallel in order to take full advantage of modern
-hardware.
+advancements in hardware.
 
 One interesting development is the commoditisation of massively
 parallel vector processors in the form of graphics cards.  While
@@ -35,6 +35,9 @@ main ways to take advantage of this parallel processing power:
   although in practice, specialist knowledge is required to achieve
   good results at this level.
 
+  At the most basic level, all other approaches eventually boil down
+  to talking to a low-level interface.
+
 \item[Libraries:] Some programming libraries aimed at high-peformance
   computing have been rewritten to take advantage of GPU acceleration.
   For example, Nvidia provides CUBLAS~\cite{nvidia2008cublas}, an
@@ -49,25 +52,26 @@ main ways to take advantage of this parallel processing power:
 
   On the downside, although each discrete function may be
   well-optimised in isolation, the library approach does not permit
-  \textit{cross-function} optimisation.  For example, if a library
-  exports a function \texttt{mult} to multiply two matrices, and I use
-  it in two invocations to multiply three matrices, as in
+  optimisation of composed operations.  For example, if a library
+  exports a function \texttt{mult} to multiply two matrices, and we
+  use it in two invocations to multiply three matrices, as in
   \texttt{mult(x,mult(y,z))}, the library will likely not be as fast
-  as if I used a hand-written three-operand-multiplication function.
+  as if we used a specialised ternary multiplication function.
   Although particularly clever libraries may use a variant of lazy
-  evaluation to delay computation and optimise some compound
+  evaluation to delay computation and optimise some composed
   operations~\cite{kristensenbohrium}, the optimisation potential is
   still limited as long as the program cannot be inspected directly.
 
   The library approach is very popular in practice, with many
   high-performance computing libraries now possessing GPGPU backends.
 
-\item[New data-parallel programming languages:] The final way to
-  perform GPGPU is to integrate GPU support directly into a
-  programming language.  This lets the compiler take a global view of
-  the entire computation, at least in theory, and optimise with full
-  knowledge of the program.  There appears to be two main paths within
-  the programming language approach:
+\item[Data-parallel programming languages:] The final way to perform
+  GPGPU is to integrate GPU support directly into a programming
+  language, with full compiler support.  This permits code generation
+  based on a global view of the entire computation, at least in
+  theory, and optimise with full knowledge of the program.  There
+  appears to be two main paths within the programming language
+  approach:
 
 \begin{description}
 \item[Embedded languages:] Somewhat similar to the library approach,
@@ -89,8 +93,9 @@ main ways to take advantage of this parallel processing power:
   perform optimisation.  On the other hand, much of the infrastructure
   of the host language will be inherited by the EDSL, leading to a
   much simpler implementation, compared to writing a full compiler.
-  Furthermore, the integration into the host language can be very
-  seamless and easy to use.
+  Furthermore, due to the integration with the host language, EDSL
+  usage can be very seamless.  On the other hand, it is extremely hard
+  to access an EDSL from outside of the host language.
 
   DPH, Repa and
   Accelerate~\cite{Chak06DPH,keller2010regular,ArrayAccelerate} are
@@ -109,18 +114,43 @@ main ways to take advantage of this parallel processing power:
   designed entirely for data-parallel execution.  Although designed
   before the proliferation of GPUs, a GPU backend has recently been
   developed~\cite{bergstrom2012nested}.  Another example of such a
-  language is Single-Assignment C~\cite{grelck2006sac}.
+  language is Single-Assignment C (SAC)~\cite{grelck2006sac}.
 
   In a way, we could also consider the OpenCL and CUDA kernel
-  languages themselves to be in this category, but I prefer to only
-  consider high-level languages.
+  languages themselves to be in this category, but we only consider
+  high-level languages to be proper members of this group.
 \end{description}
 \end{description}
 
-In this thesis, we will present \LO{}, a language belonging to the
-latter category.
+The library approach is effective if a library exists for the specific
+problem the programmer is attempting to solve, but will often be
+neither sufficiently fast nor expressive for new domains.  EDSL suffer
+from a similar problem -- in particular, nested parallelism is
+generally very poorly supported.  The NESL and SAC languages are more
+expressive, but their implementation does not perform many advanced
+optimisations.
 
-... \fxnote{Insert more - convince reader that my work addresses an
+In this thesis, we will present \LO{}, an independent language
+designed for parallel execution.  We have chosen to implement \LO{} as
+a non-embedded language in order to have more design freedom, as we do
+not need to, e.g., fit \LO{} into the type system of an existing
+language.
+
+Loop fusion is one of the most important code transformations, as it
+has the potential for substantially optimising both memory hierarchy
+overhead and, sometimes asymptotically, space requirement.  In
+functional languages, fusion is naturally and relatively easily
+derived from the producer-consumer relation between program constructs
+that expose a rich, higher-order algebra of program invariants, such
+as the \texttt{map-reduce} list homomorphisms.
+
+In imperative languages, fusing producer-consumer loops requires
+dependency analysis on arrays applied at loop-nest level.  Such
+analysis, however, has often been labeled as ``heroic effort'' and, if
+at all, is supported only in its simplest and most conservative form
+in industrial compilers.
+
+... \fixme{Insert more - convince reader that my work addresses an
   important problem, and that I will give a well thought-out solution.
   Why is \LO{} functional, and why does it support sequential loops
   anyway?}
@@ -140,15 +170,15 @@ more vocally about the lack of syntactical niceties in the language.
 \section{Contributions}
 
 We present a purely functional data-parallel programming language,
-\LO{}, supporting nested parallelism.  The language supports a method
-\fixme{Why do I support nested parallelism?  Why only regular arrays?
-  Why are in-place updates supported (cross-iteration dependent
-  loops)} for safely performing in-place updates of array data through
-a type system concept called \textit{uniqueness types}.  Through the
-translation of real-world financial programs to \LO{}, we demonstrate
-the practical usefulness of this language feature.
+\LO{}, with support for nested parallelism.  The language supports a
+method \fixme{Why do I support nested parallelism?  Why only regular
+  arrays?  Why are in-place updates supported (cross-iteration
+  dependent loops)} for safely performing in-place updates of array
+data through a type system concept called \textit{uniqueness types}.
+Through the translation of real-world financial programs to \LO{}, we
+demonstrate the practical usefulness of this language feature.
 
-We present the design and implementation of several optimisations,
+We describe the design and implementation of several optimisations,
 notably hoisting bounds checks out of inner loops, and loop fusion
 based on a structural transformation.  The fusion transformation is
 capable of fusing loops whose output is used in multiple places, when

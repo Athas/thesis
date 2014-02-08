@@ -13,7 +13,7 @@ such as modern graphics processing units (GPUs).
   dynamically allocated arrays, which can often be checked statically
   to eliminate dynamic bounds checks.
 
-\item Compiler optimizations for hoisting bounds checks out of inner
+\item Compiler optimisations for hoisting bounds checks out of inner
   loops and performing loop fusion based on structural
   transformations.
 \end{itemize}
@@ -32,16 +32,16 @@ We show that:
   computation, a feature not found in other implementations of
   fusion~\cite{jones2001playing}.
 
-\item The effectiveness of our optimizations is demonstrated on three
+\item The effectiveness of our optimisations is demonstrated on three
   real-world benchmark problems from quantitative finance, based on
   empirical run-time measurements and manual inspection of the
   optimised programs.  In particular, hoisting and fusion yield a
-  sequential speed-up of up to 71\% compared to the unoptimized source
+  sequential speed-up of up to 71\% compared to the unoptimised source
   code, even without any parallel execution.
 \end{itemize}
 
 The results suggest that the language design, expressiveness and
-optimization techniques of \LO{} can be realized across a range of
+optimisation techniques of \LO{} can be realized across a range of
 SIMD-architectures, notably existing GPUs and manycore-chips, to
 simultaneously achieve portability and eventually performance
 competitive with hand-coding.

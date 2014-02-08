@@ -24,8 +24,8 @@ before the simple fusion rules can apply.  Indeed, one might consider
 the \textsc{Fuse-Map-Redomap} rule a particularly simple example of
 such a rewriting.  Fortunately, these rewriting schemes can be
 incorporated into the existing fusion framework simply by considering
-them as additional inference rules.  The above rewriting specifically
-can be defined as follows (using the nested map notation from
+them as additional inference rules.  The rewriting above can be
+defined as follows (using the nested map notation from
 \cref{fig:nested-maps}):
 
 \begin{align*}
@@ -83,6 +83,32 @@ SOAC expressions.  Their meaning is as follows:
   is to apply \texttt{transpose} to every input, i.e.
   \texttt{mapT($f$, transpose($e_{1}$), \ldots, transpose($e_{n}$))}.
 \end{itemize}
+
+Conceptually, we integrate \texttt{transpose} and \texttt{reshape}
+into the consumers by inlining them in the input positions prior to
+fusion.  This is illustrated on \cref{fig:inlining-transpose}
+
+\begin{figure}
+\centering
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+let \{b\} = mapT(f, a) in
+let \{c\} = transpose(b) in
+mapT(g, c)
+\end{colorcode}
+\subcaption{Before inlining}
+\end{subfigure}%
+\begin{subfigure}[t]{.5\textwidth}
+\begin{colorcode}
+let \{b\} = mapT(f, a) in
+mapT(g, transpose(b))
+
+\end{colorcode}
+\subcaption{After inlining}
+\end{subfigure}
+\caption{Inlining transposition}
+\label{fig:inlining-transpose}
+\end{figure}
 
 We add the following two ancillary fusion rules for fusing with a
 consumer whose output is transposed or reshaped.

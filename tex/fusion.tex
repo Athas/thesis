@@ -371,7 +371,7 @@ In general, in the context of GPU, the tradeoff between duplicating
 computation and increasing communication is not an easy problem to
 solve.  Accessing global memory can be more than a hundred times
 slower than accessing local (register) memory, hence duplicating
-computation is in many cases preferable.
+computation may in some cases be preferable.
 
 \item[Can reduce memory locality.]
 
@@ -904,7 +904,10 @@ and can be fused.  The resulting graph, shown in the bottom-left
 figure can be fused again resulting in the bottom-right graph of
 \cref{fig:fusion}.  At this point no further $T_2$ reduction is
 possible, because the SOAC computing \texttt{x1} has two incoming
-edges.
+edges.  This example demonstrates a key benefit of removing
+\texttt{zip}/\texttt{unzip} and using the tupleless SOACs
+representation: There are no intermediate nodes in the data-dependency
+graph between fusable producer and consumer.
 
 \subsection{Dataflow rules}
 
