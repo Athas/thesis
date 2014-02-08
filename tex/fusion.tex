@@ -912,11 +912,11 @@ During reduction, we will track the following pieces of information.
 
 \begin{description}
 \item[$\soacs : Exp \rightarrow (Label \times Pat \times Exp) Set$.]
-  The set of all SOAC expressions that appears in an expression,
-  modelled as a mapping from a (unique) label to a pair of a SOAC
-  expression and its output pattern.  We shall say $\soacs(e)$ to
-  refer to this mapping, and $\soacs(e)[l]$ to refer to the SOAC with
-  label $l$.  For example,
+  The set of SOACs that appears in an expression, modelled as a
+  mapping from a (unique) label to a pair of a SOAC expression and its
+  output pattern.  We shall say $\soacs(e)$ to refer to this mapping,
+  and $\soacs(e)[l]$ to refer to the SOAC with label $l$.  For
+  example,
   \begin{align*}
   & \soacs(\texttt{let \{$a$,$b$,$c$\} = mapT($f$,$x$,$y$,$z$) in \{$a$,$b$,$c$\}}) =\\
   & \quad \{ (\ell, \texttt{\{$a$,$b$,$c$\}},\texttt{mapT($f$,$x$,$y$,$z$)}) \},
@@ -926,6 +926,12 @@ During reduction, we will track the following pieces of information.
   function to refer to the set of all SOACS in that function.  Since
   the fusion transformation is strictly intraprocedural, this is
   sufficient for our needs.
+
+  This mapping may not necessarily contain all SOACs that appear
+  \textit{syntactically} in the program.  A core idea behind the
+  fusion algorithm is that whenever we would add a SOAC to this
+  mapping, we instead check whether it can be fused with the SOACs
+  already present.
 
 \item[$\infusible : Exp \rightarrow Name Set$.] The \textit{infusible
     set}, a set of variable names, is key to preventing unwanted
@@ -955,9 +961,9 @@ During reduction, we will track the following pieces of information.
   where $\ell$ is the label of the \texttt{mapT}-SOAC.
 
   We define an associative and commutative operation $\sqcup$ to
-  combine input mappings by taking the union of values (sets of
-  labels, $s$) of corresponding keys (variable names, $v$), as
-  follows.
+  combine multiset mappings by taking the union of values (in the case
+  of $\inputs$, sets of labels, $s$) of corresponding keys (for
+  $\inputs$, variable names, $v$), as follows.
   \begin{align*}
   &\{(v_{1},s_{1}),\ldots,(v_{n},s_{n})\} \sqcup \{(v_{n+1},s_{n+1}),\ldots,(v_{n+m},s_{n+m})\} =\\
   &\quad \{(v_{i}, \bigcup_{(v_{i},s_{j}),0 \leq j \leq n+m} s_{j})\},
@@ -998,7 +1004,7 @@ following.
   \\
   \soacs(e) &= \bigcup_{e'\in\childExps{e}} \soacs(e') \\
   \\
-  \consumed(e) &= \bigcup_{e'\in\childExps{e}} \consumed(e')
+  \consumed(e) &= \bigsqcup_{e'\in\childExps{e}} \consumed(e')
 \end{align*}
 Where $\childExps{e}$ are the \textit{immediate} children of $e$, e.g.
 \[
@@ -1043,8 +1049,6 @@ Now for specific rules, based on the shape of the given expression.
   true and the false branch, and it will still only have been
   considered to be used once, becase only one of the true and false
   branch will be executed, never both.
-
-\fixme{ArrInputs stuff not clear.}
 
 \begin{align*}
   & \inputs(e) =\\
@@ -1185,18 +1189,19 @@ for all $\ell^{c}_{i}$.
 \begin{description}
 \item[If the four conditions are true:]
 
-  In this case, we are fusing with several SOACs $soac_{c}$, each with
-  a corresponding label $\ell_{c}$, and fused as $soac_{c_{r}}$.
+  In this case, we are fusing $soac$ with several SOACs $soac^{c}_{i}$,
+  each with a corresponding label $\ell^{c}_{i}$, and fused as
+  $soac^{r}_{i}$.
 
 \begin{align*}
   & \soacs(e) =\\
   & \quad (\soacs(e_{b}) \backslash \zeta)\\
   & \quad \cup \soacs(e_{f})\\
-  & \quad \cup \{ (\ell_{c}, (vs, soac_{r}))\ |\ \textrm{for each $soac_{c_{r}}$} \}\\
+  & \quad \cup \{ (\ell^{c}_{i}, (vs, soac^{r}_{i}))\ |\ \textrm{for each $soac^{c}_{i}$} \}\\
   \\
   & \inputs(e) =\\
-  & \quad (\textrm{$\inputs(e_{b})$ with all mappings to each $\ell_{c}$ removed}) \\
-  & \quad \sqcup \{ (v,\ell_{c})\ |\ \textrm{for all array inputs $v$ in each $soac_{c_{r}}$} \}\\
+  & \quad (\textrm{$\inputs(e_{b})$ with all mappings to each $\ell^{c}_{i}$ removed}) \\
+  & \quad \sqcup \{ (v,\ell^{c}_{i})\ |\ \textrm{for all array inputs $v$ in each $soac^{c}_{i}$} \}\\
   \\
   & \infusible(e) =\\
   & \quad \infusible(e_{b})\\
@@ -1207,7 +1212,12 @@ for all $\ell^{c}_{i}$.
 
   We cannot fuse with $soac$ as a producer, and we must add it as a
   kernel by itself.  It may be fused as the consumer at some later
-  stage of the algorithm, however.
+  stage of the algorithm, however.  To the $\infusible$ set, we first
+  add every array variable used as a SOAC input in the body of $soac$.
+  We also also insert every array variable used both as input to
+  $soac$, but also to some SOAC in $e_{b}$.  The rationale is that
+  fusing whichever SOAC (if any) outputs this variable would duplicate
+  computation, as we have at least two consumers.
 
 \begin{align*}
   & \infusible(e) =\\
@@ -1223,7 +1233,7 @@ for all $\ell^{c}_{i}$.
   & \soacs(e) = \soacs(e_{b}) \cup \{(\ell_{p}, (vs, soac))\} \\
   &
 \end{align*}
-\end{description}\fixme{infusible rule is still too unclear.}
+\end{description}
 
 \item[Case $e \equiv \texttt{let $v_{1}$ = $v_{2}$ with [$e_{1}$,\ldots,$e_{n}$] <- $e_{v}$ in $e_b$}$]
 
