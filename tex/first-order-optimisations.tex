@@ -5,9 +5,38 @@ As a data-parallel programming language, most of the interesting
 optimisations for \LO{} naturally revolve around SOACs.  Yet,
 classical optimisations such as copy propagation, constant folding,
 hoisting and common subexpression elimination (CSE) remain important.
+For example, they are part of optimising the delayed representation of
+some constructs, as demonstrated on
+\cref{fig:delayed-replicate-iota-index}.
+
 This chapter will cover the implementation of copy propagation and
 constant folding for \LO{}.  Hoisting and CSE will be covered in
 \cref{chap:rebinder}.
+
+\begin{figure}
+\begin{subfigure}[bt]{0.5\textwidth}
+\centering
+\begin{bcolorcode}
+let a = iota(n) in
+let b = replicate(m, x) in
+let c = transpose(arr) in
+a[4] + b[1] + c[i,j]
+\end{bcolorcode}
+\caption{Unoptimised}
+\end{subfigure}%
+\begin{subfigure}[bt]{0.5\textwidth}
+\centering
+\begin{bcolorcode}
+4 + x + arr[j,i]
+
+
+
+\end{bcolorcode}
+\caption{Optimised}
+\end{subfigure}%
+\label{fig:delayed-replicate-iota-index}
+\caption{Optimising indexing into \texttt{replicate}, \texttt{iota} and \texttt{transpose}}
+\end{figure}
 
 \section{Inlining}
 

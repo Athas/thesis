@@ -245,7 +245,7 @@ mapT(fn \{*[real], *[real], *[real], *[real]\} (real xi_481) =>
 \hspace{0.2cm}
 \includegraphics[width=5.7cm,valign=t]{img/CalibLexiFi-fused.pdf}
 \end{center}
-\caption{R0 benchmark dataflow, before and after optimisation}
+\caption{R2 benchmark dataflow, before and after optimisation}
 \label{fig:r2-dataflow}
 \end{figure}
 
@@ -308,8 +308,8 @@ precise.
 \section{Runtime results}
 \label{sec:runtime-results}
 
-The real-world benchmarks were repeatedly passed through \LO{}
-optimisations until no further transformation was achieved, then
+The real-world benchmarks were repeatedly passed through the \LO{}
+optimisations until no further optimisation was achieved, then
 compiled with a code generator generating sequential C code.
 
 The resulting programs were compiled with GCC 4.8.2 using maximum
@@ -320,7 +320,7 @@ run-times averaged.  The results are shown on \cref{fig:speedups}
 \begin{figure}
 \begin{center}
 \begin{tabular}{l|c|c|c}
-   & \textbf{Unoptimised} & \textbf{Fused} & \textbf{Speedup} \\\hline
+   & \textbf{Unoptimised} & \textbf{Optimised} & \textbf{Speedup} \\\hline
 R0 & 0.430s & 0.292s & 46\% \\
 R1 & 0.098s & 0.057s & 71\% \\
 R2 & 0.061s & 0.047s & 31\%

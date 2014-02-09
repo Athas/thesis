@@ -160,7 +160,7 @@ fun [int] main([int] a) =
   let b = map(op + (1), a) in
   let c = map(op + (2), b) in
   let n = size(0, c) in
-  let d = map(op + (n), d) in
+  let d = map(op + (n), c) in
   d
 \end{bcolorcode}
 \end{center}
@@ -170,11 +170,11 @@ fun [int] main([int] a) =
 
 In the \LO{} compiler, size hindrance removal is implemented as part
 of the Rebinder introduced in \cref{sec:rebinder}.  Array sizes are
-tracked by inspecting bindings during the traversal of the syntax tree
-(as described in the next section).  Whenever we encounter a binding
-of a \texttt{size}-expression, we use the size information to obtain
-candidate replacements, then use the quality heuristic to determine
-the best replacement.
+tracked by inspecting bindings during the traversal of the syntax
+tree, as described in the next section.  Whenever we encounter a
+binding of a \texttt{size}-expression, we use the size information to
+obtain candidate replacements, then use the quality heuristic to
+determine the best replacement.
 
 \subsection{Size analysis}
 \label{sec:size-analysis}
@@ -341,10 +341,10 @@ possible solution, and the one taken in the current \LO{} compiler, is
 a preliminary fusion stage, prior to executing the Rebinder, then run
 the Rebinder and re-run fusion.  A more precise solution would be to
 integrate nuisance removal into the fusion algorithm, but this
-requires careful engineering in order to keep the resulting code
-complexity under control.  Alternatively, it may be possible to tweak
-the rules in the Rebinder to remove the possibility of creating fusion
-hindrances, although this has not been investigated in depth.
+requires careful engineering in order to keep the resulting compiler
+code complexity under control.  Alternatively, it may be possible to
+tweak the rules in the Rebinder to remove the possibility of creating
+fusion hindrances, although this has not been investigated in depth.
 
 \subsection{Size Hindrance Removal as a Hoisting Enabler}
 \label{sec:hoisting-enabler}
