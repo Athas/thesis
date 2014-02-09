@@ -17,7 +17,10 @@ let \{\emphh{b}\} = mapT(f, a) in
 \emp{transpose}(mapT(fn [int] ([int] r) => mapT(g, r), \emphh{b}))
 \end{colorcode}
 After this transformation, the simple \texttt{map}-\texttt{map} fusion
-rule applies.
+rule applies.  When moving around transformations such as
+\texttt{transpose} (and, later, \texttt{reshape}), remember that we
+think of them as having a delayed representation, and hence moving
+them will not influence the cost model of the program.
 
 In many cases, such rewriting of a producer-consumer pair is necessary
 before the simple fusion rules can apply.  Indeed, one might consider
@@ -49,7 +52,7 @@ defined as follows (using the nested map notation from
 \begin{center}
 \begin{colorcode}
 mapT\(\myindu{1}\)(f, a\(\myindx{1}\), \ldots , a\(\myindx{k}\)) \emphh{\(\equiv\)}
-mapT(g, a\(\myindx1\), \ldots, a\(\myindx{k}\))
+mapT(f, a\(\myindx1\), \ldots, a\(\myindx{k}\))
 
 mapT\(\myindu{n+1}\)(f, a\(\myindx{1}\), \ldots, a\(\myindx{k}\)) \emphh{\(\equiv\)}
 mapT(fn \{[\(\beta\myindx{1}\)], \ldots, [\(\beta\myindx{t}\)]\} ([\(\alpha\myindx{1}\)] x\(\myindx{1}\), \ldots, [\(\alpha\myindx{k}\)] x\(\myindx{k}\))) =>
@@ -155,9 +158,11 @@ transformations of an origin array.  The judgement
   \Re(e) = v
 }
 \]
-means that $e$ is a transformation of the array-typed variable $v$.
-For example $e$, may be \texttt{transpose($v$)}.  Valid judgements are
-defined by the following inference rules.
+means that $e$ is an application of \texttt{transpose} or
+\texttt{reshape} (possibly both, or several in sequence) of the
+array-typed variable $v$.  For example $e$, may be
+\texttt{transpose($v$)}.  Valid judgements are defined by the
+following inference rules.
 
 \[
 \inference{

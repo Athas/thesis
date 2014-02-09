@@ -17,7 +17,11 @@ possible to transform the intermediate language to the external
 language, at least not without losing much of the structure of the
 original program.  In comparison, the transformation from external to
 internal \LO{} is comparatively simple and reversible (with some loss
-of information; see \cref{sec:internal-to-external}).
+of information; see \cref{sec:internal-to-external}).  Internal \LO{}
+also supports a mechanism for making usually implicit checks explicit,
+such as bounds checks when indexing arrays, in some cases permitting
+their optimisation through standard optimistaions.  This is described
+in \cref{sec:assertions}.
 
 A very important first notice: All names in internal \LO{} are
 \textit{globally unique}.  This means that we will never have name

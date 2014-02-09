@@ -40,6 +40,9 @@ size(0,a) + reduce(op +, 0, \emp{b})
 
 \Cref{sec:size-hindrance-removal} will cover cases where we can
 rewrite \texttt{size}-expressions that reference a SOAC output.
+Although primarily concerned with increasing fusibility,
+\cref{sec:hoisting-enabler} will describe how removing hindrances can
+also enable hoisting, particularly of bounds checks.
 \Cref{sec:inlining-indexing} will describe inlining of index
 expressions where the index array is the result of a \texttt{map}
 operation.  This inlining may duplicate a small amount of computation.
@@ -347,6 +350,7 @@ the rules in the Rebinder to remove the possibility of creating fusion
 hindrances, although this has not been investigated in depth.
 
 \subsection{Size Hindrance Removal as a Hoisting Enabler}
+\label{sec:hoisting-enabler}
 
 This section has been solely concerned with \texttt{size} nuisance
 removal as a transformation to enable fusion.  However, it is equally

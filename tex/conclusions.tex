@@ -3,10 +3,11 @@
 
 This chapter summarises the result of our work.
 \Cref{sec:related-work} compares our fusion algorithm with fusion in
-other data-parallel programming languages.  \Cref{sec:future-work}
-outlines a number of possible future improvements to \LO{} and the
-compiler.  \Cref{sec:conclusion} provides a final summary of the
-results of this thesis.
+other data-parallel programming languages, as well as looking at other
+approaches to uniqueness typing.  \Cref{sec:future-work} outlines a
+number of possible future improvements to \LO{} and the compiler.
+\Cref{sec:conclusion} provides a final summary of the results of this
+thesis.
 
 \section{Related Work}
 \label{sec:related-work}
@@ -389,9 +390,9 @@ paid off:
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this master’s thesis, we have presented the design for a pure
-functional data-parallel language, with a design that enables both a
-degree low-level imperative programming, as well as supporting
+In this master’s thesis, we have presented the design of a pure
+functional data-parallel language, with a design that enables both (i)
+a degree low-level imperative programming, as well as (ii) supporting
 high-level structural transformations such as loop fusion.  The
 language contains a type system for in-place modification and aliasing
 of arrays and array slices that ensures referential transparency,

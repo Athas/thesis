@@ -1,13 +1,16 @@
 \chapter{Optimisation Results}
 \label{chap:optimisation-results}
 
-Testing the impact of our optimisations presents three primary
-difficulties:
+It is difficult at this point to quantitatively report the impact of
+fusion and our other optimisations, because the compiler does not yet
+produce quality parallel code.  There are three main problems:
 
 \begin{enumerate}
-\item The optimisation is ``incomplete'', in the sense that we likely
-  fuse too aggressively (as outlined in \cref{sec:whentofuse}), and
-  are too conservative about duplicating trivial computation.
+\item The optimisation is ``incomplete'', in the sense that we are
+  still too conservative about duplicating trivial computation.  In
+  addition, we have no heuristics for avoiding fusion in cases where
+  the added memory traffic becomes a detriment (as outline
+  \cref{sec:whentofuse}).
 
 \item There is not yet a way to execute \LO{} code in an efficient
   manner.  The \LO{} compiler has an interpreter, but its performance
@@ -17,8 +20,9 @@ difficulties:
   The compiler also has a code generator which generates strictly
   sequential C code.  The resulting C code uses very naïve memory
   management, however.  In particular it copies arrays very often when
-  entering loops, although this might put the fusion optimisation in a
-  better light, as it will reduce the sum number of loops.
+  executing SOACs, although this might put the fusion optimisation in
+  a better light, as it will reduce the number of distinct SOAC
+  expressions in the program.
 
 \item Finally, fusion, which is our primary optimisation, does not
   really reduce the number of discrete computation steps necessary to
@@ -135,7 +139,7 @@ There is clearly a missed opportunity for fusion, though, the reason
 for which becomes clear when we inspect the code around the unfused
 \texttt{map}:
 \begin{colorcode}
-..
+...
 let {untuple_13} =
   mapT(fn \{[[int]]\} ([int] param_0_8) =>
          // tmp_repl_11 aliases param_0_8
@@ -201,14 +205,14 @@ further fusion are possible:
   \cref{fig:r1-unfused-map}, we find that the computation that would
   be duplicated for each element is approximately four primitive
   arithmetic operations, and two calls to exponent and logarithm
-  functions.  Such duplication would likely be acceptable if it
-  increases the degree of parallelism.
+  functions.  Such duplication would likely be acceptable in this
+  case, as it enables an instance of fusion.
 
-\item The reason for why the two \texttt{loop}-containing
-  \texttt{mapT}s are not fused is more tricky.  Although not expressed
-  in the diagram, the input to the consumer is \textit{transposed},
-  and we have no fusion rule capable of handling a transposition in
-  this case, as neither consumer nor producer is a map nest.
+\item The reason for why the two latter \texttt{mapT}s are not fused
+  is more tricky.  Although not expressed in the diagram, the input to
+  the rightmost \texttt{mapT} is \textit{transposed}, and we have no
+  fusion rule capable of handling a transposition in this case, as
+  neither consumer nor producer is a map nest.
 
   It is not immediately clear how this could be solved.
 \end{enumerate}
@@ -263,7 +267,8 @@ ability to fuse just part of the input to a SOAC.
 let \{soac_v_685, soac_v_686\} =
   mapT(fn \{real, real\} (real arg_675, real arg_676, real arg_677, real arg_678) =>
          let baix_679 = arg_675 * mux_239 in
-         \{arg_677 * exp(-baix_679), (arg_678 - baix_679) / arg_676\},
+         \{arg_677 * exp(-baix_679),
+           (arg_678 - baix_679) / arg_676\},
        soac_v_669, soac_v_670, soac_v_671, soac_v_672) in
 let \{untuple_690\} =
   reduceT(fn \{real\} (real x_687, real y_688) =>
@@ -290,7 +295,15 @@ see whether our reluctance to duplicate computation is again too
 conservative.  The code in question (slightly simplified for
 readability) is shown on \cref{fig:r2-unfused-loops}.
 
-
+Again we see that that a relatively cheap \texttt{mapT} operation
+cannot be fused without duplicating computation.  This case is
+particularly interesting, because the \texttt{mapT} conceptually
+computes two distinct arrays, with only the computation of
+\texttt{baix\_679} (a single multiplication per element) being shared.
+This structure was also present in the original program.  In a future
+elaboration of the fusion algorithm, it may be worthwhile to split
+SOACs apart to make the representation of shared computation even more
+precise.
 
 \section{Runtime results}
 \label{sec:runtime-results}

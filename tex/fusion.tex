@@ -35,11 +35,44 @@ The rules by which we combine SOACs through fusion is called our
 \textit{fusion algebra}.  We aim at preserving the parallelism of the
 resulting expressions.
 
-\Cref{sec:fusionalgebra} describes superficially which
-producer-consumer pairs can be fused, as well as the form of the
-resulting SOAC.  \Cref{sec:invalidfusion} goes into greater detail on
-invalid fusion, and \cref{sec:whentofuse} covers cases in which fusion
-may actually be detrimental to performance.
+Most fusion algorithms in the literature are unable to handle fusion
+across \texttt{zip}/\texttt{unzip}, and more generally the case where
+the output of a producer is used by several consumers.  The algorithm
+presented in this chapter is capable of fusing such cases whenever
+possible without duplicating computation, as demonstrated on
+\cref{fig:fusion-multiple-consumers}.
+
+\begin{figure}
+\begin{subfigure}[bt]{0.5\textwidth}
+\centering
+\begin{bcolorcode}
+let \emp{b} = map(op+(1), a) in
+let c = map(op+(2), \emp{b}) in
+let d = map(op+(3), \emp{b}) in
+map(op+, zip(c,d))
+\end{bcolorcode}
+\caption{Unfused}
+\end{subfigure}%
+\begin{subfigure}[bt]{0.5\textwidth}
+\centering
+\begin{bcolorcode}
+map(fn int (int x) =>
+      let c = x + 2 in
+      let d = x + 3 in
+      c + d,
+    a)
+\end{bcolorcode}
+\caption{Fused}
+\end{subfigure}%
+\label{fig:fusion-multiple-consumers}
+\caption{Fusing multiple consumers without duplicating computation}
+\end{figure}
+
+This chapter covers two main themes: \Cref{sec:fusionalgebra}
+describes informally which producer-consumer we can fuse, as well as
+the form of the resulting SOAC.  \Cref{sec:fusion-algorithm} describes
+our aggressive fusion algorithm, in particular when a producer result
+may be used by multiple consumers, without duplicating computation
 
 \section{Fusion in \LO{}}
 \label{sec:fusion-in-l0}
@@ -792,6 +825,7 @@ This permits us to keep the result as a \texttt{reduceT} rather than a
 \end{align*}
 
 \section{The fusion algorithm}
+\label{sec:fusion-algorithm}
 
 \newcommand{\infusible}[0]{\textsc{unfusible}}
 \newcommand{\inputs}[0]{\textsc{arrInputs}}
@@ -1152,10 +1186,7 @@ loop (v) = for i < n do
   \zeta = \bigcup_{v \in vs} \inputs(e_{b},v)
   \]
   be the set of the labels of all SOACs that contain at least one of
-  our outputs in their input set.  Additionally, let $e_{f}$ be the
-  body of the function of $soac$.  In case $soac$ is
-  \texttt{redomapT}, the second function (the inner fold) is used, as
-  this is the one that is actually composed.
+  our outputs in their input set.
 
   For all $\ell^{c}_{i} \in \zeta$, we find the corresponding triple
   $(\ell^{c}_{i},vs^{c}_{i},soac^{c}_{i})$ in $\soacs(e_{b})$.  We can check
@@ -1174,27 +1205,35 @@ In total, the following four conditions must all be upheld before we
 can fuse:
 
 \begin{enumerate}
-\item There must be at least one consumer $soac^{c}_{i}$ with which we can fuse.
+\item There must be at least one consumer $soac^{c}_{i}$ with which we
+  can fuse.  Note that even if there are more than one, we do not end
+  up duplicating computation, as they would belong to different
+  branches.
 \item For each consumer $soac^{c}_{i}$, we must be able to fuse and
-  and get some $soac^{r}_{i}$.
+  and get some $soac^{r}_{i}$.  If we could only fuse with some, we
+  would be unable to remove the producer from the resulting program,
+  thus duplicating computation.
 \item None of $\overline{vs}$ are in the infusible set.  That is,
 \[
 \overline{vs} \cap \infusible(e_{b}) = \empty
 \]
+This rule also helps avoiding duplicate computation.
 \item Fusion must not bring an array past a point where it is
   consumed.  Formally, we must have that,
 \[
 \consumed(e_{b})[\ell^{c}_{i}] \cap (\text{The array inputs of \(soac\)}) = \emptyset
 \]
-for all $\ell^{c}_{i}$.
+for all $\ell^{c}_{i}$.  Violating this rule would create an invalid
+program.
 \end{enumerate}
 
 \begin{description}
 \item[If the four conditions are true:]
 
-  In this case, we are fusing $soac$ with several SOACs $soac^{c}_{i}$,
-  each with a corresponding label $\ell^{c}_{i}$, and fused as
-  $soac^{r}_{i}$.
+  In this case, we are fusing $soac$ with several SOACs
+  $soac^{c}_{i}$, each with a corresponding label $\ell^{c}_{i}$, and
+  fused as $soac^{r}_{i}$.  In the following, let $e_{f}$ be the body
+  of the function in $soac$.
 
 \begin{align*}
   & \soacs(e) =\\

@@ -122,7 +122,10 @@ return value.  This requirement would be violated if we permitted the
 return value in a unique-returning function to alias its (non-unique)
 parameters.
 
-We can crystallise these observations as three principal rules:
+To summarise: \textit{values are consumed by being the source in a
+  \texttt{let-with}, or by being passed as a \textit{unique} parameter
+  in a function call}.  We can crystallise valid usage in the form of
+three principal rules:
 
 \begin{description}
 \item[Uniqueness Rule 1] When a value is passed in the place of a
@@ -210,7 +213,7 @@ $\aliases{e}$, can take one of two forms:
 
 \item $\langle l_{1}, \ldots, l_{n} \rangle$, which requires that the
   type of $e$ is a tuple $\{t_{1}, \ldots, t_{n}\}$, and denotes that
-  the sharing of the $i$th component is $s_{i}$.  This is the shape of
+  the sharing of the $i$th component is $l_{i}$.  This is the shape of
   the sharing information when the type of $e$ is a tuple.
 \end{enumerate}
 
@@ -237,16 +240,31 @@ as $\forall v\in\aliases{e}.p(v)$ -- in these cases, the set elements
 are all variables contained anywhere in the sharing information.
 
 Aliasing is transitive -- if $v\in\aliases{e}$ and $v'\in\aliases{e}$,
-then $v\in\aliases{v'}$.  Aliasing is mostly intuitive, but here's a
-few rules describing how sharing is propagated by various expressions.
+then $v\in\aliases{v'}$.  Aliasing is mostly intuitive - during
+type-checking, the symbol table contains not only the type of each
+variable, but also which other variables it may alias.  Hence, we can
+define an aliasing rule for variables:
 
 \begin{align*}
-  \aliases{\texttt{$e$}} &= \emptyset\ (\text{Whenever $e$ has a basic type}) \\
   \aliases{\texttt{$v$}} &= \{v\} \cup \{\textrm{Any variable in scope that aliases \(v\)}\} \\
+\end{align*}
+
+The aliasing rules for other expressions are mostly intuitive, but a
+few interesting cases are presented here:
+
+\begin{align*}
+  \aliases{\texttt{$e$}} &= \emptyset\ (\text{Whenever $e$ has a basic type\footnote{A basic type is a type that is not contain an array anywhere.}}) \\
   \aliases{\texttt{$a$[i]}} &= \aliases{a} \\
   \aliases{\texttt{copy($e$)}} &= \emptyset \\
   \aliases{\texttt{if $c$ then ${e}_{1}$ else ${e}_{2}$}} &= \aliases{e_{1}} \oplus \aliases{e_{2}} \\
+  \aliases{\texttt{transpose($e$)}} &= \aliases(e) \\
 \end{align*}
+
+Note that \texttt{transpose} introduces aliasing - this is to permit
+an implementation where the transposed array is never actually
+manifested in memory, but is merely an index space transformation of
+the underlying array resolved at compile-time.  The operations
+\texttt{reshape}, \texttt{split}, etc. have a similar rule.
 
 The rule for function application is more complicated.  To begin with,
 and this was indeed the original rule in \LO{}, we can state that the
