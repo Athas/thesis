@@ -328,7 +328,6 @@ R2 & 0.061s & 0.047s & 31\%
 \end{center}
 
 \caption{Benchmark runtimes}
-
 \label{fig:speedups}
 \end{figure}
 
@@ -337,6 +336,12 @@ isolation and how much is due to other optimisations, as they all
 interact to enable each other.  However, given that the C programs
 were compiled with full optimisation, it is likely that the C compiler
 performed much hoisting and most of our simpler optimisations itself.
+
+Again, it must be emphasised that most of the speedup is likely due to
+the code generator copying all input arrays upon executing a SOAC.
+With this behaviour, fusion reducing the number of discrete SOAC
+expressions will likewise reduce the number of expensive memory
+copies.
 
 %%% Local Variables: 
 %%% mode: latex

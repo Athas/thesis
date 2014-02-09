@@ -184,7 +184,7 @@ mapT(fn \{[int]\} ([int] r) =>
 The details of how hoisting is implemented in the \LO{} compiler is
 covered in \cref{sec:rebinder}.
 
-\subsection{What not to hoist}
+\subsection{What Not to Hoist}
 \label{sec:when-not-to-hoist}
 
 Clearly, we can hoist only loop-invariant expressions.  Unfortunately,
@@ -569,7 +569,7 @@ fun int main([int] a_0, int i_1, int v_2) =
 \end{colorcode}
 
 Copy propagation can then be used to remove the \texttt{index\_7} and
-\texttt{times\_8} bindings.\fixme{This is still way too vague and hard to understand.}
+\texttt{times\_8} bindings.
 
 \subsection{Hoisting Bindings}
 \label{sec:hoisting-bindings}

@@ -12,10 +12,9 @@ In particular, recall that the fusion algorithm is very strict about
 never duplicating computation, and hence multiple uses of the output
 of a SOAC may easily block any fusion of the SOAC.  We call such a use
 a \textit{hindrance}, with an example shown on
-\cref{fig:size-hindrance}(\subref{fig:size-hindrance-blocking}).  In
-some cases, the hindrances are unavoidable, but in other cases, a
-pre-fusion transformation of the program can remove some unnecessary
-hindrances.
+\cref{fig:size-hindrance-blocking}.  In some cases, the hindrances are
+unavoidable, but in other cases, a pre-fusion transformation of the
+program can remove some unnecessary hindrances.
 
 \begin{figure}
 \begin{subfigure}[t]{.5\textwidth}
@@ -23,16 +22,14 @@ hindrances.
 let \emp{b} = map(f, a) in
 size(0,\emp{b}) + reduce(op +, 0, \emp{b})
 \end{colorcode}
-\label{fig:size-hindrance-blocking}
-\subcaption{Hindrance blocking fusion}
+\subcaption{Hindrance blocking fusion \label{fig:size-hindrance-blocking}}
 \end{subfigure}%
 \begin{subfigure}[t]{.5\textwidth}
 \begin{colorcode}
 let \emp{b} = map(f, a) in
 size(0,a) + reduce(op +, 0, \emp{b})
 \end{colorcode}
-\label{fig:size-hindrance-removed}
-\subcaption{Hindrance removed}
+\subcaption{Hindrance removed \label{fig:size-hindrance-removed}}
 \end{subfigure}%
 \caption{Typical case of \texttt{size}-hindrance}
 \label{fig:size-hindrance}
