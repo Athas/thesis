@@ -1,0 +1,145 @@
+\documentclass{beamer}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{adjustbox}
+\usepackage{chronology}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+
+% \usepackage{sfmath}
+%\usepackage{lxfonts}
+%\usepackage{mathdesign}
+\usepackage{unicode-math}
+%\setmathfont{lmmath-regular.otf}
+%\setmathfont{lmmath-regular.otf}
+%\setmathfont{Asana-Math.otf}
+%\setmathfont{xits-math.otf}
+
+
+% Graphics
+\usepackage{graphicx}
+%\usepackage{tikz}
+%\usetikzlibrary{matrix, calc, arrows, snakes}
+
+% Figures
+\usepackage{caption}
+\captionsetup{labelformat=empty,labelsep=none}
+
+% Font
+\usepackage{microtype}
+%\usepackage[scaled]{beramono}
+\usepackage{fontspec,xunicode}
+\newfontfamily\sbmyriad{Myriad Pro Semibold}
+\setsansfont{Myriad Pro}
+\setmonofont{Myriad Pro}
+\setbeamerfont{title}{family=\sbmyriad}
+\setbeamerfont{frametitle}{family=\bf}
+
+
+% Beamer theme settings
+\usecolortheme{seagull}
+\setbeamertemplate{itemize item}{\raisebox{0.8mm}{\rule{1.2mm}{1.2mm}}}
+\usenavigationsymbolstemplate{} % no navigation buttons
+
+
+\title{Master's thesis defence}
+\subtitle{Exploiting functional invariants to optimise parallelism:\\ A dataflow approach}
+\author{Troels Henriksen}
+\date{21. February 2014}
+\institute{Computer Science\\
+University of Copenhagen}
+
+
+
+
+% ADD "parfor" to algorithmic environment
+  % declaration of the new block
+  \algblock{ParFor}{EndParFor}
+  % customising the new block
+  \algnewcommand\algorithmicparfor{\textbf{parfor}}
+  \algnewcommand\algorithmicpardo{\textbf{do}}
+  \algnewcommand\algorithmicendparfor{\textbf{end\ parfor}}
+  \algrenewtext{ParFor}[1]{\algorithmicparfor\ #1\ \algorithmicpardo}
+  \algrenewtext{EndParFor}{\algorithmicendparfor}
+
+
+% Bitwise and and or operators
+% http://tex.stackexchange.com/questions/39313/double-nested-logical-and-and-logical-or-symbols
+\DeclareFontFamily{U}{matha}{\hyphenchar\font45}
+\DeclareFontShape{U}{matha}{m}{n}{
+      <5> <6> <7> <8> <9> <10> gen * matha
+      <10.95> matha10 <12> <14.4> <17.28> <20.74> <24.88> matha12
+      }{}
+
+\newcommand{\bland}{\mathbin{
+  \raisebox{.1ex}{%
+    \rotatebox[origin=c]{-90}{\usefont{U}{matha}{m}{n}\symbol{\string"CE}}}}}
+\newcommand{\blor}{\mathbin{
+  \raisebox{.1ex}{%
+    \rotatebox[origin=c]{90}{\usefont{U}{matha}{m}{n}\symbol{\string"CE}}}}}
+
+
+
+
+
+\begin{document}
+% Welcome
+% Both a defence and this is what I do
+\frame{\titlepage}
+
+% % Nice diagram showing how the talk will progress
+% \begin{frame}
+%   \frametitle{Agenda}
+%   \tableofcontents
+% \end{frame}
+
+\begin{frame}
+  \frametitle{Free lunches}
+
+\begin{itemize}
+\item Moores law still in effect, and will be for a while..
+\item ... but we no longer get many increases in sequential
+  performances.
+\item Modern performance increases are in the form of parallelism.
+\item The most parallel machines are massively parallel vector
+  processors, with commodity GPUs being particularly interesting due
+  to their ubiquity.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{GPGPU}
+
+\begin{itemize}
+\item GPUs were popularised in the 90s for graphics processing.
+\item Graphics is inherently parallel, so for cost reasons, the GPU
+  hardware was very parallel as well.
+\item In roughly 2006, GPGPU began to take off with CUDA and then
+  OpenCL.
+\item GPGPU is now widespread, but still very difficult.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{GPGPU, continued}
+
+\begin{itemize}
+\item OpenCL and CUDA both very low-level.
+\item No modularisation if you want performance.
+\item Libraries can contain optimised primitives... modular
+  performance still tricky.
+\item So we need a language.
+\end{itemize}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-engine: luatex
+%%% End:
