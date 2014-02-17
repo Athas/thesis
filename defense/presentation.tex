@@ -6,24 +6,8 @@
 \usepackage{chronology}
 \newcommand{\LO}{$\mathcal{L}_0$}
 
-% \usepackage{sfmath}
-% \usepackage{lxfonts}
-% \usepackage{mathdesign}
-\usepackage{unicode-math}
-% \setmathfont{lmmath-regular.otf}
-% \setmathfont{lmmath-regular.otf}
-% \setmathfont{Asana-Math.otf}
-% \setmathfont{xits-math.otf}
-
-
 % Graphics
 \usepackage{graphicx}
-% \usepackage{tikz}
-% \usetikzlibrary{matrix, calc, arrows, snakes}
-
-% Figures
-\usepackage{caption}
-\captionsetup{labelformat=empty,labelsep=none}
 
 % Font
 \usepackage{microtype}
@@ -43,10 +27,10 @@
 
 \lstdefinelanguage{L0}
 {keywords={fun,if,then,else,loop,do,map,reduce,filter,scan,redomap,mapT,reduceT,filterT,scanT,redomapT,transpose,reshape,iota,replicate,let},%
-sensitive=true,%
-comment=[l]{//},%
-string=[b]",%
-string=[b]'%
+  sensitive=true,%
+  comment=[l]{//},%
+  string=[b]",%
+  string=[b]'%
 }
 
 \lstset{
@@ -136,7 +120,7 @@ string=[b]'%
 \begin{frame}[fragile]
   \frametitle{Hello, World!}
 
-\begin{lstlisting}
+  \begin{lstlisting}
 fun fact(int n) =
   if n = 0 then 1
            else n * fact(n-1)
@@ -159,7 +143,7 @@ We have the following second-order array combinators (SOACs):
   The innermost part of a parallel loop may be a sequential
   computation.
 
-\begin{lstlisting}
+  \begin{lstlisting}
 fun [int] fib(int n) =
   // Create "empty" array.
   let arr = iota(n) in
@@ -182,7 +166,7 @@ mutation of the array allows an asymptotic improvement to $O(n)$.
   A \textit{unique-typed function argument} is guaranteed not to be
   referenced again on any execution path following the function call.
 
-\begin{lstlisting}
+  \begin{lstlisting}
   fun *[int] modify(*[int] a, int i, int x) =
     let a[i] <- a[i] + x in
     a
@@ -195,24 +179,168 @@ references to the value.
 \end{frame}
 
 \begin{frame}
-\frametitle{\textbf{redomap}}
+  \frametitle{Producer-consumer fusion}
+
+  \begin{itemize}
+  \item Fusion can reduce space requirements and optimise memory
+    hierarchy overhead.
+  \item Very hard in imperative languages, but much easier in
+    functional languages.
+  \item Based on recognising \textit{producer-consumer} pairs.
+  \end{itemize}
+
+As a simple case, we can fuse the two loops in
+\[
+\texttt{(map~$f$)~$\circ$~(map~$g$)}
+\]
+and get
+\[
+\texttt{map~$(f~\circ~g)$}
+\]
 \end{frame}
 
 \begin{frame}
-\frametitle{Tupleless SOACs}
+  \frametitle{Different approaches to fusion}
+
+\begin{itemize}
+\item Delayed arrays -- represent arrays as a function from the index
+  space to the value space.
+    \begin{itemize}
+    \item Fusion is easy to implement - just function composition.
+    \item Hard to avoid duplication of computation.
+    \item Hard to analyse the memory access patterns of resulting code.
+    \end{itemize}
+\item Structural fusion with algebraic rewrite rules (our approach).
+  \begin{itemize}
+    \item Much harder to implement.
+    \item Easy to avoid duplication of computation.
+    \item Memory access patterns are immediately clear from code
+      structure.
+  \end{itemize}
+\end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Fusion on dataflow graph}
+\begin{frame}[fragile]
+  \frametitle{Simple rewrite rules}
+
+\begin{lstlisting}
+let {x1, x2} = mapT(f, a1)
+in  mapT(g, x1, y)
+\end{lstlisting}
+Fuses to...
+\begin{lstlisting}
+mapT(fn r (t1 a1e, t2 ye) =>
+       let {x1e, x2e} = f(a1e)
+       in  g(x1e, ye),
+     a1, y )
+\end{lstlisting}
 
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Fusion example, continued}
+  \frametitle{Simple rewrite rules, continued}
 
-We will try to fuse the following program.
+\begin{center}
+\begin{tabular}{rcl}
+\texttt{map $\circ$ map}    & $\Rightarrow$ & \texttt{map} \\
+\texttt{replicate $\circ$ \textit{soac}} & $\Rightarrow$ & \textit{soac} \\
+\texttt{filter $\circ$ filter} & $\Rightarrow$ & \texttt{filter}  \\
+\texttt{filter $\circ$ reduce} & $\Rightarrow$ & \texttt{reduce} $\dag$  \\
+\texttt{map $\circ$ reduce} & $\Rightarrow$ & \texttt{reduce} $\ddag$ \\
+\texttt{map $\circ$ scan} & $\Rightarrow$ & \texttt{scan} $\ddag$ \\
+\end{tabular}
+\end{center}
 
-\begin{lstlisting}
+\begin{description}
+\item[$\dag$] Only if consumer takes input from no other
+  source.
+\item[$\ddag$] Only if consumer takes input from no other source,
+  \textit{and} types of producer inputs match types of producer
+  outputs.
+\end{description}
+
+\end{frame}
+
+\begin{frame}[fragile,t]
+  \frametitle{  \texttt{redomap($f_{r}$, $f_{m}$, $x$, $e$)}}
+
+  Not part of the external language, but useful for the fusion
+  algebra.  Semantics is the same as \texttt{\tt foldl($f_{m}$, $x$, $e$)}.
+
+  $(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)$ can be
+  transformed, via the list homomorphism promotion lemma, to an
+  equivalent form:
+  \[
+  (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
+  {\equiv}\ \texttt{reduce}\ \odot\
+  e\ \circ\ \texttt{map}\ ({\texttt{reduce}\ \odot\ e\ \circ\ \texttt{map}\ f})\ \circ\ \texttt{split}_{p}
+  \]
+  Hence, the \textit{inner} map-reduce can be rewritten as a left-fold:
+  \[
+  (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
+  {\equiv}\ \texttt{reduce}\ \odot\
+  e\ \circ \texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p}
+  \]
+  Where $g$ is a function generated from the composition of $f$ and
+  $\odot$.  It follows that it is sufficient to record either $\odot$
+  and $f$, or $\odot$ and $g$. We choose the latter, because it allows
+  a richer compositional algebra for fusion.  In particular, it allows
+  us to fuse \texttt{reduce~$\circ$~map~$\circ$~filter} into a
+  \texttt{redomap} without duplicating computation.
+\end{frame}
+
+\begin{frame}
+\frametitle{\texttt{redomap} rewriting rules}
+
+\begin{center}
+\begin{tabular}{rcl}
+\texttt{map $\circ$ reduce}    & $\Rightarrow$ & \texttt{redomap} \\
+\texttt{filter $\circ$ reduce}    & $\Rightarrow$ & \texttt{redomap} \\
+\texttt{map $\circ$ redomap}    & $\Rightarrow$ & \texttt{redomap} \\
+\texttt{filter $\circ$ redomap}    & $\Rightarrow$ & \texttt{redomap} \\
+\end{tabular}
+\end{center}
+
+The first two rules are derivable from the latter two, since
+\texttt{reduce(f,x,e)} can be rewritten to \texttt{redomap(f,f,x,e)}.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Reducible dataflow graph}
+
+  We say that a flow graph is T$_{1}$-T$_{2}$-reducible if it can be
+  reduced to a single node by the following two transformations:
+
+\begin{description}
+  \item[T$_{1}$:] Remove an edge from a node to itself.
+
+  \item[T$_{2}$:] Combine two nodes $m$ and $n$, where $m$ is the
+    single predecessor of $n$, and $n$ is not the entry of the flow
+    graph.
+\end{description}
+
+\begin{columns}
+\begin{column}{6cm}
+\includegraphics[width=6cm]{img/t1t2.pdf}\hfill
+\end{column}
+\begin{column}{4cm}
+\LO{} always produces a reducible flow graph.
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tupleless SOACs}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Fusion example}
+
+  We will try to fuse the following program.
+
+  \begin{lstlisting}
 let {x1} = mapT(h1, x2) in
 let {y1,y2,y3} = mapT(f1, x1, x2) in
 let {z1,z2} = mapT(f2, y1, y2) in
@@ -227,24 +355,53 @@ SOACs.
 \end{frame}
 
 \begin{frame}[t]
-\frametitle{Fusion example, continued}
+  \frametitle{Fusion example, continued}
 
-\begin{center}
-\begin{columns}[t]
-  \begin{column}{0.5\textwidth}
-    \includegraphics[width=4cm]{img/fusion-1.pdf}
-    \vspace{1cm}
-    \includegraphics[width=4cm]{img/fusion-3.pdf}
-  \end{column}
+  \centering
+  \begin{columns}
+    \begin{column}[T]{0.48\textwidth}
+      \includegraphics[width=5cm]{img/fusion-1.pdf}
+    \end{column}\hfill
+    \begin{column}[T]{0.48\textwidth}
+      \includegraphics[width=5cm]{img/fusion-2.pdf}
+    \end{column}
+  \end{columns}
 
-  \begin{column}{0.5\textwidth}
-    \includegraphics[width=4cm]{img/fusion-2.pdf}
-    \vspace{1cm}
-    \includegraphics[width=4cm]{img/fusion-4.pdf}
-  \end{column}
-\end{columns}
-\end{center}
+\end{frame}
 
+\begin{frame}[t]
+  \frametitle{Fusion example, continued}
+
+  \centering
+  \begin{columns}
+    \begin{column}[T]{0.48\textwidth}
+      \includegraphics[width=5cm]{img/fusion-2.pdf}
+    \end{column}\hfill
+    \begin{column}[T]{0.48\textwidth}
+      \includegraphics[width=5cm]{img/fusion-3.pdf}
+    \end{column}
+  \end{columns}
+
+  Fusion through rewrite rules is not a new idea - they are used by
+  e.g.  GHC.  Their rules are expressed in terms of the \textit{syntax
+    tree} however, whereas ours use the dataflow graph.  This is much
+  more powerful, and permits us to fuse multiple consumers when
+  possible without duplicating computation.
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Future Work}
+
+  \begin{itemize}
+  \item More precise aliasing analysis - track array rows as well.
+  \item Fuse when a trivial amount of computation would be duplicated.
+  \item Implement a parallel code generator.
+  \end{itemize}
 \end{frame}
 
 \end{document}
