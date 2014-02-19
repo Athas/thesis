@@ -10,6 +10,7 @@
 \usepackage{chronology}
 \newcommand{\LO}{$\mathcal{L}_0$}
 \usepackage{amsmath}
+\usepackage{xcolor}
 
 % Graphics
 \usepackage{graphicx}
@@ -30,6 +31,9 @@
   comment=[l]{//},%
   string=[b]",%
   string=[b]'%
+  basicstyle=\ttfamily\color{black},
+  moredelim=**[is][\color{red}]{@}{@},
+  moredelim=**[is][\color{blue}]{¤}{¤},
 }
 
 \lstset{
@@ -67,62 +71,81 @@
   \begin{itemize}
   \item Modern performance increases are in the form of parallelism.
   \item The most parallel machines are massively parallel vector
-    processors, with commodity GPUs being particularly interesting due
-    to their ubiquity.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{GPGPU}
-
-  \begin{itemize}
+    processors, with commodity GPUs particularly interesting due to
+    being mainstream.
   \item GPUs were popularised in the 90s for graphics processing.
   \item Graphics is inherently parallel, so for cost reasons, the GPU
     hardware was very parallel as well.
   \item In roughly 2006, GPGPU began to take off with CUDA and then
     OpenCL.
-  \item GPGPU is now widespread, but still very difficult.
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{GPGPU, continued}
+  \frametitle{GPGPU programming}
 
-  \begin{itemize}
-  \item OpenCL and CUDA both very low-level.
-  \item No modularisation if you want performance.
-  \item Libraries can contain optimised primitives... modular
-    performance still tricky.
-  \item So we need a language.
-  \end{itemize}
+  Three main ways to exploit GPGPU:
+
+  \begin{description}
+  \item[\bf Low-level interface:] Difficult to use,
+    difficult to optimise.  Examples: OpenCL, CUDA.
+  \item[\bf Libraries with optimised primitives:] Easy to use, but hard to
+    optimise composition of primitives.  Example: GPU-implementations
+    of BLAS.
+  \item[\bf Programming languages:] Can achieve good performance, yet
+    still be easy to use.  Examples: NESL, Accelerate.
+  \end{description}
+
+  Our use of GPGPU is guided by three real-world financial computational
+  kernels.
 \end{frame}
 
 \begin{frame}
-  \frametitle{Language design}
+  \frametitle{GPGPU programming, continued}
 
-  \begin{itemize}
-  \item Three real-world financial computational kernels served to
-    guide the design.  Two central questions:
-    \begin{itemize}
-    \item \textbf{What is the simplest language that permits a
-        relatively straightforward translation of the financial
-        programs, while still expressing algorithm invariants that
-        enable the generation of efficient parallel code?}
-    \item \textbf{What compiler optimizations would result in efficiency
-        comparable to code hand-tuned for the specific hardware?}
-    \end{itemize}
-  \item We ended up on a functional language, \LO{}, supporting nested
-    parallelism on regular arrays.
-  \item Fusion is one of the most important optimisations.  ``Heroic
-    Effort'' in an imperative language, but ``easy'' in a functional
-    setting.
-  \end{itemize}
+  What is needed in a high-level performance-oriented GPGPU language?
+
+  \begin{description}
+  \item[\bf Language features:] Performance guarantees from the language,
+    particularly asymptotic ones.  Example: In-place updates.
+  \item[\bf Language invariants:] Programs have properties that are always
+    true-by-construction, and can be exploited to perform aggressive
+    optimisation.  Example: Purely functional enabling loop fusion.
+  \item[\bf Expressivity:] We need to be able to express interesting
+    programs.  Example: Nested parallelism.
+  \end{description}
+
+  Existing languages are not sufficient: either they are too
+  restricted (e.g. Accelerate), or not sufficiently optimised
+  (e.g. NESL).  So we make our own: \LO{}.
 \end{frame}
+
+% \begin{frame}
+%   \frametitle{Language design}
+
+%   \begin{itemize}
+%   \item Three real-world financial computational kernels served to
+%     guide the design.  Two central questions:
+%     \begin{itemize}
+%     \item \textbf{What is the simplest language that permits a
+%       relatively straightforward translation of the financial
+%       programs, while still expressing algorithm invariants that
+%       enable the generation of efficient parallel code?}
+%     \item \textbf{What compiler optimizations would result in efficiency
+%       comparable to code hand-tuned for the specific hardware?}
+%     \end{itemize}
+%   \item We ended up on a functional language, \LO{}, supporting nested
+%     parallelism on regular arrays.
+%   \item Fusion is one of the most important optimisations.  ``Heroic
+%     Effort'' in an imperative language, but ``easy'' in a functional
+%     setting.
+%   \end{itemize}
+% \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Hello, World!}
 
-  \begin{lstlisting}
+\begin{lstlisting}
 fun fact(int n) =
   if n = 0 then 1
            else n * fact(n-1)
@@ -133,9 +156,9 @@ fun hofact(int n) =
   reduce(op *, 1, iota(n))
 \end{lstlisting}
 
-We have the following second-order array combinators (SOACs):
-\textbf{reduce}, \textbf{map}, \textbf{scan}, \textbf{filter} and
-\textbf{redomap}.
+  We have the following second-order array combinators (SOACs):
+  \textbf{reduce}, \textbf{map}, \textbf{scan}, \textbf{filter} and
+  \textbf{redomap}.
 
 \end{frame}
 
@@ -145,7 +168,7 @@ We have the following second-order array combinators (SOACs):
   The innermost part of a parallel loop may be a sequential
   computation.
 
-  \begin{lstlisting}
+\begin{lstlisting}
 fun [int] fib(int n) =
   // Create "empty" array.
   let arr = iota(n) in
@@ -158,8 +181,8 @@ fun [int] fib(int n) =
   in arr
 \end{lstlisting}
 
-Runs in $O(n^{2})$ if the array update is not in-place!  Permitting
-mutation of \texttt{arr} allows an asymptotic improvement to $O(n)$.
+  Runs in $O(n^{2})$ if the array update is not in-place!  Permitting
+  mutation of \texttt{arr} allows an asymptotic improvement to $O(n)$.
 
 \end{frame}
 
@@ -169,89 +192,115 @@ mutation of \texttt{arr} allows an asymptotic improvement to $O(n)$.
   We must ensure that an array is not referenced after it has been
   \textit{consumed}:
 
-  \begin{lstlisting}
+\begin{lstlisting}
 let b = a with [i] <- v in // consumes 'a'
 f(a,b)                     // Error!
 \end{lstlisting}
 
-Intraprocedurally, we can use aliasing analysis combined with standard
-dataflow inspection to ensure that \texttt{a} is dead.  But what about
-interprocedurally?
+  Intraprocedurally, we can use aliasing analysis combined with standard
+  dataflow inspection to ensure that \texttt{a} is dead.  But what about
+  interprocedurally?
 
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Uniqueness types}
 
-  A \textit{unique-typed function argument} is guaranteed not to be
-  referenced again on any execution path following the function call.
-
-  \begin{lstlisting}
-  fun *[int] modify(*[int] a, int i, int x) =
-    let b = a with [i] <- a[i] + x in
-    b
+\begin{lstlisting}
+fun *[int] modify(*[int] a, int i, int x) =
+  let b = a with [i] <- a[i] + x in
+  b
 \end{lstlisting}
 
-\begin{itemize}
-\item This runs in $O(1)$.
+  \begin{itemize}
+  \item A \textit{unique-typed function argument} is guaranteed not to
+    be referenced again on any execution path following the function
+    call.
 
-\item The return type is also unique -- this means that there are no
-  other references to the value.
+  \item The return type is also unique -- this means that there are no
+    other references to the value.
+  \end{itemize}
+  \pause
+\begin{lstlisting}
+let res = modify(a, i, x) in
+\end{lstlisting}
 
-\item After the call \texttt{modify(a,i,x)}, \texttt{a} must not be
-  used again.
-\end{itemize}
+  \begin{itemize}
+  \item After this call, \texttt{a} must not be
+    used again.
+  \item We can perform in-place updates on \texttt{res}.
+  \end{itemize}
+
+  Common ground between imperative and functional setting.
 
 \end{frame}
 
-\begin{frame}
-  Code snippets from benchmarks; they exist.  Show that in-place
-  updates are used, and why (imperative loops, indirect indexing).
+\begin{frame}[fragile]
+  \frametitle{In real programs}
+
+  Sequential loop (part of Brownian Bridge computation), using
+  indirect indexing:
+
+\begin{lstlisting}
+loop (bbrow) =
+  for i < n do
+    let j  = li[i+1] - 1 in
+    let l  = bi[i+1] - 1 in
+    let x  = ...
+    let res = bbrow with [ l ] <-
+      if (j + 1) = 0 then x
+                     else x + lw[i+1] * bbrow[j]
+    in  res
+\end{lstlisting}
+
+  (Note that loops are just left-folds.)
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Producer-consumer fusion}
 
-  \begin{lstlisting}
+\begin{lstlisting}
 let b = map(f, a) in
   // b = [f(a[0]), ..., f(a[n])]
 let c = map(f, b) in
   // c = [f(b[0]), ..., f(b[n])]
 \end{lstlisting}
 
-Fused, these become:
+  Fused, these become:
 
 \begin{lstlisting}
 let c = map(f o g, a) in
   // c = [g(f(a[0])), ..., g(f(a[n]))]
 \end{lstlisting}
-
-\begin{columns}
-  \begin{column}{0.5\textwidth}
-    \begin{lstlisting}
+  \pause
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+\begin{lstlisting}
 for i = 0,n do
   b[i] = f(a[i])
 for i = 0,n do
   c[i] = g(b[i])
 \end{lstlisting}
-  \end{column}
-  \begin{column}{0.5\textwidth}
-    \begin{lstlisting}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+\begin{lstlisting}
 for i = 0,n do
   tmp = f(a[i])
   c[i] = tmp
 \end{lstlisting}
-  \end{column}
-\end{columns}
+    \end{column}
+  \end{columns}
 
-\begin{itemize}
-\item Reduces space requirements and lowers memory hierarchy overhead.
-\item Based on recognising \textit{producer-consumer} pairs.
-\end{itemize}
+  \begin{itemize}
+  \item Reduces space requirements and lowers memory hierarchy overhead.
+  \item Based on recognising \textit{producer-consumer} pairs.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Different approaches to fusion}
+  \frametitle{Two different approaches to fusion}
+
+  Important: We want to avoid duplicating computation.
 
   \begin{itemize}
   \item Delayed arrays -- represent arrays as a function from the index
@@ -262,7 +311,10 @@ for i = 0,n do
     \item Hard to analyse the memory access patterns of resulting code.
     \item Used in Accelerate, Repa, etc.
     \end{itemize}
-  \item Structural fusion with algebraic rewrite rules.
+    \pause
+  \item Structural fusion with algebraic rewrite rules,
+    e.g. ``\texttt{map} composed with \texttt{map} gives a new
+    \texttt{map}''.
     \begin{itemize}
     \item Much harder to implement.
     \item Easy to avoid duplication of computation.
@@ -271,33 +323,90 @@ for i = 0,n do
     \item Used in GHC... and \LO{}!
     \end{itemize}
   \end{itemize}
-
-  FIXME: multiple-consumer fusion example
 \end{frame}
 
-\begin{frame}
-  zip/unzip is syntactis sugar eliminated by tuple transform. (NESL does this?)
+\begin{frame}[fragile]
+  \frametitle{Fusing multiple consumers}
+
+  Sometimes, fusing multipler consumers is possible without
+  duplicating computation.
+
+\begin{lstlisting}
+let @b@   = map(f, a)  in
+let c1  = map(g1, @b@) in
+let c2  = map(g2, @b@) in
+let tmp = zip(c1,c2) in
+map(h, tmp)
+\end{lstlisting}
+
+  The key is that both \texttt{c1} and \texttt{c2} are in the end both
+  used as input to the same SOAC.
+
+\begin{lstlisting}
+map(fn (ae) => let be  = f(ae) in
+               let c1e = g1(be) in
+               let c2e = g2(be) in
+               h(c1e,c2e),
+    a)
+\end{lstlisting}
+
+  Other solutions based on rewriting rules (e.g. GHC) cannot handle
+  this, but we apply our rewrite rules on the \textit{dataflow graph},
+  not the syntax tree.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Removing \texttt{zip} and \texttt{unzip}}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+\begin{lstlisting}
+let b   = map(f, a)  in
+let c1  = map(g1, b) in
+let c2  = map(g2, b) in
+let tmp = zip(c1,c2)
+map(h, tmp)
+\end{lstlisting}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=4cm]{img/simpledataflow.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+
+  The \texttt{zip} node is an annoyance, as it makes it harder to
+  express fusion rules.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Removing \texttt{zip} and \texttt{unzip}, continued}
+
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+\begin{lstlisting}
+let {b}  = mapT(f, a)  in
+let {c1} = mapT(g1, b) in
+let {c2} = mapT(g2, b) in
+mapT(h, c1, c2)
+\end{lstlisting}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \includegraphics[width=4cm]{img/simpledataflow-notuples.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+
+  The solution, tupleless SOACs: \texttt{mapT}, \texttt{scanT},
+  \texttt{reduceT}, \texttt{filterT}, \texttt{redomapT}, with
+  \texttt{zip} sort of integrated.
+
+  We consider \texttt{zip} and \texttt{unzip} to be merely syntactical
+  sugar.  Instead of \textit{arrays of tuples}, we have \textit{tuples
+    of arrays}.
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Simple rewrite rules}
-
-  \begin{lstlisting}
-let {x1, x2} = mapT(f, a1)
-in  mapT(g, x1, y)
-\end{lstlisting}
-Fuses to...
-\begin{lstlisting}
-mapT(fn r (t1 a1e, t2 ye) =>
-       let {x1e, x2e} = f(a1e)
-       in  g(x1e, ye),
-     a1, y )
-\end{lstlisting}
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Simple rewrite rules, continued}
 
   \begin{center}
     \begin{tabular}{rcl}
@@ -318,6 +427,9 @@ mapT(fn r (t1 a1e, t2 ye) =>
     outputs.
   \end{description}
 
+  Restrictions are due to \texttt{reduce} having type
+  $(\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow\alpha\rightarrow[\alpha]\rightarrow\alpha$.
+
 \end{frame}
 
 \begin{frame}[fragile,t]
@@ -326,26 +438,26 @@ mapT(fn r (t1 a1e, t2 ye) =>
   Not part of the external language, but useful for the fusion
   algebra.  Semantics is the same as \texttt{\tt foldl($f_{m}$, $x$, $e$)}.
 
-  $(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)$ can be
+  $(\texttt{reduce}\ f_{r}\ e)\ \circ\ (\texttt{map}\ f_{m})$ can be
   transformed, via the list homomorphism promotion lemma, to an
   equivalent form:
   \begin{gather*}
-    (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\ {\equiv}\\
-    \texttt{reduce}\ \odot\
-    e\ \circ\ \texttt{map}\ ({\texttt{reduce}\ \odot\ e\ \circ\ \texttt{map}\ f})\ \circ\ \texttt{split}_{p}
+    (\texttt{reduce}\ \odot\
+    e\ f_{r})\ \circ\ (\texttt{map}\ ({\texttt{reduce}\ f_{r}\ e\ \circ\ \texttt{map}\ f_{m}}))\ \circ\ \texttt{split}_{p}
   \end{gather*}
-  Hence, the \textit{inner} map-reduce can be rewritten as a left-fold:
+  Now, the \textit{inner} map-reduce can be rewritten as a left-fold,
+  giving:
   \[
-  (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
-  {\equiv}\ \texttt{reduce}\ \odot\
-  e\ \circ \texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p}
+  (\texttt{reduce}\ f_{r}\
+  e)\ \circ (\texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p})
   \]
-  Where $g$ is a function generated from the composition of $f$ and
-  $\odot$.  It follows that it is sufficient to record either $\odot$
-  and $f$, or $\odot$ and $g$. We choose the latter, because it allows
-  a richer compositional algebra for fusion.  In particular, it allows
-  us to fuse \texttt{reduce~$\circ$~map~$\circ$~filter} into a
-  \texttt{redomap} without duplicating computation.
+  Where $g$ is a function generated from a composition of $f_{m}$ and
+  $f_{r}$.  Thus, \texttt{redomap} has type
+  $(\beta\rightarrow\alpha\rightarrow\beta)\rightarrow\beta\rightarrow[\alpha]\rightarrow\beta$.
+
+This allows us to fuse
+  \texttt{reduce~$\circ$~map~$\circ$~filter} into a \texttt{redomap}
+  without duplicating computation.
 \end{frame}
 
 \begin{frame}
@@ -384,14 +496,11 @@ mapT(fn r (t1 a1e, t2 ye) =>
       \includegraphics[width=6cm]{img/t1t2.pdf}\hfill
     \end{column}
     \begin{column}{4cm}
-      \LO{} always produces a reducible flow graph.
+      If all fusion takes place at T$_{2}$ reduction, we cannot
+      duplicate computation.
     \end{column}
   \end{columns}
 
-\end{frame}
-
-\begin{frame}
-  \frametitle{Tupleless SOACs}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -399,17 +508,17 @@ mapT(fn r (t1 a1e, t2 ye) =>
 
   We will try to fuse the following program.
 
-  \begin{lstlisting}
+\begin{lstlisting}
 let {x1} = mapT(h1, x2) in
-let {y1,y2,y3} = mapT(f1, x1, x2) in
-let {z1,z2} = mapT(f2, y1, y2) in
-let {q1,q2} = mapT(g,y3,z1,y2,y3) in
-{mapT(h, q1, q2, z2, y1, y3),
+let {@y1@,@y2@,@y3@} = mapT(f1, x1, x2) in
+let {¤z1¤,¤z2¤} = mapT(f2, @y1@, @y2@) in
+let {q1,q2} = mapT(g,@y3@,¤z1¤,@y2@,@y3@) in
+{mapT(h, q1, q2, ¤z2¤, @y1@, @y3@),
  mapT(h2, x2)}
 \end{lstlisting}
 
-Note that some outputs are used multiple times as inputs to different
-SOACs.
+  Note that some outputs are used multiple times as inputs to different
+  SOACs.
 
 \end{frame}
 
@@ -464,10 +573,71 @@ SOACs.
 
 \end{frame}
 
-\begin{frame}
-  \frametitle{Evaluation}
+\begin{frame}[fragile]
+\frametitle{Fusing through \texttt{transpose}}
 
-  We tested the approach on the real-world kernels; got some results.
+push/pull (and how to choose - asymptotic complexity driven?)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation, PricingLexiFi}
+
+\begin{columns}
+\begin{column}{0.2\textwidth}
+  \includegraphics[height=5cm]{img/PricingLexiFi-unfused.pdf}
+\end{column}
+\begin{column}{0.6\textwidth}
+\begin{itemize}
+\item Straightforward dataflow; fuses well.
+  \item Some fusion through \texttt{reshape} and \texttt{transpose}.
+  \item Fusion of the first two \texttt{map}s is foiled by limitations
+    of the size analyser.
+\end{itemize}
+\end{column}
+\begin{column}{0.2\textwidth}
+  \includegraphics[height=5cm]{img/PricingLexiFi-fused.pdf}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation, Nordea code}
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/HiperfitEgCos-unfused.pdf}
+\end{column}
+\begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/HiperfitEgCos-fused.pdf}
+\end{column}
+\end{columns}
+
+\begin{itemize}
+\item More could be fused, but would duplicate a trivial amount of
+  computation (about four multiplications per array element).
+\item Bottom dependency not fusable due to a transpose.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Evaluation, CalibLexiFi}
+
+\begin{columns}
+\begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/CalibLexiFi-unfused.pdf}
+\end{column}
+\begin{column}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{img/CalibLexiFi-fused.pdf}
+\end{column}
+\end{columns}
+
+\begin{itemize}
+\item Most opportunities for fusion not taken due to possible
+  duplication of (trivial) computation.
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}[fragile]
@@ -477,16 +647,16 @@ SOACs.
   \item More precise aliasing analysis - track array rows as well.
     \begin{itemize}
     \item This should work:
-      \begin{lstlisting}
+\begin{lstlisting}
 let r = replace(a[j], j, x) in
 let b = a with [j] <- r in
 ...
 \end{lstlisting}
-\end{itemize}
+    \end{itemize}
 
-\item Fuse when a trivial amount of computation would be duplicated.
-\item Implement a parallel code generator.
-\end{itemize}
+  \item Fuse when a trivial amount of computation would be duplicated.
+  \item Implement a parallel code generator.
+  \end{itemize}
 \end{frame}
 
 \end{document}
