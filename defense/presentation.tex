@@ -1,3 +1,7 @@
+% Notes:
+% 
+% 
+
 \documentclass{beamer}
 \usepackage[english]{babel}
 \usepackage{url}
@@ -5,18 +9,13 @@
 \usepackage{adjustbox}
 \usepackage{chronology}
 \newcommand{\LO}{$\mathcal{L}_0$}
+\usepackage{amsmath}
 
 % Graphics
 \usepackage{graphicx}
 
 % Font
-\usepackage{microtype}
-% \usepackage[scaled]{beramono}
-\usepackage{fontspec,xunicode}
-\newfontfamily\sbmyriad{Myriad Pro Semibold}
-\setsansfont{Myriad Pro}
-\setmonofont{Myriad Pro}
-\setbeamerfont{title}{family=\sbmyriad}
+\usepackage{paratype}
 \setbeamerfont{frametitle}{family=\bf}
 
 
@@ -26,7 +25,7 @@
 \usenavigationsymbolstemplate{} % no navigation buttons
 
 \lstdefinelanguage{L0}
-{keywords={fun,if,then,else,loop,do,map,reduce,filter,scan,redomap,mapT,reduceT,filterT,scanT,redomapT,transpose,reshape,iota,replicate,let},%
+{keywords={fun,if,then,else,loop,do,map,reduce,filter,scan,redomap,mapT,reduceT,filterT,scanT,redomapT,transpose,reshape,iota,replicate,let, op},%
   sensitive=true,%
   comment=[l]{//},%
   string=[b]",%
@@ -39,35 +38,38 @@
 
 \title{Master's thesis defence}
 \subtitle{Exploiting functional invariants to optimise parallelism:\\ A dataflow approach}
-\author{Troels Henriksen}
+\author{Troels Henriksen (athas@sigkill.dk)}
 \date{21. February 2014}
 \institute{Computer Science\\
   University of Copenhagen}
 
 \begin{document}
-% Welcome
-% Both a defence and this is what I do
-\frame{\titlepage}
 
-% % Nice diagram showing how the talk will progress
-% \begin{frame}
-%   \frametitle{Agenda}
-%   \tableofcontents
-% \end{frame}
+\frame{\titlepage}
 
 \begin{frame}
   \frametitle{Free lunches}
 
+  \centering
+  \includegraphics[width=7cm]{img/CPU-Scaling.jpg}
+
   \begin{itemize}
-  \item Moores law still in effect, and will be for a while..
+  \item Moore's law still in effect, and will be for a while...
   \item ... but we no longer get many increases in sequential
-    performances.
+    performance.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{So, what's on the menu?}
+
+  \begin{itemize}
   \item Modern performance increases are in the form of parallelism.
   \item The most parallel machines are massively parallel vector
     processors, with commodity GPUs being particularly interesting due
     to their ubiquity.
   \end{itemize}
-
 \end{frame}
 
 \begin{frame}
@@ -150,13 +152,31 @@ fun [int] fib(int n) =
   // Fill array with Fibonacci numbers.
   loop (arr) =
     for i < n-2 do
-      let arr[i+2] = arr[i] + arr[i+1]
-      in arr
+      let upd = arr with
+            [i+2] <- arr[i] + arr[i+1]
+      in upd
   in arr
 \end{lstlisting}
 
 Runs in $O(n^{2})$ if the array update is not in-place!  Permitting
-mutation of the array allows an asymptotic improvement to $O(n)$.
+mutation of \texttt{arr} allows an asymptotic improvement to $O(n)$.
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{In-place updates, continued}
+
+  We must ensure that an array is not referenced after it has been
+  \textit{consumed}:
+
+  \begin{lstlisting}
+let b = a with [i] <- v in // consumes 'a'
+f(a,b)                     // Error!
+\end{lstlisting}
+
+Intraprocedurally, we can use aliasing analysis combined with standard
+dataflow inspection to ensure that \texttt{a} is dead.  But what about
+interprocedurally?
 
 \end{frame}
 
@@ -168,62 +188,101 @@ mutation of the array allows an asymptotic improvement to $O(n)$.
 
   \begin{lstlisting}
   fun *[int] modify(*[int] a, int i, int x) =
-    let a[i] <- a[i] + x in
-    a
+    let b = a with [i] <- a[i] + x in
+    b
 \end{lstlisting}
 
-This runs in $O(1)$.
+\begin{itemize}
+\item This runs in $O(1)$.
 
-The return type is also unique -- this means that there are no other
-references to the value.
+\item The return type is also unique -- this means that there are no
+  other references to the value.
+
+\item After the call \texttt{modify(a,i,x)}, \texttt{a} must not be
+  used again.
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}
+  Code snippets from benchmarks; they exist.  Show that in-place
+  updates are used, and why (imperative loops, indirect indexing).
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Producer-consumer fusion}
 
-  \begin{itemize}
-  \item Fusion can reduce space requirements and optimise memory
-    hierarchy overhead.
-  \item Very hard in imperative languages, but much easier in
-    functional languages.
-  \item Based on recognising \textit{producer-consumer} pairs.
-  \end{itemize}
+  \begin{lstlisting}
+let b = map(f, a) in
+  // b = [f(a[0]), ..., f(a[n])]
+let c = map(f, b) in
+  // c = [f(b[0]), ..., f(b[n])]
+\end{lstlisting}
 
-As a simple case, we can fuse the two loops in
-\[
-\texttt{(map~$f$)~$\circ$~(map~$g$)}
-\]
-and get
-\[
-\texttt{map~$(f~\circ~g)$}
-\]
+Fused, these become:
+
+\begin{lstlisting}
+let c = map(f o g, a) in
+  // c = [g(f(a[0])), ..., g(f(a[n]))]
+\end{lstlisting}
+
+\begin{columns}
+  \begin{column}{0.5\textwidth}
+    \begin{lstlisting}
+for i = 0,n do
+  b[i] = f(a[i])
+for i = 0,n do
+  c[i] = g(b[i])
+\end{lstlisting}
+  \end{column}
+  \begin{column}{0.5\textwidth}
+    \begin{lstlisting}
+for i = 0,n do
+  tmp = f(a[i])
+  c[i] = tmp
+\end{lstlisting}
+  \end{column}
+\end{columns}
+
+\begin{itemize}
+\item Reduces space requirements and lowers memory hierarchy overhead.
+\item Based on recognising \textit{producer-consumer} pairs.
+\end{itemize}
 \end{frame}
 
 \begin{frame}
   \frametitle{Different approaches to fusion}
 
-\begin{itemize}
-\item Delayed arrays -- represent arrays as a function from the index
-  space to the value space.
+  \begin{itemize}
+  \item Delayed arrays -- represent arrays as a function from the index
+    space to the value space.
     \begin{itemize}
     \item Fusion is easy to implement - just function composition.
     \item Hard to avoid duplication of computation.
     \item Hard to analyse the memory access patterns of resulting code.
+    \item Used in Accelerate, Repa, etc.
     \end{itemize}
-\item Structural fusion with algebraic rewrite rules (our approach).
-  \begin{itemize}
+  \item Structural fusion with algebraic rewrite rules.
+    \begin{itemize}
     \item Much harder to implement.
     \item Easy to avoid duplication of computation.
     \item Memory access patterns are immediately clear from code
       structure.
+    \item Used in GHC... and \LO{}!
+    \end{itemize}
   \end{itemize}
-\end{itemize}
+
+  FIXME: multiple-consumer fusion example
+\end{frame}
+
+\begin{frame}
+  zip/unzip is syntactis sugar eliminated by tuple transform. (NESL does this?)
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Simple rewrite rules}
 
-\begin{lstlisting}
+  \begin{lstlisting}
 let {x1, x2} = mapT(f, a1)
 in  mapT(g, x1, y)
 \end{lstlisting}
@@ -240,24 +299,24 @@ mapT(fn r (t1 a1e, t2 ye) =>
 \begin{frame}[fragile]
   \frametitle{Simple rewrite rules, continued}
 
-\begin{center}
-\begin{tabular}{rcl}
-\texttt{map $\circ$ map}    & $\Rightarrow$ & \texttt{map} \\
-\texttt{replicate $\circ$ \textit{soac}} & $\Rightarrow$ & \textit{soac} \\
-\texttt{filter $\circ$ filter} & $\Rightarrow$ & \texttt{filter}  \\
-\texttt{filter $\circ$ reduce} & $\Rightarrow$ & \texttt{reduce} $\dag$  \\
-\texttt{map $\circ$ reduce} & $\Rightarrow$ & \texttt{reduce} $\ddag$ \\
-\texttt{map $\circ$ scan} & $\Rightarrow$ & \texttt{scan} $\ddag$ \\
-\end{tabular}
-\end{center}
+  \begin{center}
+    \begin{tabular}{rcl}
+      \texttt{map $\circ$ map}    & $\Rightarrow$ & \texttt{map} \\
+      \textit{soac} $\circ$ \texttt{replicate} & $\Rightarrow$ & \textit{soac} \\
+      \texttt{filter $\circ$ filter} & $\Rightarrow$ & \texttt{filter}  \\
+      \texttt{reduce $\circ$ filter} & $\Rightarrow$ & \texttt{reduce} $\dag$  \\
+      \texttt{reduce $\circ$ map} & $\Rightarrow$ & \texttt{reduce} $\ddag$ \\
+      \texttt{scan $\circ$ map} & $\Rightarrow$ & \texttt{scan} $\ddag$ \\
+    \end{tabular}
+  \end{center}
 
-\begin{description}
-\item[$\dag$] Only if consumer takes input from no other
-  source.
-\item[$\ddag$] Only if consumer takes input from no other source,
-  \textit{and} types of producer inputs match types of producer
-  outputs.
-\end{description}
+  \begin{description}
+  \item[$\dag$] Only if consumer takes input from no other
+    source.
+  \item[$\ddag$] Only if consumer takes input from no other source,
+    \textit{and} types of producer inputs match types of producer
+    outputs.
+  \end{description}
 
 \end{frame}
 
@@ -270,11 +329,11 @@ mapT(fn r (t1 a1e, t2 ye) =>
   $(\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)$ can be
   transformed, via the list homomorphism promotion lemma, to an
   equivalent form:
-  \[
-  (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
-  {\equiv}\ \texttt{reduce}\ \odot\
-  e\ \circ\ \texttt{map}\ ({\texttt{reduce}\ \odot\ e\ \circ\ \texttt{map}\ f})\ \circ\ \texttt{split}_{p}
-  \]
+  \begin{gather*}
+    (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\ {\equiv}\\
+    \texttt{reduce}\ \odot\
+    e\ \circ\ \texttt{map}\ ({\texttt{reduce}\ \odot\ e\ \circ\ \texttt{map}\ f})\ \circ\ \texttt{split}_{p}
+  \end{gather*}
   Hence, the \textit{inner} map-reduce can be rewritten as a left-fold:
   \[
   (\texttt{reduce}\ \odot\ e)\ \circ\ (\texttt{map}\ f)\
@@ -290,19 +349,19 @@ mapT(fn r (t1 a1e, t2 ye) =>
 \end{frame}
 
 \begin{frame}
-\frametitle{\texttt{redomap} rewriting rules}
+  \frametitle{\texttt{redomap} rewriting rules}
 
-\begin{center}
-\begin{tabular}{rcl}
-\texttt{map $\circ$ reduce}    & $\Rightarrow$ & \texttt{redomap} \\
-\texttt{filter $\circ$ reduce}    & $\Rightarrow$ & \texttt{redomap} \\
-\texttt{map $\circ$ redomap}    & $\Rightarrow$ & \texttt{redomap} \\
-\texttt{filter $\circ$ redomap}    & $\Rightarrow$ & \texttt{redomap} \\
-\end{tabular}
-\end{center}
+  \begin{center}
+    \begin{tabular}{rcl}
+      \texttt{reduce $\circ$ map}    & $\Rightarrow$ & \texttt{redomap} \\
+      \texttt{reduce $\circ$ filter}    & $\Rightarrow$ & \texttt{redomap} \\
+      \texttt{redomap $\circ$ map}    & $\Rightarrow$ & \texttt{redomap} \\
+      \texttt{redomap $\circ$ filter}    & $\Rightarrow$ & \texttt{redomap} \\
+    \end{tabular}
+  \end{center}
 
-The first two rules are derivable from the latter two, since
-\texttt{reduce(f,x,e)} can be rewritten to \texttt{redomap(f,f,x,e)}.
+  The first two rules are derivable from the latter two, since
+  \texttt{reduce(f,x,e)} can be rewritten to \texttt{redomap(f,f,x,e)}.
 
 \end{frame}
 
@@ -312,22 +371,22 @@ The first two rules are derivable from the latter two, since
   We say that a flow graph is T$_{1}$-T$_{2}$-reducible if it can be
   reduced to a single node by the following two transformations:
 
-\begin{description}
+  \begin{description}
   \item[T$_{1}$:] Remove an edge from a node to itself.
 
   \item[T$_{2}$:] Combine two nodes $m$ and $n$, where $m$ is the
     single predecessor of $n$, and $n$ is not the entry of the flow
     graph.
-\end{description}
+  \end{description}
 
-\begin{columns}
-\begin{column}{6cm}
-\includegraphics[width=6cm]{img/t1t2.pdf}\hfill
-\end{column}
-\begin{column}{4cm}
-\LO{} always produces a reducible flow graph.
-\end{column}
-\end{columns}
+  \begin{columns}
+    \begin{column}{6cm}
+      \includegraphics[width=6cm]{img/t1t2.pdf}\hfill
+    \end{column}
+    \begin{column}{4cm}
+      \LO{} always produces a reducible flow graph.
+    \end{column}
+  \end{columns}
 
 \end{frame}
 
@@ -382,6 +441,21 @@ SOACs.
     \end{column}
   \end{columns}
 
+\end{frame}
+
+\begin{frame}[t]
+  \frametitle{Fusion example, continued}
+
+  \centering
+  \begin{columns}
+    \begin{column}[T]{0.48\textwidth}
+      \includegraphics[width=5cm]{img/fusion-3.pdf}
+    \end{column}\hfill
+    \begin{column}[T]{0.48\textwidth}
+      \includegraphics[width=5cm]{img/fusion-4.pdf}
+    \end{column}
+  \end{columns}
+
   Fusion through rewrite rules is not a new idea - they are used by
   e.g.  GHC.  Their rules are expressed in terms of the \textit{syntax
     tree} however, whereas ours use the dataflow graph.  This is much
@@ -392,21 +466,31 @@ SOACs.
 
 \begin{frame}
   \frametitle{Evaluation}
+
+  We tested the approach on the real-world kernels; got some results.
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Future Work}
 
   \begin{itemize}
   \item More precise aliasing analysis - track array rows as well.
-  \item Fuse when a trivial amount of computation would be duplicated.
-  \item Implement a parallel code generator.
-  \end{itemize}
+    \begin{itemize}
+    \item This should work:
+      \begin{lstlisting}
+let r = replace(a[j], j, x) in
+let b = a with [j] <- r in
+...
+\end{lstlisting}
+\end{itemize}
+
+\item Fuse when a trivial amount of computation would be duplicated.
+\item Implement a parallel code generator.
+\end{itemize}
 \end{frame}
 
 \end{document}
 
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-engine: luatex
 %%% End:
