@@ -1,16 +1,15 @@
 % Notes:
 % 
 % 
-
-\documentclass{beamer}
+\documentclass[rgb,dvipsnames]{beamer}
 \usepackage[english]{babel}
-\usepackage{url}
+\usepackage{xcolor}
 \usepackage{listings}
 \usepackage{adjustbox}
-\usepackage{chronology}
 \newcommand{\LO}{$\mathcal{L}_0$}
 \usepackage{amsmath}
-\usepackage{xcolor}
+
+\usepackage[linewidth=1pt]{mdframed}
 
 % Graphics
 \usepackage{graphicx}
@@ -26,7 +25,7 @@
 \usenavigationsymbolstemplate{} % no navigation buttons
 
 \lstdefinelanguage{L0}
-{keywords={fun,if,then,else,loop,do,map,reduce,filter,scan,redomap,mapT,reduceT,filterT,scanT,redomapT,transpose,reshape,iota,replicate,let, op},%
+{keywords={fun,if,then,else,loop,do,map,reduce,filter,scan,redomap,mapT,reduceT,filterT,scanT,redomapT,transpose,reshape,iota,replicate,let,op,for,with},%
   sensitive=true,%
   comment=[l]{//},%
   string=[b]",%
@@ -52,10 +51,23 @@
 \frame{\titlepage}
 
 \begin{frame}
-  \frametitle{Free lunches}
+  \frametitle{Part 0: Free lunches}
 
-  \centering
-  \includegraphics[width=7cm]{img/CPU-Scaling.jpg}
+  \begin{columns}
+    \begin{column}{0.3\textwidth}
+      \small
+      \color{OliveGreen} Transistors (thousands)
+
+      \color{Blue} Clock Speed (MHz)
+
+      \color{RoyalBlue} Power (W)
+
+      \color{Purple} Perf/Clock (ILP)
+    \end{column}
+    \begin{column}{0.7\textwidth}
+      \includegraphics[width=7cm]{img/CPU-Scaling.jpg}
+    \end{column}
+  \end{columns}
 
   \begin{itemize}
   \item Moore's law still in effect, and will be for a while...
@@ -92,12 +104,15 @@
   \item[\bf Libraries with optimised primitives:] Easy to use, but hard to
     optimise composition of primitives.  Example: GPU-implementations
     of BLAS.
-  \item[\bf Programming languages:] Can achieve good performance, yet
-    still be easy to use.  Examples: NESL, Accelerate.
+  \item[\bf Specialised programming languages:] Can achieve good
+    performance, yet still be easy to use.  Examples: NESL,
+    Accelerate.
+    \begin{itemize}
+    \item Accelerate is very restricted - no nested parallelism.
+    \item NESL compilation depends too much on flattening, which
+      ignores communication overhead.
+    \end{itemize}
   \end{description}
-
-  Our use of GPGPU is guided by three real-world financial computational
-  kernels.
 \end{frame}
 
 \begin{frame}
@@ -163,7 +178,7 @@ fun hofact(int n) =
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{In-place updates}
+  \frametitle{Part 1: In-place updates}
 
   The innermost part of a parallel loop may be a sequential
   computation.
@@ -181,8 +196,10 @@ fun [int] fib(int n) =
   in arr
 \end{lstlisting}
 
+\begin{mdframed}
   Runs in $O(n^{2})$ if the array update is not in-place!  Permitting
   mutation of \texttt{arr} allows an asymptotic improvement to $O(n)$.
+\end{mdframed}
 
 \end{frame}
 
@@ -207,8 +224,8 @@ f(a,b)                     // Error!
   \frametitle{Uniqueness types}
 
 \begin{lstlisting}
-fun *[int] modify(*[int] a, int i, int x) =
-  let b = a with [i] <- a[i] + x in
+fun *[int] modify(*[int] a, int i, [int] x) =
+  let b = a with [i] <- a[i] + x[i] in
   b
 \end{lstlisting}
 
@@ -228,7 +245,8 @@ let res = modify(a, i, x) in
   \begin{itemize}
   \item After this call, \texttt{a} must not be
     used again.
-  \item We can perform in-place updates on \texttt{res}.
+  \item We can perform in-place updates on \texttt{res}, as we
+    \textit{know} it does not alias \texttt{x}.
   \end{itemize}
 
   Common ground between imperative and functional setting.
@@ -253,11 +271,13 @@ loop (bbrow) =
     in  res
 \end{lstlisting}
 
-  (Note that loops are just left-folds.)
+\begin{mdframed}
+  Runs in $O(n^{2})$ if the array update is not in-place!
+\end{mdframed}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Producer-consumer fusion}
+  \frametitle{Part 2: Producer-consumer fusion}
 
 \begin{lstlisting}
 let b = map(f, a) in
@@ -266,34 +286,51 @@ let c = map(f, b) in
   // c = [f(b[0]), ..., f(b[n])]
 \end{lstlisting}
 
-  Fused, these become:
+Fused, these become:
 
 \begin{lstlisting}
 let c = map(f o g, a) in
   // c = [g(f(a[0])), ..., g(f(a[n]))]
 \end{lstlisting}
-  \pause
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
+
+Hence, we can say there is a \textit{fusion rule}:
+
+\[
+\texttt{(map~$f$)~$\circ$~(map~$g$)} \Rightarrow \texttt{map~$(f~\circ~g)$}
+\]
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Benefits of fusion}
+
+  \begin{tabular}{p{0.4\textwidth}|p{0.5\textwidth}}
+\begin{lstlisting}
+let b = map(f, a)
+let c = map(f, b)
+\end{lstlisting}
+    &
+\begin{lstlisting}[mathescape]
+let c = map(f $o$ g, a)
+\end{lstlisting}
+\\
 \begin{lstlisting}
 for i = 0,n do
   b[i] = f(a[i])
 for i = 0,n do
   c[i] = g(b[i])
 \end{lstlisting}
-    \end{column}
-    \begin{column}{0.5\textwidth}
+&
 \begin{lstlisting}
 for i = 0,n do
   tmp = f(a[i])
   c[i] = tmp
 \end{lstlisting}
-    \end{column}
-  \end{columns}
+\end{tabular}
 
   \begin{itemize}
-  \item Reduces space requirements and lowers memory hierarchy overhead.
-  \item Based on recognising \textit{producer-consumer} pairs.
+  \item Reduces space requirements and lowers memory hierarchy
+    overhead (scalarisation).
   \end{itemize}
 \end{frame}
 
@@ -320,8 +357,10 @@ for i = 0,n do
     \item Easy to avoid duplication of computation.
     \item Memory access patterns are immediately clear from code
       structure.
-    \item Used in GHC... and \LO{}!
+    \item Used in Data Parallel Haskell.
     \end{itemize}
+  \item Existing systems based on rewrite rules cannot handle multiple
+    consumers of a single producer.
   \end{itemize}
 \end{frame}
 
@@ -351,8 +390,8 @@ map(fn (ae) => let be  = f(ae) in
 \end{lstlisting}
 
   Other solutions based on rewriting rules (e.g. GHC) cannot handle
-  this, but we apply our rewrite rules on the \textit{dataflow graph},
-  not the syntax tree.
+  this, but we apply our rewrite rules on the \textit{data dependency
+    graph}, not the syntax tree.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -405,80 +444,8 @@ mapT(h, c1, c2)
     of arrays}.
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Simple rewrite rules}
-
-  \begin{center}
-    \begin{tabular}{rcl}
-      \texttt{map $\circ$ map}    & $\Rightarrow$ & \texttt{map} \\
-      \textit{soac} $\circ$ \texttt{replicate} & $\Rightarrow$ & \textit{soac} \\
-      \texttt{filter $\circ$ filter} & $\Rightarrow$ & \texttt{filter}  \\
-      \texttt{reduce $\circ$ filter} & $\Rightarrow$ & \texttt{reduce} $\dag$  \\
-      \texttt{reduce $\circ$ map} & $\Rightarrow$ & \texttt{reduce} $\ddag$ \\
-      \texttt{scan $\circ$ map} & $\Rightarrow$ & \texttt{scan} $\ddag$ \\
-    \end{tabular}
-  \end{center}
-
-  \begin{description}
-  \item[$\dag$] Only if consumer takes input from no other
-    source.
-  \item[$\ddag$] Only if consumer takes input from no other source,
-    \textit{and} types of producer inputs match types of producer
-    outputs.
-  \end{description}
-
-  Restrictions are due to \texttt{reduce} having type
-  $(\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow\alpha\rightarrow[\alpha]\rightarrow\alpha$.
-
-\end{frame}
-
-\begin{frame}[fragile,t]
-  \frametitle{  \texttt{redomap($f_{r}$, $f_{m}$, $x$, $e$)}}
-
-  Not part of the external language, but useful for the fusion
-  algebra.  Semantics is the same as \texttt{\tt foldl($f_{m}$, $x$, $e$)}.
-
-  $(\texttt{reduce}\ f_{r}\ e)\ \circ\ (\texttt{map}\ f_{m})$ can be
-  transformed, via the list homomorphism promotion lemma, to an
-  equivalent form:
-  \begin{gather*}
-    (\texttt{reduce}\ \odot\
-    e\ f_{r})\ \circ\ (\texttt{map}\ ({\texttt{reduce}\ f_{r}\ e\ \circ\ \texttt{map}\ f_{m}}))\ \circ\ \texttt{split}_{p}
-  \end{gather*}
-  Now, the \textit{inner} map-reduce can be rewritten as a left-fold,
-  giving:
-  \[
-  (\texttt{reduce}\ f_{r}\
-  e)\ \circ (\texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p})
-  \]
-  Where $g$ is a function generated from a composition of $f_{m}$ and
-  $f_{r}$.  Thus, \texttt{redomap} has type
-  $(\beta\rightarrow\alpha\rightarrow\beta)\rightarrow\beta\rightarrow[\alpha]\rightarrow\beta$.
-
-This allows us to fuse
-  \texttt{reduce~$\circ$~map~$\circ$~filter} into a \texttt{redomap}
-  without duplicating computation.
-\end{frame}
-
 \begin{frame}
-  \frametitle{\texttt{redomap} rewriting rules}
-
-  \begin{center}
-    \begin{tabular}{rcl}
-      \texttt{reduce $\circ$ map}    & $\Rightarrow$ & \texttt{redomap} \\
-      \texttt{reduce $\circ$ filter}    & $\Rightarrow$ & \texttt{redomap} \\
-      \texttt{redomap $\circ$ map}    & $\Rightarrow$ & \texttt{redomap} \\
-      \texttt{redomap $\circ$ filter}    & $\Rightarrow$ & \texttt{redomap} \\
-    \end{tabular}
-  \end{center}
-
-  The first two rules are derivable from the latter two, since
-  \texttt{reduce(f,x,e)} can be rewritten to \texttt{redomap(f,f,x,e)}.
-
-\end{frame}
-
-\begin{frame}
-  \frametitle{Reducible dataflow graph}
+  \frametitle{Reducible data dependency graph}
 
   We say that a flow graph is T$_{1}$-T$_{2}$-reducible if it can be
   reduced to a single node by the following two transformations:
@@ -509,10 +476,10 @@ This allows us to fuse
   We will try to fuse the following program.
 
 \begin{lstlisting}
-let {x1} = mapT(h1, x2) in
-let {@y1@,@y2@,@y3@} = mapT(f1, x1, x2) in
-let {¤z1¤,¤z2¤} = mapT(f2, @y1@, @y2@) in
-let {q1,q2} = mapT(g,@y3@,¤z1¤,@y2@,@y3@) in
+let {x1}       = mapT(h1, x2)        in
+let {@y1@,@y2@,@y3@} = mapT(f1, x1, x2)    in
+let {¤z1¤,¤z2¤}    = mapT(f2, @y1@, @y2@)    in
+let {q1,q2}    = mapT(g,@y3@,¤z1¤,@y2@,@y3@) in
 {mapT(h, q1, q2, ¤z2¤, @y1@, @y3@),
  mapT(h2, x2)}
 \end{lstlisting}
@@ -574,9 +541,220 @@ let {q1,q2} = mapT(g,@y3@,¤z1¤,@y2@,@y3@) in
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{Simple rewrite rules}
+
+  \begin{center}
+    \begin{tabular}{rcl}
+      \texttt{map $\circ$ map}    & $\Rightarrow$ & \texttt{map} \\
+      \textit{soac} $\circ$ \texttt{replicate} & $\Rightarrow$ & \textit{soac} \\
+      \texttt{filter $\circ$ filter} & $\Rightarrow$ & \texttt{filter}  \\
+      \texttt{reduce $\circ$ filter} & $\Rightarrow$ & \texttt{reduce} $\dag$  \\
+      \texttt{reduce $\circ$ map} & $\Rightarrow$ & \texttt{reduce} $\ddag$ \\
+      \texttt{scan $\circ$ map} & $\Rightarrow$ & \texttt{scan} $\ddag$ \\
+    \end{tabular}
+  \end{center}
+
+  \begin{description}
+  \item[$\dag$] Only if consumer takes input from no other
+    source.
+  \item[$\ddag$] Only if consumer takes input from no other source,
+    \textit{and} types of producer inputs match types of producer
+    outputs.
+  \end{description}
+
+  Restrictions are due to \texttt{reduce} having type
+  $(\alpha\rightarrow\alpha\rightarrow\alpha)\rightarrow\alpha\rightarrow[\alpha]\rightarrow\alpha$.
+
+\end{frame}
+
+\begin{frame}[fragile,t]
+  \frametitle{  \texttt{redomap($f_{r}$, $g$, $x$, $e$)}}
+
+  Not part of the external language, but useful for the fusion
+  algebra.  Semantics is the same as \texttt{\tt foldl($g$, $x$, $e$)}.
+
+  $(\texttt{reduce}\ f_{r}\ e)\ \circ\ (\texttt{map}\ f_{m})$ can be
+  transformed, via the list homomorphism promotion lemma, to an
+  equivalent form:
+  \begin{gather*}
+    (\texttt{reduce}\ \odot\
+    e\ f_{r})\ \circ\ (\texttt{map}\ ({\texttt{reduce}\ f_{r}\ e\ \circ\ \texttt{map}\ f_{m}}))\ \circ\ \texttt{split}_{p}
+  \end{gather*}
+  Now, the \textit{inner} map-reduce can be rewritten as a left-fold,
+  giving:
+  \[
+  (\texttt{reduce}\ f_{r}\
+  e)\ \circ (\texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p})
+  \]
+  Where $g$ is a function generated from a composition of $f_{m}$ and
+  $f_{r}$.  Thus, \texttt{redomap} has type
+  $(\beta\rightarrow\alpha\rightarrow\beta)\rightarrow\beta\rightarrow[\alpha]\rightarrow\beta$.
+
+This allows us to fuse
+  \texttt{reduce~$\circ$~map~$\circ$~filter} into a \texttt{redomap}
+  without duplicating computation.
+\end{frame}
+
+\begin{frame}
+  \frametitle{\texttt{redomap} rewriting rules}
+
+  \begin{center}
+    \begin{tabular}{rcl}
+      \texttt{reduce $\circ$ map}    & $\Rightarrow$ & \texttt{redomap} \\
+      \texttt{reduce $\circ$ filter}    & $\Rightarrow$ & \texttt{redomap} \\
+      \texttt{redomap $\circ$ map}    & $\Rightarrow$ & \texttt{redomap} \\
+      \texttt{redomap $\circ$ filter}    & $\Rightarrow$ & \texttt{redomap} \\
+    \end{tabular}
+  \end{center}
+
+  The first two rules are derivable from the latter two, since
+  \texttt{reduce(f,x,e)} can be rewritten to \texttt{redomap(f,f,x,e)}.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Fusion hindrances}
+
+\begin{description}
+\item[\bf Size hindrance]\hfill\\
+\begin{lstlisting}
+let @b@ = map(f, a) in
+let c = map(g, @b@) in
+h(size(@b@), c)
+\end{lstlisting}
+
+Can be dealt with using size analysis.
+
+\item[\bf Transformations between producer and consumer]\hfill\\
+
+\begin{lstlisting}
+let {@b@} = mapT(f, a) in
+mapT(fn [int] ([int] r) =>
+       mapT(g, r),
+     transpose(@b@))
+\end{lstlisting}
+
+  Still only a single consumer, so we should be able to handle this...
+
+  Transposing is the most common such hindrance, but array reshaping
+  also pops up.
+
+\end{description}
+
+\end{frame}
+
+\begin{frame}[fragile]
 \frametitle{Fusing through \texttt{transpose}}
 
-push/pull (and how to choose - asymptotic complexity driven?)
+\begin{mdframed}
+\scriptsize
+\vspace{-1em}
+\begin{lstlisting}[mathescape]
+mapT$^{1}$(f, a$_{1}$, ... , a$_{k}$) $\equiv$ mapT(f, a$_{1}$, ..., a$_{k}$)
+
+mapT$^{n+1}$(f, a$_{1}$, ..., a$_{k}$) $\equiv$
+mapT(fn (x$_{1}$, ..., x$_{k}$) => mapT$^{n}$(f, x$_{1}$, ..., x$_{k}$),
+     a$_{1}$, ..., a$_{k}$)
+\end{lstlisting}
+\vspace{-1em}
+\end{mdframed}
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{lstlisting}[mathescape]
+let {b} = mapT(f, a) in
+mapT$^{2}$(g, @transpose@(b))
+\end{lstlisting}
+We can \textit{push} the transposition past consumer.
+\begin{lstlisting}[mathescape]
+let {b} = mapT(f, a) in
+@transpose@(mapT$^2$(g, b))
+\end{lstlisting}
+The normal \texttt{map}-\texttt{map} fusion rule now applies.
+\end{column}
+\begin{column}{0.5\textwidth}
+  \textit{Reasoning:} Untransformed, the result is an array $[i,j]
+  \mapsto g(b[j,i])$.  After pushing, we get the array $[i,j] \mapsto
+  g(b[i,j])$, which is then transposed to $[j,i] \mapsto g(b[i,j])$.
+
+  We assume transposition is free.
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Pushing versus pulling transpositions}
+
+\begin{tabular}{p{0.4\textwidth}p{0.4\textwidth}}
+\scriptsize
+\begin{lstlisting}[mathescape]
+let {b} = mapT(f, a) in
+mapT$^{2}$(g, @transpose@(b))
+\end{lstlisting}
+\vspace{-2ex}
+&
+\scriptsize
+\begin{lstlisting}[mathescape]
+let {b} = mapT(f, a) in
+@transpose@(mapT$^2$(g, b))
+\end{lstlisting}
+\vspace{-2ex}
+\\
+\multicolumn{2}{c}{Pushing} \\
+\scriptsize
+\begin{lstlisting}[mathescape]
+let {b} = mapT$^{2}$(f, a) in
+mapT(g, @transpose@(b))
+\end{lstlisting}
+\vspace{-2ex}
+&
+\scriptsize
+\begin{lstlisting}[mathescape]
+let {b} = mapT$^{2}$(f, @transpose@(a)) in
+mapT(g, b)
+\end{lstlisting}
+\vspace{-2ex}
+\\
+\multicolumn{2}{c}{Pulling} \\
+\scriptsize
+\begin{lstlisting}[mathescape]
+let {b} = mapT$^{2}$(f, a) in
+mapT$^{2}$(g, @transpose@(b))
+\end{lstlisting}
+\vspace{-2ex}
+&
+\large
+\vspace{2ex}
+Both possible - which is better?
+\end{tabular}
+
+Since fusion is bottoms-up, by pushing we can get the transposition
+out of our way.  If we pull, we may have to deal with it again in the
+future.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Part 3: Evaluation}
+
+\begin{description}
+\item[\bf PricingLexiFi]\hfill\\ Stochastic option pricing engine.
+
+\item[\bf Nordea benchmark]\hfill\\ Program for doing stochastic volatility
+  calibration.  Solves a system of continuous partial differential
+  equations using the Crank-Nicolson's finite differences method.
+
+\item[\bf CalibLexiFi]\hfill\\ A genetic algorithm, for calibrating the interest
+  rate based on a known history of swaption prices.
+\end{description}
+
+Each program was passed through the optimiser.  We report the
+following:
+
+\begin{itemize}
+\item Before-and-after diagrams of program structure, showing fusion.
+\item Improvements in runtime compared to unoptimised program.
+\end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -591,7 +769,8 @@ push/pull (and how to choose - asymptotic complexity driven?)
 \item Straightforward dataflow; fuses well.
   \item Some fusion through \texttt{reshape} and \texttt{transpose}.
   \item Fusion of the first two \texttt{map}s is foiled by limitations
-    of the size analyser.
+    of the size analyser.  The latter two foiled by \texttt{transpose}.
+  \item Speedup: 46\%.
 \end{itemize}
 \end{column}
 \begin{column}{0.2\textwidth}
@@ -617,6 +796,7 @@ push/pull (and how to choose - asymptotic complexity driven?)
 \item More could be fused, but would duplicate a trivial amount of
   computation (about four multiplications per array element).
 \item Bottom dependency not fusable due to a transpose.
+\item Speedup: 71\%.
 \end{itemize}
 
 \end{frame}
@@ -636,6 +816,7 @@ push/pull (and how to choose - asymptotic complexity driven?)
 \begin{itemize}
 \item Most opportunities for fusion not taken due to possible
   duplication of (trivial) computation.
+\item Speedup: 31\%.
 \end{itemize}
 
 \end{frame}
@@ -657,6 +838,24 @@ let b = a with [j] <- r in
   \item Fuse when a trivial amount of computation would be duplicated.
   \item Implement a parallel code generator.
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusions}
+
+  \begin{itemize}
+  \item We have presented a language with enough expressivity to
+    support three real-world financial programs.
+  \item The language is functional, but provides asymptotic efficiency
+    guarantees usually only seen in imperative languages.
+  \item We have presented loop fusion, a high-level transformation
+    that exploits functional invariants.
+  \end{itemize}
+
+\textbf{Questions?}
+
+\vspace{2.5cm}
+  \hfill\Huge HIPERFIT \includegraphics[width=2cm]{img/hiperfitlogo.png}
 \end{frame}
 
 \end{document}
