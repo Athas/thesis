@@ -282,8 +282,8 @@ loop (bbrow) =
 \begin{lstlisting}
 let b = map(f, a) in
   // b = [f(a[0]), ..., f(a[n])]
-let c = map(f, b) in
-  // c = [f(b[0]), ..., f(b[n])]
+let c = map(g, b) in
+  // c = [g(b[0]), ..., g(b[n])]
 \end{lstlisting}
 
 Fused, these become:
@@ -588,7 +588,7 @@ let {q1,q2}    = mapT(g,@y3@,¤z1¤,@y2@,@y3@) in
   \]
   Where $g$ is a function generated from a composition of $f_{m}$ and
   $f_{r}$.  Thus, \texttt{redomap} has type
-  $(\beta\rightarrow\alpha\rightarrow\beta)\rightarrow\beta\rightarrow[\alpha]\rightarrow\beta$.
+  $(\beta\rightarrow\beta\rightarrow\beta)\rightarrow(\beta\rightarrow\alpha\rightarrow\beta)\rightarrow\beta\rightarrow[\alpha]\rightarrow\beta$.
 
 This allows us to fuse
   \texttt{reduce~$\circ$~map~$\circ$~filter} into a \texttt{redomap}
@@ -753,7 +753,8 @@ following:
 
 \begin{itemize}
 \item Before-and-after diagrams of program structure, showing fusion.
-\item Improvements in runtime compared to unoptimised program.
+\item Improvements in runtime compared to unoptimised program.  Note
+  that our code generator is sequential.
 \end{itemize}
 \end{frame}
 
