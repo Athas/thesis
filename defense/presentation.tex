@@ -280,16 +280,16 @@ loop (bbrow) =
   \frametitle{Part 2: Producer-consumer fusion}
 
 \begin{lstlisting}
-let b = map(f, a) in
+let @b@ = map(f, a) in
   // b = [f(a[0]), ..., f(a[n])]
-let c = map(g, b) in
+let c = map(g, @b@) in
   // c = [g(b[0]), ..., g(b[n])]
 \end{lstlisting}
 
 Fused, these become:
 
-\begin{lstlisting}
-let c = map(f o g, a) in
+\begin{lstlisting}[mathescape]
+let c = map(f $\circ$ g, a) in
   // c = [g(f(a[0])), ..., g(f(a[n]))]
 \end{lstlisting}
 
@@ -311,7 +311,7 @@ let c = map(f, b)
 \end{lstlisting}
     &
 \begin{lstlisting}[mathescape]
-let c = map(f $o$ g, a)
+let c = map(f $\circ$ g, a)
 \end{lstlisting}
 \\
 \begin{lstlisting}
@@ -577,14 +577,15 @@ let {q1,q2}    = mapT(g,@y3@,¤z1¤,@y2@,@y3@) in
   transformed, via the list homomorphism promotion lemma, to an
   equivalent form:
   \begin{gather*}
-    (\texttt{reduce}\ \odot\
-    e\ f_{r})\ \circ\ (\texttt{map}\ ({\texttt{reduce}\ f_{r}\ e\ \circ\ \texttt{map}\ f_{m}}))\ \circ\ \texttt{split}_{p}
+    (\texttt{reduce}\ f_{r}\ e)\ \circ\ \texttt{map}\
+    ({\texttt{reduce}\ f_{r}\ e\ \circ\ \texttt{map}\ f_{m}})\ \circ\
+    \texttt{split}_{p}
   \end{gather*}
   Now, the \textit{inner} map-reduce can be rewritten as a left-fold,
   giving:
   \[
   (\texttt{reduce}\ f_{r}\
-  e)\ \circ (\texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p})
+  e)\ \circ \texttt{map} \ ({\texttt{foldl}\ g\ e})\ \circ\ \texttt{split}_{p}
   \]
   Where $g$ is a function generated from a composition of $f_{m}$ and
   $f_{r}$.  Thus, \texttt{redomap} has type
